@@ -1,46 +1,7 @@
 #![feature(globs)]
 use self::cstate::*;
 mod cstate;
-
-
-fn inc_reg(memory: &mut CpuState, reg: Register) {
-    println!("(op) inc_reg");
-    let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + 1);
-}
-
-fn add_reg_word(memory: &mut CpuState, reg: Register) {
-    println!("(op) add_reg_word");
-    let word = memory.read_word();
-    let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + word);
-}
-
-fn add_reg_byte(memory: &mut CpuState, reg: Register) {
-    println!("(op) add_reg_byte");
-    let byte = memory.read().to_u16().unwrap();
-    let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + byte);
-}
-
-fn jmp_byte(memory: &mut CpuState) {
-    let byte = memory.read();
-
-    // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
-    // I'm pretty sure this isn't how a CPU works, but I don't know
-    // enough about CPUs to dispute it.
-    let mut ip8 = memory.ip.to_u8().unwrap();
-    ip8 += byte;
-    memory.ip = ip8.to_u16().unwrap();
-    println!("(op) jmp_byte: 0x{:X}", byte);
-}
-
-fn jmp_word(memory: &mut CpuState) {
-    let word = memory.read_word();
-    memory.ip += word;
-
-    println!("(op) jmp_word: 0x{:X}", word);
-}
+mod inst;
 
 fn debug_modrm(memory: &mut CpuState, w: bool) {
     let (b_mod, b_reg, b_rm) = read_modrm(memory);
@@ -93,6 +54,14 @@ fn debug_modrm(memory: &mut CpuState, w: bool) {
     };
     println!("(dbg) Effective Address: {}", effective_addr);
     println!("(dbg) Effective Register: {}", register);
+
+    if w {
+        let word = memory.read_word();
+        println!("Word argument: 0x{:X}", word);
+    } else {
+        let byte = memory.read();
+        println!("Byte argument: 0x{:X}", byte);
+    }
 }
 
 fn read_modrm(memory: &mut CpuState) -> (u8, u8, u8) {
@@ -121,19 +90,20 @@ fn execute(memory: &mut CpuState) {
     }
 
     match byte {
-        0x40 => inc_reg(memory, AX),
-        0x41 => inc_reg(memory, CX),
-        0x42 => inc_reg(memory, BX),
-        0x43 => inc_reg(memory, DX),
+        0x40 => inst::inc_reg(memory, AX),
+        0x41 => inst::inc_reg(memory, CX),
+        0x42 => inst::inc_reg(memory, BX),
+        0x43 => inst::inc_reg(memory, DX),
 
-        0xE9 => jmp_word(memory),
-        0xEB => jmp_byte(memory),
+        0xE9 => inst::jmp_word(memory),
+        0xEB => inst::jmp_byte(memory),
 
-        0x88 => debug_modrm(memory, false),
-        0x89 => debug_modrm(memory, true),
+        0xC6 => debug_modrm(memory, false),
 
-        0x04 => add_reg_byte(memory, AL),
-        0x05 => add_reg_word(memory, AX),
+        0xBB => inst::mov_reg_word(memory, BX),
+
+        0x04 => inst::add_reg_byte(memory, AL),
+        0x05 => inst::add_reg_word(memory, AX),
 
         0x90 => {},
 
