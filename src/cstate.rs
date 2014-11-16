@@ -58,18 +58,18 @@ impl CpuState {
     pub fn setreg(&mut self, reg: Register, new_value: u16) {
         // TODO - Bounds check on 8-bit registers
         match reg {
-            AX => return self.ax = new_value,
-            BX => return self.bx = new_value,
-            CX => return self.cx = new_value,
-            DX => return self.dx = new_value,
-            AL => return self.ax = CpuState::join_low8(self.ax, new_value),
-            BL => return self.bx = CpuState::join_low8(self.bx, new_value),
-            CL => return self.cx = CpuState::join_low8(self.cx, new_value),
-            DL => return self.dx = CpuState::join_low8(self.dx, new_value),
-            AH => return self.ax = CpuState::join_high8(self.ax, new_value),
-            BH => return self.bx = CpuState::join_high8(self.bx, new_value),
-            CH => return self.cx = CpuState::join_high8(self.cx, new_value),
-            DH => return self.dx = CpuState::join_high8(self.dx, new_value),
+            AX => self.ax = new_value,
+            BX => self.bx = new_value,
+            CX => self.cx = new_value,
+            DX => self.dx = new_value,
+            AL => self.ax = CpuState::join_low8(self.ax, new_value),
+            BL => self.bx = CpuState::join_low8(self.bx, new_value),
+            CL => self.cx = CpuState::join_low8(self.cx, new_value),
+            DL => self.dx = CpuState::join_low8(self.dx, new_value),
+            AH => self.ax = CpuState::join_high8(self.ax, new_value),
+            BH => self.bx = CpuState::join_high8(self.bx, new_value),
+            CH => self.cx = CpuState::join_high8(self.cx, new_value),
+            DH => self.dx = CpuState::join_high8(self.dx, new_value),
         }
     }
 
@@ -100,7 +100,7 @@ impl CpuState {
         self.ip += 1;
 
         println!("(read) 0x{:X}", byte);
-        return byte;
+        byte
     }
     
     /**
@@ -110,7 +110,10 @@ impl CpuState {
     pub fn read_word(&mut self) -> u16 {
         let left: u8 = self.read();
         let right: u8 = self.read();
-        CpuState::word_up(left, right)
+        let word = CpuState::word_up(left, right);
+
+        println!("(read_word) 0x{:X}", word);
+        word
     }
 
     fn word_up(left: u8, right: u8) -> u16 {
