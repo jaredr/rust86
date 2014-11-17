@@ -1,4 +1,5 @@
 use cstate::*;
+use alias::{Byte, Word};
 
 pub fn inc_reg(memory: &mut CpuState, reg: Register) {
     println!("(op) inc_reg");
@@ -27,22 +28,22 @@ pub fn mov_reg_word(memory: &mut CpuState, reg: Register) {
 }
 
 pub fn jmp_byte(memory: &mut CpuState) {
-    let byte = memory.read_b();
+    let dest: Byte = memory.read_b();
 
     // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
     // I'm pretty sure this isn't how a CPU works, but I don't know
     // enough about CPUs to dispute it.
     let mut ip8 = memory.ip.to_u8().unwrap();
-    let byte8 = byte.to_u8().unwrap();
-    ip8 += byte8;
+    let dest8 = dest.to_u8().unwrap();
+    ip8 += dest8;
     memory.ip = ip8.to_u16().unwrap();
 
-    println!("(op) jmp_byte: 0x{:X}", byte);
+    println!("(op) jmp_byte: 0x{:X}", dest);
 }
 
 pub fn jmp_word(memory: &mut CpuState) {
-    let word = memory.read_w();
-    memory.ip += word;
+    let dest: Word = memory.read_w();
+    memory.ip += dest;
 
-    println!("(op) jmp_word: 0x{:X}", word);
+    println!("(op) jmp_word: 0x{:X}", dest);
 }

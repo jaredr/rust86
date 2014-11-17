@@ -1,5 +1,7 @@
 #![feature(globs)]
 use self::cstate::*;
+use self::alias::{Byte, Word};
+mod alias;
 mod cstate;
 mod inst;
 
@@ -64,21 +66,21 @@ fn debug_modrm(memory: &mut CpuState, w: bool) {
     }
 }
 
-fn read_modrm(memory: &mut CpuState) -> (u8, u8, u8) {
-    let byte = memory.read();
+fn read_modrm_b(memory: &mut CpuState) -> (Byte, Byte, Byte) {
+    let byte: Byte = memory.read_b();
 
     // Extract `mod'
-    let b_mod: u8 = byte & 0b11000000;
-    let b_mod = b_mod / 64;
+    let modbits = byte & 0b11000000;
+    let modbits = modbits / 64;
 
     // Extract `reg'
-    let b_reg = byte & 0b00111000;
-    let b_reg = b_reg / 8;
+    let reg = byte & 0b00111000;
+    let reg = reg / 8;
 
     // Extract `r/m'
-    let b_rm = byte & 0b00000111;
+    let rm = byte & 0b00000111;
 
-    return (b_mod, b_reg, b_rm);
+    return (modbits, reg, rm);
 }
 
 

@@ -1,4 +1,5 @@
 use std::io::File;
+use alias::{Byte, Word};
 
 pub enum Register {
     AX, AH, AL,
@@ -49,19 +50,23 @@ impl CpuState {
         }
     }
 
-    pub fn getmem_b(&self, i: u16) -> u16 {
+    pub fn getmem_b(&self, i: Word) -> Byte {
         let idx = i.to_uint().unwrap();
         let value = self._state[idx];
         let value16 = value.to_u16().unwrap();
         value16
     }
 
-    pub fn setmem_b(&mut self, addr: u16, value: u16) {
+    pub fn setmem_b(&mut self, addr: Word, value: Byte) {
         let idx = addr.to_uint().unwrap();
         let value8 = value.to_u8().unwrap();
         self._state[idx] = value8
     }
 
+    /**
+     * Get the current value of the specified register.
+     * Returns either a Byte or a Word, depending on the register.
+     */
     pub fn getreg(&self, reg: Register) -> u16 {
         match reg {
             AX => return self.ax,
@@ -82,6 +87,12 @@ impl CpuState {
             BP => return 0,
         }
     }
+
+    /**
+     * Set the current value of the specified register.
+     * `new_value' should be Byte for 8-bit registers and Word for 16-bit
+     * registers.
+     */
     pub fn setreg(&mut self, reg: Register, new_value: u16) {
         // TODO - Bounds check on 8-bit registers
         match reg {
@@ -129,23 +140,23 @@ impl CpuState {
         );
     }
 
-    fn dump_mem(&self, start: u16) {
+    fn dump_mem(&self, start: Word) {
         let mut s_hex = String::new();
         let mut s_chr = String::new();
         for i in range(0, 16) {
-            let val_b = self.getmem_b(start+i);
-            let val_b = val_b.to_u8().unwrap();
-            s_hex.push_str(format!("{:0>2X} ", val_b).as_slice());
-            s_chr.push_str(format!("{:c}", val_b as char).as_slice());
+            let val: Byte = self.getmem_b(start+i);
+            let val_u8: u8 = val.to_u8().unwrap();
+            s_hex.push_str(format!("{:0>2X} ", val).as_slice());
+            s_chr.push_str(format!("{:c}", val_u8 as char).as_slice());
         }
         println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
     }
 
     /**
-     * Read a byte from the memory location at `ip` and advance `ip`.
+     * Read a Byte from the memory location at `ip` and advance `ip`.
      */
-    pub fn read_b(&mut self) -> u16 {
-        let byte: u16 = self.getmem_b(self.ip);
+    pub fn read_b(&mut self) -> Byte {
+        let byte: Byte = self.getmem_b(self.ip);
         self.ip += 1;
 
         println!("(read) 0x{:X}", byte);
@@ -153,12 +164,12 @@ impl CpuState {
     }
     
     /**
-     * Read a WORD from the memory location at `ip` and advance `ip`.
+     * Read a Word from the memory location at `ip` and advance `ip`.
      */
-    pub fn read_w(&mut self) -> u16 {
-        let left_b = self.read_b();
-        let right_b = self.read_b();
-        let word = CpuState::join8(left_b, right_b);
+    pub fn read_w(&mut self) -> Word {
+        let left_b: Byte = self.read_b();
+        let right_b: Byte = self.read_b();
+        let word: Word = CpuState::join8(left_b, right_b);
 
         println!("(read_word) 0x{:X}", word);
         word
