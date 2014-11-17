@@ -177,26 +177,35 @@ impl CpuState {
 
     // TODO - Move these methods to a new module
 
-    fn low8(val: u16) -> u16 {
+    fn low8(val: Word) -> Byte {
         (val >> 8)
     }
         
-    fn high8(val: u16) -> u16 {
+    fn high8(val: Word) -> Byte {
         (val & 0xFF)
     }
 
-    fn join8(low: u16, high: u16) -> u16 {
+    /**
+     * Join two Bytes into a Word
+     */
+    fn join8(low: Byte, high: Byte) -> Word {
         let mut word: u16 = high;
         word = word << 8;
         word = word + low;
         word
     }
 
-    fn join_low8(val: u16, low: u16) -> u16 {
+    /**
+     * Replace the low byte of `val' with `low'
+     */
+    fn join_low8(val: Word, low: Byte) -> Word {
         CpuState::join8(low, CpuState::high8(val))
     }
 
-    fn join_high8(val: u16, high: u16) -> u16 {
+    /**
+     * Replace the high byte of `val' with `high'
+     */
+    fn join_high8(val: Word, high: Byte) -> Word {
         CpuState::join8(CpuState::low8(val), high)
     }
 }
