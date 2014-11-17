@@ -84,10 +84,11 @@ fn read_modrm(memory: &mut CpuState) -> (u8, u8, u8) {
 
     }
 
-fn execute(memory: &mut CpuState) {
-    let byte = memory.read();
 
-    match byte {
+fn execute(memory: &mut CpuState) {
+    let opcode_b = memory.read_b();
+
+    match opcode_b {
         0x40 => inst::inc_reg(memory, AX),
         0x41 => inst::inc_reg(memory, CX),
         0x42 => inst::inc_reg(memory, BX),

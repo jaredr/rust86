@@ -49,14 +49,17 @@ impl CpuState {
         }
     }
 
-    pub fn getmem(&self, i: u16) -> u8 {
+    pub fn getmem_b(&self, i: u16) -> u16 {
         let idx = i.to_uint().unwrap();
-        self._state[idx]
+        let value = self._state[idx];
+        let value16 = value.to_u16().unwrap();
+        value16
     }
 
-    pub fn setmem(&mut self, addr: u16, value: u8) {
+    pub fn setmem_b(&mut self, addr: u16, value: u16) {
         let idx = addr.to_uint().unwrap();
-        self._state[idx] = value
+        let value8 = value.to_u8().unwrap();
+        self._state[idx] = value8
     }
 
     pub fn getreg(&self, reg: Register) -> u16 {
@@ -130,18 +133,19 @@ impl CpuState {
         let mut s_hex = String::new();
         let mut s_chr = String::new();
         for i in range(0, 16) {
-            let val = self.getmem(start+i);
-            s_hex.push_str(format!("{:0>2X} ", val).as_slice());
-            s_chr.push_str(format!("{:c}", val as char).as_slice());
+            let val_b = self.getmem_b(start+i);
+            let val_b = val_b.to_u8().unwrap();
+            s_hex.push_str(format!("{:0>2X} ", val_b).as_slice());
+            s_chr.push_str(format!("{:c}", val_b as char).as_slice());
         }
         println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
     }
 
     /**
-     * Read from the memory location at `ip` and advance `ip`.
+     * Read a byte from the memory location at `ip` and advance `ip`.
      */
-    pub fn read(&mut self) -> u8 {
-        let byte: u8 = self.getmem(self.ip);
+    pub fn read_b(&mut self) -> u16 {
+        let byte: u16 = self.getmem_b(self.ip);
         self.ip += 1;
 
         println!("(read) 0x{:X}", byte);
@@ -149,22 +153,15 @@ impl CpuState {
     }
     
     /**
-     * Read a WORD from the memory location at `ip` and advance `ip`
-     * past the WORD.
+     * Read a WORD from the memory location at `ip` and advance `ip`.
      */
-    pub fn read_word(&mut self) -> u16 {
-        let left: u8 = self.read();
-        let right: u8 = self.read();
-        let word = CpuState::word_up(left, right);
+    pub fn read_w(&mut self) -> u16 {
+        let left_b = self.read_b();
+        let right_b = self.read_b();
+        let word = CpuState::join8(left_b, right_b);
 
         println!("(read_word) 0x{:X}", word);
         word
-    }
-
-    fn word_up(left: u8, right: u8) -> u16 {
-        let left: u16 = left.to_u16().unwrap();
-        let right: u16 = right.to_u16().unwrap();
-        CpuState::join8(left, right)
     }
 
     // TODO - Move these methods to a new module
