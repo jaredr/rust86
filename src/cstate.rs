@@ -20,23 +20,34 @@ pub struct CpuState {
 
 impl CpuState {
     pub fn read_from_file() -> CpuState {
+        // Initialize memory as a 65535-byte vector with the input program
+        // starting at address zero.
+        let mut mem = File::open(&Path::new("test.bin")).read_to_end().unwrap();
+        let mem_len = mem.len();
+        mem.grow(65535 - mem_len, 255u8);
+
         CpuState {
-            _state: File::open(&Path::new("test.bin")).read_to_end().unwrap(),
+            _state: mem,
             ax: 0,
             bx: 0,
             cx: 0,
             dx: 0,
+            si: 0,
+            di: 0,
+            sp: 0,
+            bp: 0,
             ip: 0,
         }
     }
 
     pub fn addr(&self, i: u16) -> u8 {
         let idx = i.to_uint().unwrap();
-
-        if idx >= self._state.len() {
-            return 0xFF
-        }
         self._state[idx]
+    }
+
+    pub fn setmem(&mut self, addr: u16, value: u8) {
+        let idx = addr.to_uint().unwrap();
+        self._state[idx] = value
     }
 
     pub fn getreg(&self, reg: Register) -> u16 {
