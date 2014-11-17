@@ -107,6 +107,12 @@ impl CpuState {
         self.dump_register("bx", BX, BL, BH);
         self.dump_register("cx", CX, CL, CH);
         self.dump_register("dx", DX, DL, DH);
+        self.dump_mem(0x8000);
+        self.dump_mem(0x8010);
+        self.dump_mem(0x8020);
+        self.dump_mem(0x8030);
+        self.dump_mem(0x8040);
+        self.dump_mem(0x8050);
         println!("*** End Processor State Dump ***");
     }
 
@@ -118,6 +124,17 @@ impl CpuState {
             self.getreg(l),
             self.getreg(h),
         );
+    }
+
+    fn dump_mem(&self, start: u16) {
+        let mut s_hex = String::new();
+        let mut s_chr = String::new();
+        for i in range(0, 16) {
+            let val = self.addr(start+i);
+            s_hex.push_str(format!("{:0>2X} ", val).as_slice());
+            s_chr.push_str(format!("{:c}", val as char).as_slice());
+        }
+        println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
     }
 
     /**
