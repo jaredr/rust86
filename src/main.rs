@@ -81,13 +81,11 @@ fn read_modrm(memory: &mut CpuState) -> (u8, u8, u8) {
     return (b_mod, b_reg, b_rm);
 }
 
+
+    }
+
 fn execute(memory: &mut CpuState) {
     let byte = memory.read();
-
-    if byte == 0xFF {
-        memory.dump_state();
-        panic!("We're done here.");
-    }
 
     match byte {
         0x40 => inst::inc_reg(memory, AX),
@@ -105,6 +103,10 @@ fn execute(memory: &mut CpuState) {
         0x04 => inst::add_reg_byte(memory, AL),
         0x05 => inst::add_reg_word(memory, AX),
 
+        0xF4 => {
+            memory.dump_state();
+            panic!("0xF4");
+        },
         0x90 => {},
 
         _ => println!("Unrecognized instruction"),
