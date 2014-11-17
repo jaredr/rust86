@@ -5,6 +5,10 @@ pub enum Register {
     BX, BH, BL,
     CX, CH, CL,
     DX, DH, DL,
+    SI,
+    DI,
+    SP,
+    BP,
 }
 
 pub struct CpuState {
@@ -14,6 +18,11 @@ pub struct CpuState {
     pub bx: u16,
     pub cx: u16,
     pub dx: u16,
+
+    pub si: u16,
+    pub di: u16,
+    pub sp: u16,
+    pub bp: u16,
 
     pub ip: u16,
 }
@@ -64,6 +73,10 @@ impl CpuState {
             BH => return CpuState::high8(self.bx),
             CH => return CpuState::high8(self.cx),
             DH => return CpuState::high8(self.dx),
+            SI => return 0,
+            DI => return 0,
+            SP => return 0,
+            BP => return 0,
         }
     }
     pub fn setreg(&mut self, reg: Register, new_value: u16) {
@@ -81,6 +94,10 @@ impl CpuState {
             BH => self.bx = CpuState::join_high8(self.bx, new_value),
             CH => self.cx = CpuState::join_high8(self.cx, new_value),
             DH => self.dx = CpuState::join_high8(self.dx, new_value),
+            SI => {},
+            DI => {},
+            SP => {},
+            BP => {},
         }
     }
 
