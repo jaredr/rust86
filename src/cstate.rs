@@ -49,7 +49,7 @@ impl CpuState {
         }
     }
 
-    pub fn addr(&self, i: u16) -> u8 {
+    pub fn getmem(&self, i: u16) -> u8 {
         let idx = i.to_uint().unwrap();
         self._state[idx]
     }
@@ -130,7 +130,7 @@ impl CpuState {
         let mut s_hex = String::new();
         let mut s_chr = String::new();
         for i in range(0, 16) {
-            let val = self.addr(start+i);
+            let val = self.getmem(start+i);
             s_hex.push_str(format!("{:0>2X} ", val).as_slice());
             s_chr.push_str(format!("{:c}", val as char).as_slice());
         }
@@ -141,7 +141,7 @@ impl CpuState {
      * Read from the memory location at `ip` and advance `ip`.
      */
     pub fn read(&mut self) -> u8 {
-        let byte: u8 = self.addr(self.ip);
+        let byte: u8 = self.getmem(self.ip);
         self.ip += 1;
 
         println!("(read) 0x{:X}", byte);
