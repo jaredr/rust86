@@ -33,7 +33,7 @@ impl CpuState {
         // starting at address zero.
         let mut mem = File::open(&Path::new("test.bin")).read_to_end().unwrap();
         let mem_len = mem.len();
-        mem.grow(65535 - mem_len, 0xF4u8);
+        mem.grow(65535 - mem_len, 0u8);
 
         CpuState {
             _state: mem,
