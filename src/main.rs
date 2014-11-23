@@ -7,13 +7,13 @@ mod inst;
 
 
 fn execute(memory: &mut CpuState) {
-    let opcode_b = memory.read_b();
+    let opcode: Byte = memory.read_b();
 
-    match opcode_b {
+    match opcode {
         0x40 => inst::inc_reg(memory, AX),
         0x41 => inst::inc_reg(memory, CX),
-        0x42 => inst::inc_reg(memory, BX),
-        0x43 => inst::inc_reg(memory, DX),
+        0x42 => inst::inc_reg(memory, DX),
+        0x43 => inst::inc_reg(memory, BX),
 
         0xE9 => inst::jmp_word(memory),
         0xEB => inst::jmp_byte(memory),
