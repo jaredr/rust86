@@ -4,6 +4,7 @@ use self::alias::{Byte, Word};
 mod alias;
 mod cstate;
 mod inst;
+mod modrm;
 
 
 fn execute(memory: &mut CpuState) {
@@ -18,7 +19,10 @@ fn execute(memory: &mut CpuState) {
         0xE9 => inst::jmp_word(memory),
         0xEB => inst::jmp_byte(memory),
 
+        0xC6 => inst::mov_modrm(memory),
+
         0xBB => inst::mov_reg_word(memory, BX),
+        0xBF => inst::mov_reg_word(memory, DI),
 
         0x04 => inst::add_reg_byte(memory, AL),
         0x05 => inst::add_reg_word(memory, AX),

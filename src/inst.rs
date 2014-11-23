@@ -1,4 +1,5 @@
 use cstate::*;
+use modrm::*;
 use alias::{Byte, Word};
 
 pub fn inc_reg(memory: &mut CpuState, reg: Register) {
@@ -25,6 +26,25 @@ pub fn mov_reg_word(memory: &mut CpuState, reg: Register) {
     println!("(op) mov_reg_word");
     let word = memory.read_w();
     memory.setreg(reg, word);
+}
+
+pub fn mov_modrm(memory: &mut CpuState) {
+    let dest = get_modrm(memory);
+    let src: Byte = memory.read_b();
+
+    println!("(op) mov_modrm SRC 0x{:X}", src);
+    
+    match dest {
+        ModrmMemoryAddr(x) => {
+            println!("(op) mov_modrm DEST ModrmMemoryAddr: {}", x);
+            memory.setmem_b(x, src);
+        },
+        ModrmRegister(x) => {
+            println!("(op) mov_modrm DEST ModrmRegister: {}", x as int);
+            memory.setreg(x, src);
+        },
+        ModrmNone => panic!("ModrmNone"),
+    }
 }
 
 pub fn jmp_byte(memory: &mut CpuState) {
