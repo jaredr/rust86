@@ -22,8 +22,7 @@ fn get_modrm_reg(b_reg: u16, bytes: bool) -> Register {
     }
 }
 
-
-pub fn get_modrm(memory: &mut CpuState) -> ModrmValue {
+pub fn get_modrm(memory: &mut CpuState) -> (ModrmValue, Register) {
     let (modbits, reg, rm) = read_modrm(memory);
     println!(
         "(dbg) get_modrm .mod=0b{:0>2t}, .reg=0b{:0>3t}, .rm=0b{:0>3t}",
@@ -52,7 +51,9 @@ pub fn get_modrm(memory: &mut CpuState) -> ModrmValue {
         _ => panic!("Invalid ModRM.mod"),
     };
 
-    effective
+    let register = get_modrm_reg(reg, false);
+
+    (effective, register)
 }
 
 pub fn read_modrm(memory: &mut CpuState) -> (Byte, Byte, Byte) {
