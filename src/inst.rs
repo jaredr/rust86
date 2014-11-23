@@ -28,23 +28,46 @@ pub fn mov_reg_word(memory: &mut CpuState, reg: Register) {
     memory.setreg(reg, word);
 }
 
-pub fn mov_modrm(memory: &mut CpuState) {
-    let dest = get_modrm(memory);
-    let src: Byte = memory.read_b();
+pub fn mov_reg_byte(memory: &mut CpuState, reg: Register) {
+    println!("(op) mov_reg_byte");
+    let byte = memory.read_b();
+    memory.setreg(reg, byte);
+}
 
-    println!("(op) mov_modrm SRC 0x{:X}", src);
-    
+pub fn mov_modrm_byte(memory: &mut CpuState) {
+    println!("(op) mov_modrm_byte");
+    let (dest, _) = get_modrm(memory);
+
+    let src: Byte = memory.read_b();
     match dest {
-        ModrmMemoryAddr(x) => {
-            println!("(op) mov_modrm DEST ModrmMemoryAddr: {}", x);
-            memory.setmem_b(x, src);
-        },
-        ModrmRegister(x) => {
-            println!("(op) mov_modrm DEST ModrmRegister: {}", x as int);
-            memory.setreg(x, src);
-        },
+        ModrmMemoryAddr(x) => memory.setmem_b(x, src),
+        ModrmRegister(x) => memory.setreg(x, src),
         ModrmNone => panic!("ModrmNone"),
     }
+}
+
+pub fn mov_mreg_modrm(memory: &mut CpuState) {
+    println!("(op) mov_mreg_modrm");
+
+    let (src, dest) = get_modrm(memory);
+    let src_value = match src {
+        ModrmMemoryAddr(x) => memory.getmem_b(x),
+        ModrmRegister(x) => memory.getreg(x),
+        ModrmNone => panic!("ModrmNone"),
+    };
+    memory.setreg(dest, src_value);
+}
+
+pub fn mov_modrm_mreg(memory: &mut CpuState) {
+    println!("(op) mov_modrm_mreg");
+    let (dest, src) = get_modrm(memory);
+
+    let src_value = memory.getreg(src);
+    match dest {
+        ModrmMemoryAddr(x) => memory.setmem_b(x, src_value),
+        ModrmRegister(x) => memory.setreg(x, src_value),
+        ModrmNone => panic!("ModrmNone"),
+    };
 }
 
 pub fn jmp_byte(memory: &mut CpuState) {
