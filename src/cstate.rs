@@ -1,5 +1,5 @@
 use std::io::File;
-use alias::{Byte, Word};
+use datatypes::{Byte, Word};
 
 pub enum Register {
     AX, AH, AL,

@@ -1,5 +1,5 @@
 use cstate::*;
-use alias::*;
+use datatypes::{Byte,Word};
 
 pub enum ModrmValue {
     ModrmRegister(Register),

@@ -1,8 +1,8 @@
 #![feature(globs)]
 use self::cstate::*;
-use self::alias::{Byte, Word};
-mod alias;
+use self::datatypes::{Byte, Word};
 mod cstate;
+mod datatypes;
 mod inst;
 mod modrm;
 

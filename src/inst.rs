@@ -1,6 +1,6 @@
 use cstate::*;
+use datatypes::{Byte, Word};
 use modrm::*;
-use alias::{Byte, Word};
 
 pub fn inc(memory: &mut CpuState, reg: Register) {
     println!("(op) inc");
