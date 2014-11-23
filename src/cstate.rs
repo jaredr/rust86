@@ -44,7 +44,7 @@ impl CpuState {
             dx: 0,
             si: 0,
             di: 0,
-            sp: 0,
+            sp: 0x100,
             bp: 0,
             ip: 0,
         }
@@ -83,7 +83,7 @@ impl CpuState {
             DH => return CpuState::high8(self.dx),
             SI => return self.si,
             DI => return self.di,
-            SP => return 0,
+            SP => return self.sp,
             BP => return 0,
         }
     }
@@ -171,6 +171,25 @@ impl CpuState {
         let word: Word = CpuState::join8(left_b, right_b);
 
         word
+    }
+
+    pub fn push(&mut self, value: Word) {
+        let low_b = CpuState::low8(value);
+        let high_b = CpuState::high8(value);
+        let sp = self.sp;
+        self.setmem_b(sp - 1, low_b);
+        self.setmem_b(sp - 2, high_b);
+        self.sp = sp - 2;
+    }
+
+    pub fn pop(&mut self) -> Word {
+        let sp = self.sp;
+        let low_b = self.getmem_b(sp);
+        let high_b = self.getmem_b(sp + 1);
+        self.setmem_b(sp, 0x0);
+        self.setmem_b(sp + 1, 0x0);
+        self.sp = sp + 2;
+        CpuState::join8(low_b, high_b)
     }
 
     // TODO - Move these methods to a new module

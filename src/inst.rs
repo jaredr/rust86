@@ -8,6 +8,18 @@ pub fn inc(memory: &mut CpuState, reg: Register) {
     memory.setreg(reg, cur_val + 1);
 }
 
+pub fn push(memory: &mut CpuState, reg: Register) {
+    println!("(op) push");
+    let cur_val = memory.getreg(reg);
+    memory.push(cur_val);
+}
+
+pub fn pop(memory: &mut CpuState, reg: Register) {
+    println!("(op) pop");
+    let popped_val = memory.pop();
+    memory.setreg(reg, popped_val);
+}
+
 pub fn b_add(memory: &mut CpuState, reg: Register) {
     println!("(op) b_add");
     let byte = memory.read_b();

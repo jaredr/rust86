@@ -16,6 +16,22 @@ fn execute(memory: &mut CpuState) {
         0x42 => inst::inc(memory, DX),
         0x43 => inst::inc(memory, BX),
 
+        0x50 => inst::push(memory, AX),
+        0x51 => inst::push(memory, CX),
+        0x52 => inst::push(memory, DX),
+        0x53 => inst::push(memory, BX),
+        0x54 => inst::push(memory, SP),
+        0x56 => inst::push(memory, SI),
+        0x57 => inst::push(memory, DI),
+
+        0x58 => inst::pop(memory, AX),
+        0x59 => inst::pop(memory, CX),
+        0x5A => inst::pop(memory, DX),
+        0x5B => inst::pop(memory, BX),
+        0x5C => inst::pop(memory, SP),
+        0x5E => inst::pop(memory, SI),
+        0x5F => inst::pop(memory, DI),
+
         0xE9 => inst::w_jmp(memory),
         0xEB => inst::b_jmp(memory),
 
@@ -36,7 +52,8 @@ fn execute(memory: &mut CpuState) {
         0xB9 => inst::w_mov_r(memory, CX),
         0xBA => inst::w_mov_r(memory, DX),
         0xBB => inst::w_mov_r(memory, BX),
-        // SP, BP, SI, DI omitted
+        0xBC => inst::w_mov_r(memory, SP),
+        0xBE => inst::w_mov_r(memory, SI),
         0xBF => inst::w_mov_r(memory, DI),
 
         0x04 => inst::b_add(memory, AL),
