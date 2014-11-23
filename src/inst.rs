@@ -89,16 +89,18 @@ pub fn b_jmp(memory: &mut CpuState) {
     // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
     // I'm pretty sure this isn't how a CPU works, but I don't know
     // enough about CPUs to dispute it.
-    let mut ip8 = memory.ip.to_u8().unwrap();
+    let mut ip8 = memory.getreg(IP).to_u8().unwrap();
     let dest8 = dest.to_u8().unwrap();
     ip8 += dest8;
-    memory.ip = ip8.to_u16().unwrap();
+    memory.setreg(IP, ip8.to_u16().unwrap());
 }
 
 pub fn w_jmp(memory: &mut CpuState) {
     println!("(op) w_jmp");
     let dest: Word = memory.read_w();
-    memory.ip += dest;
+    let ip: Word = memory.getreg(IP);
+    memory.setreg(IP, ip+dest);
+}
 
 pub fn call(memory: &mut CpuState) {
     println!("(op) call");

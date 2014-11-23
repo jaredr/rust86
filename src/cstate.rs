@@ -16,17 +16,17 @@ pub enum Register {
 pub struct CpuState {
     _state: Vec<u8>,
 
-    pub ax: u16,
-    pub bx: u16,
-    pub cx: u16,
-    pub dx: u16,
+    ax: u16,
+    bx: u16,
+    cx: u16,
+    dx: u16,
 
-    pub si: u16,
-    pub di: u16,
-    pub sp: u16,
-    pub bp: u16,
+    si: u16,
+    di: u16,
+    sp: u16,
+    bp: u16,
 
-    pub ip: u16,
+    ip: u16,
 }
 
 impl CpuState {
