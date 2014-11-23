@@ -159,7 +159,6 @@ impl CpuState {
         let byte: Byte = self.getmem_b(self.ip);
         self.ip += 1;
 
-        println!("(read) 0x{:X}", byte);
         byte
     }
     
@@ -171,7 +170,6 @@ impl CpuState {
         let right_b: Byte = self.read_b();
         let word: Word = CpuState::join8(left_b, right_b);
 
-        println!("(read_word) 0x{:X}", word);
         word
     }
 
