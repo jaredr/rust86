@@ -81,8 +81,8 @@ impl CpuState {
             BH => return CpuState::high8(self.bx),
             CH => return CpuState::high8(self.cx),
             DH => return CpuState::high8(self.dx),
-            SI => return 0,
-            DI => return 0,
+            SI => return self.si,
+            DI => return self.di,
             SP => return 0,
             BP => return 0,
         }
@@ -108,8 +108,8 @@ impl CpuState {
             BH => self.bx = CpuState::join_high8(self.bx, new_value),
             CH => self.cx = CpuState::join_high8(self.cx, new_value),
             DH => self.dx = CpuState::join_high8(self.dx, new_value),
-            SI => {},
-            DI => {},
+            SI => self.si = new_value,
+            DI => self.di = new_value,
             SP => {},
             BP => {},
         }
