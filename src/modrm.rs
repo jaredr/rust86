@@ -8,17 +8,17 @@ pub enum ModrmValue {
 }
 
 
-fn get_modrm_reg(b_reg: u16) -> ModrmValue {
+fn get_modrm_reg(b_reg: u16, bytes: bool) -> Register {
     match b_reg {
-        0b000 => ModrmRegister(AX), // ax/al
-        0b001 => ModrmRegister(CX), // cx/cl
-        0b010 => ModrmRegister(DX), // dx/dl
-        0b011 => ModrmRegister(BX), // bx/bl
-        0b100 => ModrmRegister(SP), // sp
-        0b101 => ModrmRegister(BP), // bp
-        0b110 => ModrmRegister(SI), // si
-        0b111 => ModrmRegister(DI), // di
-        _ => panic!("Invalid ModRM.rm"),
+        0b000 => if bytes { AX } else { AL }, // ax/al
+        0b001 => if bytes { CX } else { CL }, // cx/cl
+        0b010 => if bytes { DX } else { DL }, // dx/dl
+        0b011 => if bytes { BX } else { BL }, // bx/bl
+        0b100 => SP, // sp
+        0b101 => BP, // bp
+        0b110 => SI, // si
+        0b111 => DI, // di
+        _ => panic!("Invalid ModRM.reg"),
     }
 }
 
@@ -46,7 +46,7 @@ pub fn get_modrm(memory: &mut CpuState) -> ModrmValue {
             0b111 => ModrmMemoryAddr(memory.getreg(BX)), // [bx]
             _ => panic!("Invalid ModRM.rm"),
         },
-        0b11 => get_modrm_reg(rm),
+        0b11 => ModrmRegister(get_modrm_reg(rm, false)),
         0b01 => panic!("Not Implemented"),
         0b10 => panic!("Not Implemented"),
         _ => panic!("Invalid ModRM.mod"),
