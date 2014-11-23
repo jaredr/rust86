@@ -3,39 +3,39 @@ use modrm::*;
 use alias::{Byte, Word};
 
 pub fn inc(memory: &mut CpuState, reg: Register) {
-    println!("(op) inc_reg");
+    println!("(op) inc");
     let cur_val = memory.getreg(reg);
     memory.setreg(reg, cur_val + 1);
 }
 
 pub fn b_add(memory: &mut CpuState, reg: Register) {
-    println!("(op) add_reg_byte");
+    println!("(op) b_add");
     let byte = memory.read_b();
     let cur_val = memory.getreg(reg);
     memory.setreg(reg, cur_val + byte);
 }
 
 pub fn w_add(memory: &mut CpuState, reg: Register) {
-    println!("(op) add_reg_word");
+    println!("(op) w_add");
     let word = memory.read_w();
     let cur_val = memory.getreg(reg);
     memory.setreg(reg, cur_val + word);
 }
 
 pub fn b_mov_r(memory: &mut CpuState, reg: Register) {
-    println!("(op) mov_reg_byte");
+    println!("(op) b_mov_r");
     let byte = memory.read_b();
     memory.setreg(reg, byte);
 }
 
 pub fn w_mov_r(memory: &mut CpuState, reg: Register) {
-    println!("(op) mov_reg_word");
+    println!("(op) w_mov_r");
     let word = memory.read_w();
     memory.setreg(reg, word);
 }
 
 pub fn mov_e(memory: &mut CpuState) {
-    println!("(op) mov_modrm_byte");
+    println!("(op) mov_e");
     let (dest, _) = get_modrm(memory);
 
     let src: Byte = memory.read_b();
@@ -47,7 +47,7 @@ pub fn mov_e(memory: &mut CpuState) {
 }
 
 pub fn mov_ge(memory: &mut CpuState) {
-    println!("(op) mov_mreg_modrm");
+    println!("(op) mov_ge");
 
     let (src, dest) = get_modrm(memory);
     let src_value = match src {
@@ -59,7 +59,7 @@ pub fn mov_ge(memory: &mut CpuState) {
 }
 
 pub fn mov_eg(memory: &mut CpuState) {
-    println!("(op) mov_modrm_mreg");
+    println!("(op) mov_eg");
     let (dest, src) = get_modrm(memory);
 
     let src_value = memory.getreg(src);
@@ -71,7 +71,7 @@ pub fn mov_eg(memory: &mut CpuState) {
 }
 
 pub fn b_jmp(memory: &mut CpuState) {
-    println!("(op) jmp_byte");
+    println!("(op) b_jmp");
     let dest: Byte = memory.read_b();
 
     // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
@@ -84,7 +84,7 @@ pub fn b_jmp(memory: &mut CpuState) {
 }
 
 pub fn w_jmp(memory: &mut CpuState) {
-    println!("(op) jmp_word");
+    println!("(op) w_jmp");
     let dest: Word = memory.read_w();
     memory.ip += dest;
 }
