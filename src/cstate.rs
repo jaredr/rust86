@@ -10,6 +10,7 @@ pub enum Register {
     DI,
     SP,
     BP,
+    IP,
 }
 
 pub struct CpuState {
@@ -85,6 +86,7 @@ impl CpuState {
             DI => return self.di,
             SP => return self.sp,
             BP => return 0,
+            IP => return self.ip,
         }
     }
 
@@ -112,6 +114,7 @@ impl CpuState {
             DI => self.di = new_value,
             SP => {},
             BP => {},
+            IP => self.ip = new_value,
         }
     }
 

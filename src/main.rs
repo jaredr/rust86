@@ -35,6 +35,9 @@ fn execute(memory: &mut CpuState) {
         0xE9 => inst::w_jmp(memory),
         0xEB => inst::b_jmp(memory),
 
+        0xE8 => inst::call(memory),
+        0xC3 => inst::ret(memory),
+
         0x88 => inst::mov_eg(memory),
         0x8B => inst::mov_ge(memory),
         0xC6 => inst::mov_e(memory),

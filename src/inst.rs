@@ -99,4 +99,17 @@ pub fn w_jmp(memory: &mut CpuState) {
     println!("(op) w_jmp");
     let dest: Word = memory.read_w();
     memory.ip += dest;
+
+pub fn call(memory: &mut CpuState) {
+    println!("(op) call");
+    let dest = memory.read_w();
+    let ip: Word = memory.getreg(IP);
+    memory.push(ip);
+    memory.setreg(IP, ip+dest);
+}
+
+pub fn ret(memory: &mut CpuState) {
+    println!("(op) ret");
+    let ip: Word = memory.pop();
+    memory.setreg(IP, ip);
 }
