@@ -197,13 +197,13 @@ impl CpuState {
      * Replace the low byte of `val' with `low'
      */
     fn join_low8(val: Word, low: Byte) -> Word {
-        CpuState::join8(low, CpuState::high8(val))
+        CpuState::join8(CpuState::high8(val), low)
     }
 
     /**
      * Replace the high byte of `val' with `high'
      */
     fn join_high8(val: Word, high: Byte) -> Word {
-        CpuState::join8(CpuState::low8(val), high)
+        CpuState::join8(high, CpuState::low8(val))
     }
 }
