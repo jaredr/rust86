@@ -8,13 +8,6 @@ pub fn inc(memory: &mut CpuState, reg: Register) {
     memory.setreg(reg, cur_val + 1);
 }
 
-pub fn w_add(memory: &mut CpuState, reg: Register) {
-    println!("(op) add_reg_word");
-    let word = memory.read_w();
-    let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + word);
-}
-
 pub fn b_add(memory: &mut CpuState, reg: Register) {
     println!("(op) add_reg_byte");
     let byte = memory.read_b();
@@ -22,16 +15,23 @@ pub fn b_add(memory: &mut CpuState, reg: Register) {
     memory.setreg(reg, cur_val + byte);
 }
 
-pub fn w_mov_r(memory: &mut CpuState, reg: Register) {
-    println!("(op) mov_reg_word");
+pub fn w_add(memory: &mut CpuState, reg: Register) {
+    println!("(op) add_reg_word");
     let word = memory.read_w();
-    memory.setreg(reg, word);
+    let cur_val = memory.getreg(reg);
+    memory.setreg(reg, cur_val + word);
 }
 
 pub fn b_mov_r(memory: &mut CpuState, reg: Register) {
     println!("(op) mov_reg_byte");
     let byte = memory.read_b();
     memory.setreg(reg, byte);
+}
+
+pub fn w_mov_r(memory: &mut CpuState, reg: Register) {
+    println!("(op) mov_reg_word");
+    let word = memory.read_w();
+    memory.setreg(reg, word);
 }
 
 pub fn mov_e(memory: &mut CpuState) {
@@ -71,6 +71,7 @@ pub fn mov_eg(memory: &mut CpuState) {
 }
 
 pub fn b_jmp(memory: &mut CpuState) {
+    println!("(op) jmp_byte");
     let dest: Byte = memory.read_b();
 
     // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
@@ -80,13 +81,10 @@ pub fn b_jmp(memory: &mut CpuState) {
     let dest8 = dest.to_u8().unwrap();
     ip8 += dest8;
     memory.ip = ip8.to_u16().unwrap();
-
-    println!("(op) jmp_byte: 0x{:X}", dest);
 }
 
 pub fn w_jmp(memory: &mut CpuState) {
+    println!("(op) jmp_word");
     let dest: Word = memory.read_w();
     memory.ip += dest;
-
-    println!("(op) jmp_word: 0x{:X}", dest);
 }
