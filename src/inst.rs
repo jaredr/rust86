@@ -2,39 +2,39 @@ use cstate::*;
 use modrm::*;
 use alias::{Byte, Word};
 
-pub fn inc_reg(memory: &mut CpuState, reg: Register) {
+pub fn inc(memory: &mut CpuState, reg: Register) {
     println!("(op) inc_reg");
     let cur_val = memory.getreg(reg);
     memory.setreg(reg, cur_val + 1);
 }
 
-pub fn add_reg_word(memory: &mut CpuState, reg: Register) {
+pub fn w_add(memory: &mut CpuState, reg: Register) {
     println!("(op) add_reg_word");
     let word = memory.read_w();
     let cur_val = memory.getreg(reg);
     memory.setreg(reg, cur_val + word);
 }
 
-pub fn add_reg_byte(memory: &mut CpuState, reg: Register) {
+pub fn b_add(memory: &mut CpuState, reg: Register) {
     println!("(op) add_reg_byte");
     let byte = memory.read_b();
     let cur_val = memory.getreg(reg);
     memory.setreg(reg, cur_val + byte);
 }
 
-pub fn mov_reg_word(memory: &mut CpuState, reg: Register) {
+pub fn w_mov_r(memory: &mut CpuState, reg: Register) {
     println!("(op) mov_reg_word");
     let word = memory.read_w();
     memory.setreg(reg, word);
 }
 
-pub fn mov_reg_byte(memory: &mut CpuState, reg: Register) {
+pub fn b_mov_r(memory: &mut CpuState, reg: Register) {
     println!("(op) mov_reg_byte");
     let byte = memory.read_b();
     memory.setreg(reg, byte);
 }
 
-pub fn mov_modrm_byte(memory: &mut CpuState) {
+pub fn mov_e(memory: &mut CpuState) {
     println!("(op) mov_modrm_byte");
     let (dest, _) = get_modrm(memory);
 
@@ -46,7 +46,7 @@ pub fn mov_modrm_byte(memory: &mut CpuState) {
     }
 }
 
-pub fn mov_mreg_modrm(memory: &mut CpuState) {
+pub fn mov_ge(memory: &mut CpuState) {
     println!("(op) mov_mreg_modrm");
 
     let (src, dest) = get_modrm(memory);
@@ -58,7 +58,7 @@ pub fn mov_mreg_modrm(memory: &mut CpuState) {
     memory.setreg(dest, src_value);
 }
 
-pub fn mov_modrm_mreg(memory: &mut CpuState) {
+pub fn mov_eg(memory: &mut CpuState) {
     println!("(op) mov_modrm_mreg");
     let (dest, src) = get_modrm(memory);
 
@@ -70,7 +70,7 @@ pub fn mov_modrm_mreg(memory: &mut CpuState) {
     };
 }
 
-pub fn jmp_byte(memory: &mut CpuState) {
+pub fn b_jmp(memory: &mut CpuState) {
     let dest: Byte = memory.read_b();
 
     // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
@@ -84,7 +84,7 @@ pub fn jmp_byte(memory: &mut CpuState) {
     println!("(op) jmp_byte: 0x{:X}", dest);
 }
 
-pub fn jmp_word(memory: &mut CpuState) {
+pub fn w_jmp(memory: &mut CpuState) {
     let dest: Word = memory.read_w();
     memory.ip += dest;
 
