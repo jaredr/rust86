@@ -48,7 +48,7 @@ fn execute(memory: &mut CpuState) {
         },
         0x90 => {},
 
-        _ => println!("Unrecognized instruction"),
+        _ => panic!("Unrecognized opcode: 0x{:X}", opcode),
     }
 }
 
