@@ -48,7 +48,7 @@ pub fn w_mov_r(memory: &mut CpuState, reg: Register) {
 
 pub fn mov_e(memory: &mut CpuState) {
     println!("(op) mov_e");
-    let (dest, _) = get_modrm(memory);
+    let (dest, _) = get_modrm(memory, true);
 
     let src: Byte = memory.read_b();
     match dest {
@@ -58,10 +58,10 @@ pub fn mov_e(memory: &mut CpuState) {
     }
 }
 
-pub fn mov_ge(memory: &mut CpuState) {
-    println!("(op) mov_ge");
+pub fn b_mov_ge(memory: &mut CpuState) {
+    println!("(op) b_mov_ge");
 
-    let (src, dest) = get_modrm(memory);
+    let (src, dest) = get_modrm(memory, true);
     let src_value = match src {
         ModrmMemoryAddr(x) => memory.getmem_b(x),
         ModrmRegister(x) => memory.getreg(x),
@@ -70,13 +70,41 @@ pub fn mov_ge(memory: &mut CpuState) {
     memory.setreg(dest, src_value);
 }
 
-pub fn mov_eg(memory: &mut CpuState) {
-    println!("(op) mov_eg");
-    let (dest, src) = get_modrm(memory);
+pub fn w_mov_ge(memory: &mut CpuState) {
+    println!("(op) w_mov_ge");
+
+    let (src, dest) = get_modrm(memory, false);
+    let src_value = match src {
+        ModrmMemoryAddr(x) => memory.getmem_b(x),
+        ModrmRegister(x) => memory.getreg(x),
+        ModrmNone => panic!("ModrmNone"),
+    };
+    memory.setreg(dest, src_value);
+}
+
+pub fn b_mov_eg(memory: &mut CpuState) {
+    println!("(op) b_mov_eg");
+    let (dest, src) = get_modrm(memory, true);
 
     let src_value = memory.getreg(src);
     match dest {
         ModrmMemoryAddr(x) => memory.setmem_b(x, src_value),
+        ModrmRegister(x) => memory.setreg(x, src_value),
+        ModrmNone => panic!("ModrmNone"),
+    };
+}
+
+pub fn w_mov_eg(memory: &mut CpuState) {
+    println!("(op) w_mov_eg");
+    let (dest, src) = get_modrm(memory, false);
+
+    let src_value = memory.getreg(src);
+    match dest {
+        ModrmMemoryAddr(x) => {
+            // As with b_jmp, I'm pretty sure this doesn't work this way...
+            memory.setmem_b(x, CpuState::high8(src_value));
+            memory.setmem_b(x + 1, CpuState::low8(src_value));
+        },
         ModrmRegister(x) => memory.setreg(x, src_value),
         ModrmNone => panic!("ModrmNone"),
     };

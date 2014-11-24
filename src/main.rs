@@ -15,6 +15,7 @@ fn execute(memory: &mut CpuState) {
         0x41 => inst::inc(memory, CX),
         0x42 => inst::inc(memory, DX),
         0x43 => inst::inc(memory, BX),
+        0x47 => inst::inc(memory, DI),
 
         0x50 => inst::push(memory, AX),
         0x51 => inst::push(memory, CX),
@@ -38,8 +39,10 @@ fn execute(memory: &mut CpuState) {
         0xE8 => inst::call(memory),
         0xC3 => inst::ret(memory),
 
-        0x88 => inst::mov_eg(memory),
-        0x8B => inst::mov_ge(memory),
+        0x88 => inst::b_mov_eg(memory),
+        0x89 => inst::w_mov_eg(memory),
+        0x8A => inst::b_mov_ge(memory),
+        0x8B => inst::w_mov_ge(memory),
         0xC6 => inst::mov_e(memory),
 
         0xB0 => inst::b_mov_r(memory, AL),

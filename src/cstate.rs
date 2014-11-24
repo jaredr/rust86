@@ -197,11 +197,11 @@ impl CpuState {
 
     // TODO - Move these methods to a new module
 
-    fn low8(val: Word) -> Byte {
+    pub fn low8(val: Word) -> Byte {
         (val >> 8)
     }
         
-    fn high8(val: Word) -> Byte {
+    pub fn high8(val: Word) -> Byte {
         (val & 0xFF)
     }
 

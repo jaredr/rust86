@@ -10,10 +10,10 @@ pub enum ModrmValue {
 
 fn get_modrm_reg(b_reg: u16, bytes: bool) -> Register {
     match b_reg {
-        0b000 => if bytes { AX } else { AL }, // ax/al
-        0b001 => if bytes { CX } else { CL }, // cx/cl
-        0b010 => if bytes { DX } else { DL }, // dx/dl
-        0b011 => if bytes { BX } else { BL }, // bx/bl
+        0b000 => if bytes { AL } else { AX }, // ax/al
+        0b001 => if bytes { CL } else { CX }, // cx/cl
+        0b010 => if bytes { DL } else { DX }, // dx/dl
+        0b011 => if bytes { BL } else { BX }, // bx/bl
         0b100 => SP, // sp
         0b101 => BP, // bp
         0b110 => SI, // si
@@ -22,7 +22,7 @@ fn get_modrm_reg(b_reg: u16, bytes: bool) -> Register {
     }
 }
 
-pub fn get_modrm(memory: &mut CpuState) -> (ModrmValue, Register) {
+pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
     let (modbits, reg, rm) = read_modrm(memory);
     println!(
         "(dbg) get_modrm .mod=0b{:0>2t}, .reg=0b{:0>3t}, .rm=0b{:0>3t}",
@@ -45,7 +45,7 @@ pub fn get_modrm(memory: &mut CpuState) -> (ModrmValue, Register) {
             0b111 => ModrmMemoryAddr(memory.getreg(BX)), // [bx]
             _ => panic!("Invalid ModRM.rm"),
         },
-        0b11 => ModrmRegister(get_modrm_reg(rm, false)),
+        0b11 => ModrmRegister(get_modrm_reg(rm, bytes)),
         0b01 => panic!("Not Implemented"),
         0b10 => panic!("Not Implemented"),
         _ => panic!("Invalid ModRM.mod"),
