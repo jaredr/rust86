@@ -1,5 +1,7 @@
 use std::io::File;
+use byteutils::{low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
+
 
 pub enum Register {
     AX, AH, AL,
@@ -74,14 +76,14 @@ impl CpuState {
             BX => return self.bx,
             CX => return self.cx,
             DX => return self.dx,
-            AL => return CpuState::low8(self.ax),
-            BL => return CpuState::low8(self.bx),
-            CL => return CpuState::low8(self.cx),
-            DL => return CpuState::low8(self.dx),
-            AH => return CpuState::high8(self.ax),
-            BH => return CpuState::high8(self.bx),
-            CH => return CpuState::high8(self.cx),
-            DH => return CpuState::high8(self.dx),
+            AL => return low8(self.ax),
+            BL => return low8(self.bx),
+            CL => return low8(self.cx),
+            DL => return low8(self.dx),
+            AH => return high8(self.ax),
+            BH => return high8(self.bx),
+            CH => return high8(self.cx),
+            DH => return high8(self.dx),
             SI => return self.si,
             DI => return self.di,
             SP => return self.sp,
@@ -102,14 +104,14 @@ impl CpuState {
             BX => self.bx = new_value,
             CX => self.cx = new_value,
             DX => self.dx = new_value,
-            AL => self.ax = CpuState::join_low8(self.ax, new_value),
-            BL => self.bx = CpuState::join_low8(self.bx, new_value),
-            CL => self.cx = CpuState::join_low8(self.cx, new_value),
-            DL => self.dx = CpuState::join_low8(self.dx, new_value),
-            AH => self.ax = CpuState::join_high8(self.ax, new_value),
-            BH => self.bx = CpuState::join_high8(self.bx, new_value),
-            CH => self.cx = CpuState::join_high8(self.cx, new_value),
-            DH => self.dx = CpuState::join_high8(self.dx, new_value),
+            AL => self.ax = join_low8(self.ax, new_value),
+            BL => self.bx = join_low8(self.bx, new_value),
+            CL => self.cx = join_low8(self.cx, new_value),
+            DL => self.dx = join_low8(self.dx, new_value),
+            AH => self.ax = join_high8(self.ax, new_value),
+            BH => self.bx = join_high8(self.bx, new_value),
+            CH => self.cx = join_high8(self.cx, new_value),
+            DH => self.dx = join_high8(self.dx, new_value),
             SI => self.si = new_value,
             DI => self.di = new_value,
             SP => {},
@@ -171,14 +173,14 @@ impl CpuState {
     pub fn read_w(&mut self) -> Word {
         let left_b: Byte = self.read_b();
         let right_b: Byte = self.read_b();
-        let word: Word = CpuState::join8(left_b, right_b);
+        let word: Word = join8(left_b, right_b);
 
         word
     }
 
     pub fn push(&mut self, value: Word) {
-        let low_b = CpuState::low8(value);
-        let high_b = CpuState::high8(value);
+        let low_b = low8(value);
+        let high_b = high8(value);
         let sp = self.sp;
         self.setmem_b(sp - 1, low_b);
         self.setmem_b(sp - 2, high_b);
@@ -192,40 +194,6 @@ impl CpuState {
         self.setmem_b(sp, 0x0);
         self.setmem_b(sp + 1, 0x0);
         self.sp = sp + 2;
-        CpuState::join8(low_b, high_b)
-    }
-
-    // TODO - Move these methods to a new module
-
-    pub fn low8(val: Word) -> Byte {
-        (val >> 8)
-    }
-        
-    pub fn high8(val: Word) -> Byte {
-        (val & 0xFF)
-    }
-
-    /**
-     * Join two Bytes into a Word
-     */
-    fn join8(low: Byte, high: Byte) -> Word {
-        let mut word: u16 = high;
-        word = word << 8;
-        word = word + low;
-        word
-    }
-
-    /**
-     * Replace the low byte of `val' with `low'
-     */
-    fn join_low8(val: Word, low: Byte) -> Word {
-        CpuState::join8(CpuState::high8(val), low)
-    }
-
-    /**
-     * Replace the high byte of `val' with `high'
-     */
-    fn join_high8(val: Word, high: Byte) -> Word {
-        CpuState::join8(high, CpuState::low8(val))
+        join8(low_b, high_b)
     }
 }

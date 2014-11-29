@@ -1,6 +1,8 @@
 use cstate::*;
+use byteutils;
 use datatypes::{Byte, Word};
 use modrm::*;
+
 
 pub fn inc(memory: &mut CpuState, reg: Register) {
     println!("(op) inc");
@@ -102,8 +104,8 @@ pub fn w_mov_eg(memory: &mut CpuState) {
     match dest {
         ModrmMemoryAddr(x) => {
             // As with b_jmp, I'm pretty sure this doesn't work this way...
-            memory.setmem_b(x, CpuState::high8(src_value));
-            memory.setmem_b(x + 1, CpuState::low8(src_value));
+            memory.setmem_b(x, byteutils::high8(src_value));
+            memory.setmem_b(x + 1, byteutils::low8(src_value));
         },
         ModrmRegister(x) => memory.setreg(x, src_value),
         ModrmNone => panic!("ModrmNone"),

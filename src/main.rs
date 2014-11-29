@@ -1,6 +1,7 @@
 #![feature(globs)]
 use self::cstate::*;
 use self::datatypes::{Byte, Word};
+mod byteutils;
 mod cstate;
 mod datatypes;
 mod inst;
