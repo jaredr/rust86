@@ -53,14 +53,15 @@ impl CpuState {
         }
     }
 
-    pub fn getmem_b(&self, i: Word) -> Byte {
+    pub fn getmem(&self, i: Word) -> Byte {
         let idx = i.to_uint().unwrap();
         let value = self._state[idx];
         let value16 = value.to_u16().unwrap();
         value16
     }
 
-    pub fn setmem_b(&mut self, addr: Word, value: Byte) {
+    pub fn setmem(&mut self, addr: Word, value: Byte) {
+        // TODO - 8-bit bounds check
         let idx = addr.to_uint().unwrap();
         let value8 = value.to_u8().unwrap();
         self._state[idx] = value8
@@ -149,7 +150,7 @@ impl CpuState {
         let mut s_hex = String::new();
         let mut s_chr = String::new();
         for i in range(0, 16) {
-            let val: Byte = self.getmem_b(start+i);
+            let val: Byte = self.getmem(start+i);
             let val_u8: u8 = val.to_u8().unwrap();
             s_hex.push_str(format!("{:0>2X} ", val).as_slice());
             s_chr.push_str(format!("{:c}", val_u8 as char).as_slice());
@@ -161,7 +162,7 @@ impl CpuState {
      * Read a Byte from the memory location at `ip` and advance `ip`.
      */
     pub fn read_b(&mut self) -> Byte {
-        let byte: Byte = self.getmem_b(self.ip);
+        let byte: Byte = self.getmem(self.ip);
         self.ip += 1;
 
         byte
@@ -182,17 +183,17 @@ impl CpuState {
         let low_b = low8(value);
         let high_b = high8(value);
         let sp = self.sp;
-        self.setmem_b(sp - 1, low_b);
-        self.setmem_b(sp - 2, high_b);
+        self.setmem(sp - 1, low_b);
+        self.setmem(sp - 2, high_b);
         self.sp = sp - 2;
     }
 
     pub fn pop(&mut self) -> Word {
         let sp = self.sp;
-        let low_b = self.getmem_b(sp);
-        let high_b = self.getmem_b(sp + 1);
-        self.setmem_b(sp, 0x0);
-        self.setmem_b(sp + 1, 0x0);
+        let low_b = self.getmem(sp);
+        let high_b = self.getmem(sp + 1);
+        self.setmem(sp, 0x0);
+        self.setmem(sp + 1, 0x0);
         self.sp = sp + 2;
         join8(low_b, high_b)
     }

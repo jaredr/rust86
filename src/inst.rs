@@ -54,7 +54,7 @@ pub fn mov_e(memory: &mut CpuState) {
 
     let src: Byte = memory.read_b();
     match dest {
-        ModrmMemoryAddr(x) => memory.setmem_b(x, src),
+        ModrmMemoryAddr(x) => memory.setmem(x, src),
         ModrmRegister(x) => memory.setreg(x, src),
         ModrmNone => panic!("ModrmNone"),
     }
@@ -65,7 +65,7 @@ pub fn b_mov_ge(memory: &mut CpuState) {
 
     let (src, dest) = get_modrm(memory, true);
     let src_value = match src {
-        ModrmMemoryAddr(x) => memory.getmem_b(x),
+        ModrmMemoryAddr(x) => memory.getmem(x),
         ModrmRegister(x) => memory.getreg(x),
         ModrmNone => panic!("ModrmNone"),
     };
@@ -77,7 +77,7 @@ pub fn w_mov_ge(memory: &mut CpuState) {
 
     let (src, dest) = get_modrm(memory, false);
     let src_value = match src {
-        ModrmMemoryAddr(x) => memory.getmem_b(x),
+        ModrmMemoryAddr(x) => memory.getmem(x),
         ModrmRegister(x) => memory.getreg(x),
         ModrmNone => panic!("ModrmNone"),
     };
@@ -90,7 +90,7 @@ pub fn b_mov_eg(memory: &mut CpuState) {
 
     let src_value = memory.getreg(src);
     match dest {
-        ModrmMemoryAddr(x) => memory.setmem_b(x, src_value),
+        ModrmMemoryAddr(x) => memory.setmem(x, src_value),
         ModrmRegister(x) => memory.setreg(x, src_value),
         ModrmNone => panic!("ModrmNone"),
     };
@@ -104,8 +104,8 @@ pub fn w_mov_eg(memory: &mut CpuState) {
     match dest {
         ModrmMemoryAddr(x) => {
             // As with b_jmp, I'm pretty sure this doesn't work this way...
-            memory.setmem_b(x, byteutils::high8(src_value));
-            memory.setmem_b(x + 1, byteutils::low8(src_value));
+            memory.setmem(x, byteutils::high8(src_value));
+            memory.setmem(x + 1, byteutils::low8(src_value));
         },
         ModrmRegister(x) => memory.setreg(x, src_value),
         ModrmNone => panic!("ModrmNone"),
