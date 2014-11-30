@@ -1,5 +1,4 @@
 Cargo.*
 target/
 TODO
-*.asm
 *.bin
