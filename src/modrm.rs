@@ -52,7 +52,7 @@ pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
         _ => panic!("Invalid ModRM.mod"),
     };
 
-    let register = get_modrm_reg(reg, false);
+    let register = get_modrm_reg(reg, bytes);
 
     (effective, register)
 }
