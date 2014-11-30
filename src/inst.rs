@@ -151,7 +151,7 @@ pub fn jz(memory: &mut CpuState) {
 
     if memory.zero() {
         let ip = memory.getreg(IP);
-        let (dest_val, _, _, _, _) = byteutils::w_add(ip, dest);
+        let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
         memory.setreg(IP, dest_val);
     }
 }
