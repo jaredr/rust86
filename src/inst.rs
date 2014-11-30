@@ -39,7 +39,6 @@ pub fn w_add(memory: &mut CpuState, reg: Register) {
     memory.setreg(reg, new_val);
 }
 
-pub fn b_mov_r(memory: &mut CpuState, reg: Register) {
 pub fn b_cmp_ri(memory: &mut CpuState, reg: Register) {
     println!("(op) b_cmp_ri");
     let reg_val = memory.getreg(reg);
@@ -54,12 +53,13 @@ pub fn w_cmp_ri(memory: &mut CpuState, reg: Register) {
     memory.w_sub(reg_val, word);
 }
 
+pub fn b_mov_ir(memory: &mut CpuState, reg: Register) {
     println!("(op) b_mov_r");
     let byte = memory.read_b();
     memory.setreg(reg, byte);
 }
 
-pub fn w_mov_r(memory: &mut CpuState, reg: Register) {
+pub fn w_mov_ir(memory: &mut CpuState, reg: Register) {
     println!("(op) w_mov_r");
     let word = memory.read_w();
     memory.setreg(reg, word);
