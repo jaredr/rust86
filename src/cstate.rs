@@ -1,5 +1,5 @@
 use std::io::File;
-use byteutils::{low8, high8, join8, join_low8, join_high8};
+use byteutils::{b_add, w_add, low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
 
 
@@ -28,7 +28,12 @@ pub struct CpuState {
     sp: u16,
     bp: u16,
 
-    ip: u16,
+    ip: u16, // Instruction pointer
+
+    cf: bool, // Carry flag
+    of: bool, // Overflow flag
+    sf: bool, // Sign flag
+    zf: bool, // Zero flag
 }
 
 impl CpuState {
@@ -41,6 +46,7 @@ impl CpuState {
 
         CpuState {
             _state: mem,
+
             ax: 0,
             bx: 0,
             cx: 0,
@@ -50,6 +56,11 @@ impl CpuState {
             sp: 0x100,
             bp: 0,
             ip: 0,
+
+            cf: false,
+            of: false,
+            sf: false,
+            zf: false,
         }
     }
 
@@ -196,5 +207,27 @@ impl CpuState {
         self.setmem(sp + 1, 0x0);
         self.sp = sp + 2;
         join8(low_b, high_b)
+    }
+
+    /**
+     * Wrapper around byteutils::b_add that sets flags on this CpuState.
+     */
+    pub fn b_add(&mut self, left: Byte, right: Byte) -> Byte {
+        let (result, cf, of, sf, zf) = b_add(left, right);
+        self.cf = cf;
+        self.of = of;
+        self.sf = sf;
+        self.zf = zf;
+        result
+    }
+
+    pub fn w_add(&mut self, left: Word, right: Word) -> Word {
+        // TODO - Extract macro?
+        let (result, cf, of, sf, zf) = w_add(left, right);
+        self.cf = cf;
+        self.of = of;
+        self.sf = sf;
+        self.zf = zf;
+        result
     }
 }

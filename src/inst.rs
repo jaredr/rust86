@@ -7,7 +7,8 @@ use modrm::*;
 pub fn inc(memory: &mut CpuState, reg: Register) {
     println!("(op) inc");
     let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + 1);
+    let new_val = memory.w_add(cur_val, 1);
+    memory.setreg(reg, new_val);
 }
 
 pub fn push(memory: &mut CpuState, reg: Register) {
@@ -26,14 +27,16 @@ pub fn b_add(memory: &mut CpuState, reg: Register) {
     println!("(op) b_add");
     let byte = memory.read_b();
     let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + byte);
+    let new_val = memory.b_add(cur_val, byte);
+    memory.setreg(reg, new_val);
 }
 
 pub fn w_add(memory: &mut CpuState, reg: Register) {
     println!("(op) w_add");
     let word = memory.read_w();
     let cur_val = memory.getreg(reg);
-    memory.setreg(reg, cur_val + word);
+    let new_val = memory.w_add(cur_val, word);
+    memory.setreg(reg, new_val);
 }
 
 pub fn b_mov_r(memory: &mut CpuState, reg: Register) {
@@ -115,21 +118,17 @@ pub fn w_mov_eg(memory: &mut CpuState) {
 pub fn b_jmp(memory: &mut CpuState) {
     println!("(op) b_jmp");
     let dest: Byte = memory.read_b();
-
-    // Cast u16 `ip` down to u8 so that `byte` can wrap at 255
-    // I'm pretty sure this isn't how a CPU works, but I don't know
-    // enough about CPUs to dispute it.
-    let mut ip8 = memory.getreg(IP).to_u8().unwrap();
-    let dest8 = dest.to_u8().unwrap();
-    ip8 += dest8;
-    memory.setreg(IP, ip8.to_u16().unwrap());
+    let ip = memory.getreg(IP);
+    let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
+    memory.setreg(IP, dest_val);
 }
 
 pub fn w_jmp(memory: &mut CpuState) {
     println!("(op) w_jmp");
     let dest: Word = memory.read_w();
     let ip: Word = memory.getreg(IP);
-    memory.setreg(IP, ip+dest);
+    let (dest_val, _, _, _, _) = byteutils::w_add(ip, dest);
+    memory.setreg(IP, dest_val);
 }
 
 pub fn call(memory: &mut CpuState) {

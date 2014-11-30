@@ -1,3 +1,4 @@
+#![feature(macro_rules)]
 #![feature(globs)]
 use self::cstate::*;
 use self::datatypes::{Byte, Word};
