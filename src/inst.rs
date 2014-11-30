@@ -129,6 +129,20 @@ pub fn w_mov_eg(memory: &mut CpuState) {
     };
 }
 
+pub fn b_cmp_eg(memory: &mut CpuState) {
+    println!("(op) b_cmp_eg");
+    let (left, right) = get_modrm(memory, true);
+
+    let right_value = memory.getreg(right);
+    let left_value = match left {
+        ModrmMemoryAddr(x) => memory.getmem(x),
+        ModrmRegister(x) => memory.getreg(x),
+        ModrmNone => panic!("ModrmNone"),
+    };
+
+    memory.b_sub(left_value, right_value);
+}
+
 pub fn b_jmp(memory: &mut CpuState) {
     println!("(op) b_jmp");
     let dest: Byte = memory.read_b();

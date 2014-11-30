@@ -69,6 +69,7 @@ fn execute(memory: &mut CpuState) {
         0x04 => inst::b_add(memory, AL),
         0x05 => inst::w_add(memory, AX),
 
+        0x38 => inst::b_cmp_eg(memory),
         0x3C => inst::b_cmp_ri(memory, AL),
         0x3D => inst::w_cmp_ri(memory, AX),
 
