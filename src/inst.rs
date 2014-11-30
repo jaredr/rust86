@@ -40,6 +40,20 @@ pub fn w_add(memory: &mut CpuState, reg: Register) {
 }
 
 pub fn b_mov_r(memory: &mut CpuState, reg: Register) {
+pub fn b_cmp_ri(memory: &mut CpuState, reg: Register) {
+    println!("(op) b_cmp_ri");
+    let reg_val = memory.getreg(reg);
+    let byte = memory.read_b();
+    memory.b_sub(reg_val, byte);
+}
+
+pub fn w_cmp_ri(memory: &mut CpuState, reg: Register) {
+    println!("(op) w_cmp_ri");
+    let reg_val = memory.getreg(reg);
+    let word = memory.read_w();
+    memory.w_sub(reg_val, word);
+}
+
     println!("(op) b_mov_r");
     let byte = memory.read_b();
     memory.setreg(reg, byte);
@@ -129,6 +143,17 @@ pub fn w_jmp(memory: &mut CpuState) {
     let ip: Word = memory.getreg(IP);
     let (dest_val, _, _, _, _) = byteutils::w_add(ip, dest);
     memory.setreg(IP, dest_val);
+}
+
+pub fn jz(memory: &mut CpuState) {
+    println!("(op) jz");
+    let dest: Byte = memory.read_b();
+
+    if memory.zero() {
+        let ip = memory.getreg(IP);
+        let (dest_val, _, _, _, _) = byteutils::w_add(ip, dest);
+        memory.setreg(IP, dest_val);
+    }
 }
 
 pub fn call(memory: &mut CpuState) {

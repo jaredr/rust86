@@ -91,6 +91,6 @@ macro_rules! arithmetic (
 )
 
 arithmetic!(b_add, Byte to_u8, add checked_add, add_overflow)
-//arithmetic!(b_sub, Byte to_u8, sub checked_sub, sub_overflow)
+arithmetic!(b_sub, Byte to_u8, sub checked_sub, sub_overflow)
 arithmetic!(w_add, Word to_u16, add checked_add, add_overflow)
-//arithmetic!(w_sub, Word to_u16, sub checked_sub, sub_overflow)
+arithmetic!(w_sub, Word to_u16, sub checked_sub, sub_overflow)

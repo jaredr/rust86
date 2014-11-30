@@ -41,6 +41,8 @@ fn execute(memory: &mut CpuState) {
         0xE8 => inst::call(memory),
         0xC3 => inst::ret(memory),
 
+        0x74 => inst::jz(memory),
+
         0x88 => inst::b_mov_eg(memory),
         0x89 => inst::w_mov_eg(memory),
         0x8A => inst::b_mov_ge(memory),
@@ -66,6 +68,9 @@ fn execute(memory: &mut CpuState) {
 
         0x04 => inst::b_add(memory, AL),
         0x05 => inst::w_add(memory, AX),
+
+        0x3C => inst::b_cmp_ri(memory, AL),
+        0x3D => inst::w_cmp_ri(memory, AX),
 
         0xF4 => {
             memory.dump_state();

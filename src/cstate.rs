@@ -1,5 +1,5 @@
 use std::io::File;
-use byteutils::{b_add, w_add, low8, high8, join8, join_low8, join_high8};
+use byteutils::{b_add, w_add, b_sub, w_sub, low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
 
 
@@ -132,6 +132,10 @@ impl CpuState {
         }
     }
 
+    pub fn zero(&self) -> bool {
+        self.zf
+    }
+
     pub fn dump_state(&self) {
         println!("\n*** Begin Processor State Dump ***");
         self.dump_register("ax", AX, AL, AH);
@@ -214,20 +218,32 @@ impl CpuState {
      */
     pub fn b_add(&mut self, left: Byte, right: Byte) -> Byte {
         let (result, cf, of, sf, zf) = b_add(left, right);
-        self.cf = cf;
-        self.of = of;
-        self.sf = sf;
-        self.zf = zf;
+        self.set_flags(cf, of, sf, zf);
         result
     }
 
     pub fn w_add(&mut self, left: Word, right: Word) -> Word {
-        // TODO - Extract macro?
         let (result, cf, of, sf, zf) = w_add(left, right);
+        self.set_flags(cf, of, sf, zf);
+        result
+    }
+
+    pub fn b_sub(&mut self, left: Byte, right: Byte) -> Byte {
+        let (result, cf, of, sf, zf) = b_sub(left, right);
+        self.set_flags(cf, of, sf, zf);
+        result
+    }
+
+    pub fn w_sub(&mut self, left: Word, right: Word) -> Word {
+        let (result, cf, of, sf, zf) = w_sub(left, right);
+        self.set_flags(cf, of, sf, zf);
+        result
+    }
+
+    fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {
         self.cf = cf;
         self.of = of;
         self.sf = sf;
         self.zf = zf;
-        result
     }
 }
