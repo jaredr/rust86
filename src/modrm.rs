@@ -1,4 +1,6 @@
+use self::ModrmValue::*;
 use cstate::*;
+use cstate::Register::*;
 use datatypes::{Byte,Word};
 
 
@@ -26,7 +28,7 @@ fn get_modrm_reg(b_reg: u16, bytes: bool) -> Register {
 pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
     let (modbits, reg, rm) = read_modrm(memory);
     println!(
-        "(dbg) get_modrm .mod=0b{:0>2t}, .reg=0b{:0>3t}, .rm=0b{:0>3t}",
+        "(dbg) get_modrm .mod=0b{:0>2b}, .reg=0b{:0>3b}, .rm=0b{:0>3b}",
         modbits,
         reg,
         rm,
@@ -36,14 +38,14 @@ pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
     // Table 2-1
     let effective: ModrmValue = match modbits {
         0b00 => match rm {
-            0b000 => ModrmMemoryAddr(memory.getreg(BX) + memory.getreg(SI)), // [bx+si]
-            0b001 => ModrmMemoryAddr(memory.getreg(BX) + memory.getreg(DI)), // [bx+di]
-            0b010 => ModrmMemoryAddr(memory.getreg(BP) + memory.getreg(SI)), // [bp+si]
-            0b011 => ModrmMemoryAddr(memory.getreg(BP) + memory.getreg(DI)), // [bp+di]
-            0b100 => ModrmMemoryAddr(memory.getreg(SI)), // [si]
-            0b101 => ModrmMemoryAddr(memory.getreg(DI)), // [di]
+            0b000 => ModrmMemoryAddr(memory.getreg(&BX) + memory.getreg(&SI)), // [bx+si]
+            0b001 => ModrmMemoryAddr(memory.getreg(&BX) + memory.getreg(&DI)), // [bx+di]
+            0b010 => ModrmMemoryAddr(memory.getreg(&BP) + memory.getreg(&SI)), // [bp+si]
+            0b011 => ModrmMemoryAddr(memory.getreg(&BP) + memory.getreg(&DI)), // [bp+di]
+            0b100 => ModrmMemoryAddr(memory.getreg(&SI)), // [si]
+            0b101 => ModrmMemoryAddr(memory.getreg(&DI)), // [di]
             0b110 => ModrmMemoryAddr(memory.read_w()), // [disp16]
-            0b111 => ModrmMemoryAddr(memory.getreg(BX)), // [bx]
+            0b111 => ModrmMemoryAddr(memory.getreg(&BX)), // [bx]
             _ => panic!("Invalid ModRM.rm"),
         },
         0b11 => ModrmRegister(get_modrm_reg(rm, bytes)),

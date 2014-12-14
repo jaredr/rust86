@@ -1,3 +1,5 @@
+use std::clone::Clone;
+use self::Register::*;
 use std::io::File;
 use byteutils::{b_add, w_add, b_sub, w_sub, low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
@@ -82,8 +84,8 @@ impl CpuState {
      * Get the current value of the specified register.
      * Returns either a Byte or a Word, depending on the register.
      */
-    pub fn getreg(&self, reg: Register) -> u16 {
-        match reg {
+    pub fn getreg(&self, reg: &Register) -> u16 {
+        match *reg {
             AX => return self.ax,
             BX => return self.bx,
             CX => return self.cx,
@@ -109,9 +111,9 @@ impl CpuState {
      * `new_value' should be Byte for 8-bit registers and Word for 16-bit
      * registers.
      */
-    pub fn setreg(&mut self, reg: Register, new_value: u16) {
+    pub fn setreg(&mut self, reg: &Register, new_value: u16) {
         // TODO - Bounds check on 8-bit registers
-        match reg {
+        match *reg {
             AX => self.ax = new_value,
             BX => self.bx = new_value,
             CX => self.cx = new_value,
@@ -155,9 +157,9 @@ impl CpuState {
         println!(
             "{}     0x{: <5X} (0x{:X} 0x{:X})",
             name,
-            self.getreg(x),
-            self.getreg(l),
-            self.getreg(h),
+            self.getreg(&x),
+            self.getreg(&l),
+            self.getreg(&h),
         );
     }
 
@@ -168,7 +170,7 @@ impl CpuState {
             let val: Byte = self.getmem(start+i);
             let val_u8: u8 = val.to_u8().unwrap();
             s_hex.push_str(format!("{:0>2X} ", val).as_slice());
-            s_chr.push_str(format!("{:c}", val_u8 as char).as_slice());
+            s_chr.push_str(format!("{:}", val_u8 as char).as_slice());
         }
         println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
     }

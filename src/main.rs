@@ -1,6 +1,7 @@
 #![feature(macro_rules)]
 #![feature(globs)]
 use self::cstate::*;
+use self::cstate::Register::*;
 use self::datatypes::{Byte, Word};
 mod byteutils;
 mod cstate;

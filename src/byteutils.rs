@@ -1,3 +1,4 @@
+use std::num::Int;
 use datatypes::{Byte, Word};
 
 
@@ -80,7 +81,7 @@ macro_rules! arithmetic (
 
             let overflow: bool = $overflow_fn(l_sign, r_sign, result_sign);
             let zero: bool = result == 0;
-            let carry: bool = match left.$ch_op(&right) {
+            let carry: bool = match left.$ch_op(right) {
                 Some(_) => false,
                 None => true,
             };
