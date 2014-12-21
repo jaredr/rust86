@@ -1,70 +1,69 @@
 use cstate::*;
-use cstate::Register::*;
 use byteutils;
 use datatypes::{Byte, Word};
 use modrm::*;
 use modrm::ModrmValue::*;
 
 
-pub fn inc(cs: &mut CpuState, reg: Register) {
+pub fn inc(cs: &mut CpuState, reg: Reg16) {
     println!("(op) inc");
-    let cur_val = cs.getreg(&reg);
+    let cur_val = cs.getreg_w(&reg);
     let new_val = cs.w_add(cur_val, 1);
-    cs.setreg(&reg, new_val);
+    cs.setreg_w(&reg, new_val);
 }
 
-pub fn push(cs: &mut CpuState, reg: Register) {
+pub fn push(cs: &mut CpuState, reg: Reg16) {
     println!("(op) push");
-    let cur_val = cs.getreg(&reg);
+    let cur_val = cs.getreg_w(&reg);
     cs.push(cur_val);
 }
 
-pub fn pop(cs: &mut CpuState, reg: Register) {
+pub fn pop(cs: &mut CpuState, reg: Reg16) {
     println!("(op) pop");
     let popped_val = cs.pop();
-    cs.setreg(&reg, popped_val);
+    cs.setreg_w(&reg, popped_val);
 }
 
-pub fn b_add(cs: &mut CpuState, reg: Register) {
+pub fn b_add(cs: &mut CpuState, reg: Reg8) {
     println!("(op) b_add");
     let byte = cs.read_b();
-    let cur_val = cs.getreg(&reg);
+    let cur_val = cs.getreg_b(&reg);
     let new_val = cs.b_add(cur_val, byte);
-    cs.setreg(&reg, new_val);
+    cs.setreg_b(&reg, new_val);
 }
 
-pub fn w_add(cs: &mut CpuState, reg: Register) {
+pub fn w_add(cs: &mut CpuState, reg: Reg16) {
     println!("(op) w_add");
     let word = cs.read_w();
-    let cur_val = cs.getreg(&reg);
+    let cur_val = cs.getreg_w(&reg);
     let new_val = cs.w_add(cur_val, word);
-    cs.setreg(&reg, new_val);
+    cs.setreg_w(&reg, new_val);
 }
 
-pub fn b_cmp_ri(cs: &mut CpuState, reg: Register) {
+pub fn b_cmp_ri(cs: &mut CpuState, reg: Reg8) {
     println!("(op) b_cmp_ri");
-    let reg_val = cs.getreg(&reg);
+    let reg_val = cs.getreg_b(&reg);
     let byte = cs.read_b();
     cs.b_sub(reg_val, byte);
 }
 
-pub fn w_cmp_ri(cs: &mut CpuState, reg: Register) {
+pub fn w_cmp_ri(cs: &mut CpuState, reg: Reg16) {
     println!("(op) w_cmp_ri");
-    let reg_val = cs.getreg(&reg);
+    let reg_val = cs.getreg_w(&reg);
     let word = cs.read_w();
     cs.w_sub(reg_val, word);
 }
 
-pub fn b_mov_ir(cs: &mut CpuState, reg: Register) {
+pub fn b_mov_ir(cs: &mut CpuState, reg: Reg8) {
     println!("(op) b_mov_r");
     let byte = cs.read_b();
-    cs.setreg(&reg, byte);
+    cs.setreg_b(&reg, byte);
 }
 
-pub fn w_mov_ir(cs: &mut CpuState, reg: Register) {
+pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16) {
     println!("(op) w_mov_r");
     let word = cs.read_w();
-    cs.setreg(&reg, word);
+    cs.setreg_w(&reg, word);
 }
 
 pub fn mov_e(cs: &mut CpuState) {
@@ -74,8 +73,8 @@ pub fn mov_e(cs: &mut CpuState) {
     let src: Byte = cs.read_b();
     match dest {
         ModrmMemoryAddr(x) => cs.setmem(x, src),
-        ModrmRegister(x) => cs.setreg(&x, src),
-        ModrmNone => panic!("ModrmNone"),
+        ModrmReg8(x) => cs.setreg_b(&x, src),
+        _ => panic!("ModrmNone"),
     }
 }
 
@@ -83,51 +82,58 @@ pub fn b_mov_ge(cs: &mut CpuState) {
     println!("(op) b_mov_ge");
 
     let (src, dest) = get_modrm(cs, true);
+    let dest = dest.unwrap_reg8();
+
     let src_value = match src {
         ModrmMemoryAddr(x) => cs.getmem(x),
-        ModrmRegister(x) => cs.getreg(&x),
-        ModrmNone => panic!("ModrmNone"),
+        ModrmReg8(x) => cs.getreg_b(&x),
+        _ => panic!("ModrmNone"),
     };
-    cs.setreg(&dest, src_value);
+    cs.setreg_b(dest, src_value);
 }
 
 pub fn w_mov_ge(cs: &mut CpuState) {
     println!("(op) w_mov_ge");
 
     let (src, dest) = get_modrm(cs, false);
+    let dest = dest.unwrap_reg16();
+
     let src_value = match src {
         ModrmMemoryAddr(x) => cs.getmem(x),
-        ModrmRegister(x) => cs.getreg(&x),
-        ModrmNone => panic!("ModrmNone"),
+        ModrmReg16(x) => cs.getreg_w(&x),
+        _ => panic!("ModrmNone"),
     };
-    cs.setreg(&dest, src_value);
+    cs.setreg_w(dest, src_value);
 }
 
 pub fn b_mov_eg(cs: &mut CpuState) {
     println!("(op) b_mov_eg");
     let (dest, src) = get_modrm(cs, true);
 
-    let src_value = cs.getreg(&src);
+    let src = src.unwrap_reg8();
+    let src_value = cs.getreg_b(src);
+
     match dest {
         ModrmMemoryAddr(x) => cs.setmem(x, src_value),
-        ModrmRegister(x) => cs.setreg(&x, src_value),
-        ModrmNone => panic!("ModrmNone"),
+        ModrmReg8(x) => cs.setreg_b(&x, src_value),
+        _ => panic!("ModrmNone"),
     };
 }
 
 pub fn w_mov_eg(cs: &mut CpuState) {
     println!("(op) w_mov_eg");
     let (dest, src) = get_modrm(cs, false);
+    let src = src.unwrap_reg16();
+    let src_value = cs.getreg_w(src);
 
-    let src_value = cs.getreg(&src);
     match dest {
         ModrmMemoryAddr(x) => {
             // I'm pretty sure this doesn't work this way...
             cs.setmem(x, byteutils::high8(src_value));
             cs.setmem(x + 1, byteutils::low8(src_value));
         },
-        ModrmRegister(x) => cs.setreg(&x, src_value),
-        ModrmNone => panic!("ModrmNone"),
+        ModrmReg16(x) => cs.setreg_w(&x, src_value),
+        _ => panic!("ModrmNone"),
     };
 }
 
@@ -135,11 +141,13 @@ pub fn b_cmp_eg(cs: &mut CpuState) {
     println!("(op) b_cmp_eg");
     let (left, right) = get_modrm(cs, true);
 
-    let right_value = cs.getreg(&right);
+    let right = right.unwrap_reg8();
+    let right_value = cs.getreg_b(right);
+
     let left_value = match left {
         ModrmMemoryAddr(x) => cs.getmem(x),
-        ModrmRegister(x) => cs.getreg(&x),
-        ModrmNone => panic!("ModrmNone"),
+        ModrmReg8(x) => cs.getreg_b(&x),
+        _ => panic!("ModrmNone"),
     };
 
     cs.b_sub(left_value, right_value);
@@ -148,17 +156,17 @@ pub fn b_cmp_eg(cs: &mut CpuState) {
 pub fn b_jmp(cs: &mut CpuState) {
     println!("(op) b_jmp");
     let dest: Byte = cs.read_b();
-    let ip = cs.getreg(&IP);
+    let ip = cs.getreg_w(&Reg16::IP);
     let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
-    cs.setreg(&IP, dest_val);
+    cs.setreg_w(&Reg16::IP, dest_val);
 }
 
 pub fn w_jmp(cs: &mut CpuState) {
     println!("(op) w_jmp");
     let dest: Word = cs.read_w();
-    let ip: Word = cs.getreg(&IP);
+    let ip: Word = cs.getreg_w(&Reg16::IP);
     let (dest_val, _, _, _, _) = byteutils::w_add(ip, dest);
-    cs.setreg(&IP, dest_val);
+    cs.setreg_w(&Reg16::IP, dest_val);
 }
 
 pub fn jz(cs: &mut CpuState) {
@@ -166,22 +174,22 @@ pub fn jz(cs: &mut CpuState) {
     let dest: Byte = cs.read_b();
 
     if cs.zero() {
-        let ip = cs.getreg(&IP);
+        let ip = cs.getreg_w(&Reg16::IP);
         let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
-        cs.setreg(&IP, dest_val);
+        cs.setreg_w(&Reg16::IP, dest_val);
     }
 }
 
 pub fn call(cs: &mut CpuState) {
     println!("(op) call");
     let dest = cs.read_w();
-    let ip: Word = cs.getreg(&IP);
+    let ip: Word = cs.getreg_w(&Reg16::IP);
     cs.push(ip);
-    cs.setreg(&IP, ip+dest);
+    cs.setreg_w(&Reg16::IP, ip+dest);
 }
 
 pub fn ret(cs: &mut CpuState) {
     println!("(op) ret");
     let ip: Word = cs.pop();
-    cs.setreg(&IP, ip);
+    cs.setreg_w(&Reg16::IP, ip);
 }

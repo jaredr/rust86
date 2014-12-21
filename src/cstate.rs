@@ -1,20 +1,22 @@
-use self::Register::*;
+use self::Reg8::*;
+use self::Reg16::*;
 use std::vec::Vec;
 use std::io::File;
 use byteutils::{b_add, w_add, b_sub, w_sub, low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
 
 
-pub enum Register {
-    AX, AH, AL,
-    BX, BH, BL,
-    CX, CH, CL,
-    DX, DH, DL,
-    SI,
-    DI,
-    SP,
-    BP,
+pub enum Reg16 {
+    AX, BX, CX, DX,
+    SI, DI, BP, SP,
     IP,
+}
+
+pub enum Reg8 {
+    AH, AL,
+    BH, BL,
+    CH, CL,
+    DH, DL,
 }
 
 pub struct CpuState {
@@ -88,20 +90,12 @@ impl CpuState {
      * Get the current value of the specified register.
      * Returns either a Byte or a Word, depending on the register.
      */
-    pub fn getreg(&self, reg: &Register) -> u16 {
+    pub fn getreg_w(&self, reg: &Reg16) -> Word {
         match *reg {
             AX => return self.ax,
             BX => return self.bx,
             CX => return self.cx,
             DX => return self.dx,
-            AL => return low8(self.ax),
-            BL => return low8(self.bx),
-            CL => return low8(self.cx),
-            DL => return low8(self.dx),
-            AH => return high8(self.ax),
-            BH => return high8(self.bx),
-            CH => return high8(self.cx),
-            DH => return high8(self.dx),
             SI => return self.si,
             DI => return self.di,
             SP => return self.sp,
@@ -110,17 +104,40 @@ impl CpuState {
         }
     }
 
+    pub fn getreg_b(&self, reg: &Reg8) -> Byte {
+        match *reg {
+            AL => return low8(self.ax),
+            BL => return low8(self.bx),
+            CL => return low8(self.cx),
+            DL => return low8(self.dx),
+            AH => return high8(self.ax),
+            BH => return high8(self.bx),
+            CH => return high8(self.cx),
+            DH => return high8(self.dx),
+        }
+    }
+
     /**
      * Set the current value of the specified register.
-     * `new_value' should be Byte for 8-bit registers and Word for 16-bit
+     * `new_val' should be Byte for 8-bit registers and Word for 16-bit
      * registers.
      */
-    pub fn setreg(&mut self, reg: &Register, new_val: u16) {
+    pub fn setreg_w(&mut self, reg: &Reg16, new_val: u16) {
         match *reg {
             AX => self.ax = new_val,
             BX => self.bx = new_val,
             CX => self.cx = new_val,
             DX => self.dx = new_val,
+            SI => self.si = new_val,
+            DI => self.di = new_val,
+            SP => {},
+            BP => {},
+            IP => self.ip = new_val,
+        }
+    }
+
+    pub fn setreg_b(&mut self, reg: &Reg8, new_val: u16) {
+        match *reg {
             AL => self.ax = join_low8(self.ax, new_val),
             BL => self.bx = join_low8(self.bx, new_val),
             CL => self.cx = join_low8(self.cx, new_val),
@@ -129,11 +146,6 @@ impl CpuState {
             BH => self.bx = join_high8(self.bx, new_val),
             CH => self.cx = join_high8(self.cx, new_val),
             DH => self.dx = join_high8(self.dx, new_val),
-            SI => self.si = new_val,
-            DI => self.di = new_val,
-            SP => {},
-            BP => {},
-            IP => self.ip = new_val,
         }
     }
 
@@ -143,10 +155,10 @@ impl CpuState {
 
     pub fn dump_state(&self) {
         println!("\n*** Begin Processor State Dump ***");
-        self.dump_register("ax", AX, AL, AH);
-        self.dump_register("bx", BX, BL, BH);
-        self.dump_register("cx", CX, CL, CH);
-        self.dump_register("dx", DX, DL, DH);
+        self.dump_gr("ax", AX, AL, AH);
+        self.dump_gr("bx", BX, BL, BH);
+        self.dump_gr("cx", CX, CL, CH);
+        self.dump_gr("dx", DX, DL, DH);
         self.dump_mem(0x8000);
         self.dump_mem(0x8010);
         self.dump_mem(0x8020);
@@ -156,13 +168,13 @@ impl CpuState {
         println!("*** End Processor State Dump ***");
     }
 
-    fn dump_register(&self, name: &str, x: Register, l: Register, h: Register) {
+    fn dump_gr(&self, name: &str, x: Reg16, l: Reg8, h: Reg8) {
         println!(
             "{}     0x{: <5X} (0x{:X} 0x{:X})",
             name,
-            self.getreg(&x),
-            self.getreg(&l),
-            self.getreg(&h),
+            self.getreg_w(&x),
+            self.getreg_b(&l),
+            self.getreg_b(&h),
         );
     }
 
