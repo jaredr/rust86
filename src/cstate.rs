@@ -1,5 +1,5 @@
-use std::clone::Clone;
 use self::Register::*;
+use std::vec::Vec;
 use std::io::File;
 use byteutils::{b_add, w_add, b_sub, w_sub, low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
@@ -39,12 +39,9 @@ pub struct CpuState {
 }
 
 impl CpuState {
-    pub fn read_from_file() -> CpuState {
-        // Initialize memory as a 65535-byte vector with the input program
-        // starting at address zero.
-        let mut mem = File::open(&Path::new("test.bin")).read_to_end().unwrap();
-        let mem_len = mem.len();
-        mem.grow(65535 - mem_len, 0u8);
+    pub fn new() -> CpuState {
+        let mut mem = Vec::new();
+        mem.grow(65535, 0u8);
 
         CpuState {
             _state: mem,
@@ -63,6 +60,14 @@ impl CpuState {
             of: false,
             sf: false,
             zf: false,
+        }
+    }
+        
+    pub fn load_program(&mut self, path: &Path) {
+        let prog = File::open(path).read_to_end().unwrap();
+        for byte in prog.iter().rev() {
+            self._state.pop();
+            self._state.insert(0, *byte);
         }
     }
 

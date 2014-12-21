@@ -1,5 +1,6 @@
 #![feature(macro_rules)]
 #![feature(globs)]
+use std::os;
 use self::cstate::*;
 use self::cstate::Register::*;
 use self::datatypes::{Byte, Word};
@@ -85,7 +86,16 @@ fn execute(memory: &mut CpuState) {
 }
 
 fn main() {
-    let mut memory = CpuState::read_from_file();
+    let argv = os::args();
+    if argv.len() < 2 {
+        println!("Usage: {} <filename>", argv[0]);
+        return;
+    }
+    let path = Path::new(&argv[1]);
+
+    let mut memory = CpuState::new();
+    memory.load_program(&path);
+
     loop {
         execute(&mut memory);
     }
