@@ -1,2 +1,2 @@
-pub type Byte = u16;
+pub type Byte = u8;
 pub type Word = u16;

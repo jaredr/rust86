@@ -99,7 +99,7 @@ pub fn w_mov_ge(cs: &mut CpuState) {
     let dest = dest.unwrap_reg16();
 
     let src_value = match src {
-        ModrmMemoryAddr(x) => cs.getmem(x),
+        ModrmMemoryAddr(x) => cs.getmem(x).to_u16().unwrap(),
         ModrmReg16(x) => cs.getreg_w(&x),
         _ => panic!("ModrmNone"),
     };
@@ -156,8 +156,15 @@ pub fn b_cmp_eg(cs: &mut CpuState) {
 pub fn b_jmp(cs: &mut CpuState) {
     println!("(op) b_jmp");
     let dest: Byte = cs.read_b();
+
+    // FIXME - Treat `dest` as twos-complement offset from `ip`.
+
     let ip = cs.getreg_w(&Reg16::IP);
+    let ip = ip.to_u8().unwrap();
+
     let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
+    let dest_val: Word = dest_val.to_u16().unwrap();
+
     cs.setreg_w(&Reg16::IP, dest_val);
 }
 
@@ -173,11 +180,19 @@ pub fn jz(cs: &mut CpuState) {
     println!("(op) jz");
     let dest: Byte = cs.read_b();
 
-    if cs.zero() {
-        let ip = cs.getreg_w(&Reg16::IP);
-        let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
-        cs.setreg_w(&Reg16::IP, dest_val);
+    if !cs.zero() {
+        return;
     }
+
+    // FIXME - Treat `dest` as twos-complement offset from `ip`.
+
+    let ip = cs.getreg_w(&Reg16::IP);
+    let ip = ip.to_u8().unwrap();
+
+    let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
+    let dest_val: Word = dest_val.to_u16().unwrap();
+    cs.setreg_w(&Reg16::IP, dest_val);
+    
 }
 
 pub fn call(cs: &mut CpuState) {

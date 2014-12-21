@@ -27,8 +27,7 @@ impl ModrmValue {
     }
 }
 
-
-fn get_modrm_reg16(b_reg: u16) -> Reg16 {
+fn get_modrm_reg16(b_reg: Byte) -> Reg16 {
     match b_reg {
         0b000 => Reg16::AX,
         0b001 => Reg16::CX,
@@ -42,7 +41,7 @@ fn get_modrm_reg16(b_reg: u16) -> Reg16 {
     }
 }
 
-fn get_modrm_reg8(b_reg: u16) -> Reg8 {
+fn get_modrm_reg8(b_reg: Byte) -> Reg8 {
     match b_reg {
         0b000 => Reg8::AL,
         0b001 => Reg8::CL,
@@ -52,7 +51,7 @@ fn get_modrm_reg8(b_reg: u16) -> Reg8 {
     }
 }
 
-fn get_modrm_reg(b_reg: u16, bytes: bool) -> ModrmValue {
+fn get_modrm_reg(b_reg: Byte, bytes: bool) -> ModrmValue {
     if bytes {
         return ModrmReg8(get_modrm_reg8(b_reg));
     } else {

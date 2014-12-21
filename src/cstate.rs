@@ -76,8 +76,8 @@ impl CpuState {
     pub fn getmem(&self, i: Word) -> Byte {
         let idx = i.to_uint().unwrap();
         let val = self._state[idx];
-        let val16 = val.to_u16().unwrap();
-        val16
+        let val = val.to_u8().unwrap();
+        val
     }
 
     pub fn setmem(&mut self, addr: Word, val: Byte) {
@@ -122,7 +122,7 @@ impl CpuState {
      * `new_val' should be Byte for 8-bit registers and Word for 16-bit
      * registers.
      */
-    pub fn setreg_w(&mut self, reg: &Reg16, new_val: u16) {
+    pub fn setreg_w(&mut self, reg: &Reg16, new_val: Word) {
         match *reg {
             AX => self.ax = new_val,
             BX => self.bx = new_val,
@@ -136,7 +136,7 @@ impl CpuState {
         }
     }
 
-    pub fn setreg_b(&mut self, reg: &Reg8, new_val: u16) {
+    pub fn setreg_b(&mut self, reg: &Reg8, new_val: Byte) {
         match *reg {
             AL => self.ax = join_low8(self.ax, new_val),
             BL => self.bx = join_low8(self.bx, new_val),

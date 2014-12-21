@@ -6,21 +6,22 @@ use datatypes::{Byte, Word};
  * Return the "low" 8 bits of `val', e.g. given 0xBEEF returns 0xBE
  */
 pub fn low8(val: Word) -> Byte {
-    (val >> 8)
+    (val >> 8).to_u8().unwrap()
 }
     
 /**
  * Return the "high" 8 bits of val, e.g. given 0xBEEF returns 0xEF
  */
 pub fn high8(val: Word) -> Byte {
-    (val & 0xFF)
+    (val & 0xFF).to_u8().unwrap()
 }
 
 /**
  * Join two Bytes into a Word
  */
 pub fn join8(low: Byte, high: Byte) -> Word {
-    let mut word: u16 = high;
+    let mut word = high.to_u16().unwrap();
+    let low = low.to_u16().unwrap();
     word = word << 8;
     word = word + low;
     word
@@ -64,15 +65,12 @@ fn sub_overflow(l_sign: bool, r_sign: bool, result_sign: bool) -> bool {
 macro_rules! arithmetic (
     (
         $name:ident,
-        $input_type:ident $conv:ident,
+        $input_type:ident,
         $un_op:ident $ch_op:ident,
         $overflow_fn:ident
     ) => {
         pub fn $name(left: $input_type, right: $input_type)
-        -> (u16, bool, bool, bool, bool) {
-            let left  = left.$conv().unwrap();
-            let right = right.$conv().unwrap();
-
+        -> ($input_type, bool, bool, bool, bool) {
             let result = left.$un_op(&right);
 
             let l_sign: bool = left.leading_zeros() == 0;
@@ -86,12 +84,12 @@ macro_rules! arithmetic (
                 None => true,
             };
 
-            (result.to_u16().unwrap(), carry, overflow, result_sign, zero)
+            (result, carry, overflow, result_sign, zero)
         }
     }
 )
 
-arithmetic!(b_add, Byte to_u8, add checked_add, add_overflow)
-arithmetic!(b_sub, Byte to_u8, sub checked_sub, sub_overflow)
-arithmetic!(w_add, Word to_u16, add checked_add, add_overflow)
-arithmetic!(w_sub, Word to_u16, sub checked_sub, sub_overflow)
+arithmetic!(b_add, Byte, add checked_add, add_overflow)
+arithmetic!(b_sub, Byte, sub checked_sub, sub_overflow)
+arithmetic!(w_add, Word, add checked_add, add_overflow)
+arithmetic!(w_sub, Word, sub checked_sub, sub_overflow)
