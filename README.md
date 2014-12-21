@@ -8,7 +8,9 @@ rust86 is a purely a for-fun project, of course. The only practical application 
 
     git clone https://github.com/ianpreston/rust86.git
     cargo build
-    ./target/rust86
+
+    nasm -f bin asm/hello.asm -o hello.bin
+    ./target/rust86 hello.bin
 
 ## License
 
