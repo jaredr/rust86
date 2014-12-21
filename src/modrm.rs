@@ -25,8 +25,8 @@ fn get_modrm_reg(b_reg: u16, bytes: bool) -> Register {
     }
 }
 
-pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
-    let (modbits, reg, rm) = read_modrm(memory);
+pub fn get_modrm(cs: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
+    let (modbits, reg, rm) = read_modrm(cs);
     println!(
         "(dbg) get_modrm .mod=0b{:0>2b}, .reg=0b{:0>3b}, .rm=0b{:0>3b}",
         modbits,
@@ -38,14 +38,14 @@ pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
     // Table 2-1
     let effective: ModrmValue = match modbits {
         0b00 => match rm {
-            0b000 => ModrmMemoryAddr(memory.getreg(&BX) + memory.getreg(&SI)), // [bx+si]
-            0b001 => ModrmMemoryAddr(memory.getreg(&BX) + memory.getreg(&DI)), // [bx+di]
-            0b010 => ModrmMemoryAddr(memory.getreg(&BP) + memory.getreg(&SI)), // [bp+si]
-            0b011 => ModrmMemoryAddr(memory.getreg(&BP) + memory.getreg(&DI)), // [bp+di]
-            0b100 => ModrmMemoryAddr(memory.getreg(&SI)), // [si]
-            0b101 => ModrmMemoryAddr(memory.getreg(&DI)), // [di]
-            0b110 => ModrmMemoryAddr(memory.read_w()), // [disp16]
-            0b111 => ModrmMemoryAddr(memory.getreg(&BX)), // [bx]
+            0b000 => ModrmMemoryAddr(cs.getreg(&BX) + cs.getreg(&SI)), // [bx+si]
+            0b001 => ModrmMemoryAddr(cs.getreg(&BX) + cs.getreg(&DI)), // [bx+di]
+            0b010 => ModrmMemoryAddr(cs.getreg(&BP) + cs.getreg(&SI)), // [bp+si]
+            0b011 => ModrmMemoryAddr(cs.getreg(&BP) + cs.getreg(&DI)), // [bp+di]
+            0b100 => ModrmMemoryAddr(cs.getreg(&SI)), // [si]
+            0b101 => ModrmMemoryAddr(cs.getreg(&DI)), // [di]
+            0b110 => ModrmMemoryAddr(cs.read_w()), // [disp16]
+            0b111 => ModrmMemoryAddr(cs.getreg(&BX)), // [bx]
             _ => panic!("Invalid ModRM.rm"),
         },
         0b11 => ModrmRegister(get_modrm_reg(rm, bytes)),
@@ -59,8 +59,8 @@ pub fn get_modrm(memory: &mut CpuState, bytes: bool) -> (ModrmValue, Register) {
     (effective, register)
 }
 
-pub fn read_modrm(memory: &mut CpuState) -> (Byte, Byte, Byte) {
-    let byte: Byte = memory.read_b();
+pub fn read_modrm(cs: &mut CpuState) -> (Byte, Byte, Byte) {
+    let byte: Byte = cs.read_b();
 
     // Extract `mod'
     let modbits = byte & 0b11000000;
