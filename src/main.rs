@@ -6,6 +6,7 @@ use self::datatypes::{Byte, Word};
 mod byteutils;
 mod cstate;
 mod datatypes;
+mod debugger;
 mod inst;
 mod modrm;
 
@@ -75,7 +76,7 @@ fn execute(cs: &mut CpuState) {
         0x3D => inst::w_cmp_ri(cs, Reg16::AX),
 
         0xF4 => {
-            cs.dump_state();
+            debugger::dump_state(cs);
             panic!("0xF4");
         },
         0x90 => {},

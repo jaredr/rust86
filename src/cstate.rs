@@ -153,43 +153,6 @@ impl CpuState {
         self.zf
     }
 
-    pub fn dump_state(&self) {
-        println!("\n*** Begin Processor State Dump ***");
-        self.dump_gr("ax", AX, AL, AH);
-        self.dump_gr("bx", BX, BL, BH);
-        self.dump_gr("cx", CX, CL, CH);
-        self.dump_gr("dx", DX, DL, DH);
-        self.dump_mem(0x8000);
-        self.dump_mem(0x8010);
-        self.dump_mem(0x8020);
-        self.dump_mem(0x8030);
-        self.dump_mem(0x8040);
-        self.dump_mem(0x8050);
-        println!("*** End Processor State Dump ***");
-    }
-
-    fn dump_gr(&self, name: &str, x: Reg16, l: Reg8, h: Reg8) {
-        println!(
-            "{}     0x{: <5X} (0x{:X} 0x{:X})",
-            name,
-            self.getreg_w(&x),
-            self.getreg_b(&l),
-            self.getreg_b(&h),
-        );
-    }
-
-    fn dump_mem(&self, start: Word) {
-        let mut s_hex = String::new();
-        let mut s_chr = String::new();
-        for i in range(0, 16) {
-            let val: Byte = self.getmem(start+i);
-            let val_u8: u8 = val.to_u8().unwrap();
-            s_hex.push_str(format!("{:0>2X} ", val).as_slice());
-            s_chr.push_str(format!("{:}", val_u8 as char).as_slice());
-        }
-        println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
-    }
-
     /**
      * Read a Byte from the memory location at `ip` and advance `ip`.
      */
@@ -211,6 +174,9 @@ impl CpuState {
         word
     }
 
+    /**
+     * Push the given value onto the stack.
+     */
     pub fn push(&mut self, val: Word) {
         let low_b = low8(val);
         let high_b = high8(val);
@@ -220,6 +186,9 @@ impl CpuState {
         self.sp = sp - 2;
     }
 
+    /**
+     * Pop and return the top value from the stack.
+     */
     pub fn pop(&mut self) -> Word {
         let sp = self.sp;
         let low_b = self.getmem(sp);
@@ -230,6 +199,9 @@ impl CpuState {
         join8(low_b, high_b)
     }
 
+    /**
+     * Move `ip` by the given twos-complement byte offset.
+     */
     pub fn jump_b(&mut self, offset: Byte) {
         let offset = offset.to_u16().unwrap();
         if offset < 127 {
@@ -239,16 +211,25 @@ impl CpuState {
         }
     }
 
+    /**
+     * Move `ip` by the given unsigned word offset.
+     */
     pub fn jump_w(&mut self, offset: Word) {
         self.ip += offset;
     }
 
+    /**
+     * Push `ip`, then jmp `offset`
+     */
     pub fn call(&mut self, offset: Word) {
         let ip = self.ip;
         self.push(ip);
         self.jump_w(offset);
     }
 
+    /**
+     * Pop the top value from the stack into `ip`.
+     */
     pub fn ret(&mut self) {
         self.ip = self.pop();
     }
