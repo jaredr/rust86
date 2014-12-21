@@ -73,16 +73,15 @@ impl CpuState {
 
     pub fn getmem(&self, i: Word) -> Byte {
         let idx = i.to_uint().unwrap();
-        let value = self._state[idx];
-        let value16 = value.to_u16().unwrap();
-        value16
+        let val = self._state[idx];
+        let val16 = val.to_u16().unwrap();
+        val16
     }
 
-    pub fn setmem(&mut self, addr: Word, value: Byte) {
-        // TODO - 8-bit bounds check
+    pub fn setmem(&mut self, addr: Word, val: Byte) {
         let idx = addr.to_uint().unwrap();
-        let value8 = value.to_u8().unwrap();
-        self._state[idx] = value8
+        let val8 = val.to_u8().unwrap();
+        self._state[idx] = val8
     }
 
     /**
@@ -116,26 +115,25 @@ impl CpuState {
      * `new_value' should be Byte for 8-bit registers and Word for 16-bit
      * registers.
      */
-    pub fn setreg(&mut self, reg: &Register, new_value: u16) {
-        // TODO - Bounds check on 8-bit registers
+    pub fn setreg(&mut self, reg: &Register, new_val: u16) {
         match *reg {
-            AX => self.ax = new_value,
-            BX => self.bx = new_value,
-            CX => self.cx = new_value,
-            DX => self.dx = new_value,
-            AL => self.ax = join_low8(self.ax, new_value),
-            BL => self.bx = join_low8(self.bx, new_value),
-            CL => self.cx = join_low8(self.cx, new_value),
-            DL => self.dx = join_low8(self.dx, new_value),
-            AH => self.ax = join_high8(self.ax, new_value),
-            BH => self.bx = join_high8(self.bx, new_value),
-            CH => self.cx = join_high8(self.cx, new_value),
-            DH => self.dx = join_high8(self.dx, new_value),
-            SI => self.si = new_value,
-            DI => self.di = new_value,
+            AX => self.ax = new_val,
+            BX => self.bx = new_val,
+            CX => self.cx = new_val,
+            DX => self.dx = new_val,
+            AL => self.ax = join_low8(self.ax, new_val),
+            BL => self.bx = join_low8(self.bx, new_val),
+            CL => self.cx = join_low8(self.cx, new_val),
+            DL => self.dx = join_low8(self.dx, new_val),
+            AH => self.ax = join_high8(self.ax, new_val),
+            BH => self.bx = join_high8(self.bx, new_val),
+            CH => self.cx = join_high8(self.cx, new_val),
+            DH => self.dx = join_high8(self.dx, new_val),
+            SI => self.si = new_val,
+            DI => self.di = new_val,
             SP => {},
             BP => {},
-            IP => self.ip = new_value,
+            IP => self.ip = new_val,
         }
     }
 
@@ -201,9 +199,9 @@ impl CpuState {
         word
     }
 
-    pub fn push(&mut self, value: Word) {
-        let low_b = low8(value);
-        let high_b = high8(value);
+    pub fn push(&mut self, val: Word) {
+        let low_b = low8(val);
+        let high_b = high8(val);
         let sp = self.sp;
         self.setmem(sp - 1, low_b);
         self.setmem(sp - 2, high_b);
