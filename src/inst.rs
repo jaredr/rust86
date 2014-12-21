@@ -155,56 +155,34 @@ pub fn b_cmp_eg(cs: &mut CpuState) {
 
 pub fn b_jmp(cs: &mut CpuState) {
     println!("(op) b_jmp");
-    let dest: Byte = cs.read_b();
-
-    // FIXME - Treat `dest` as twos-complement offset from `ip`.
-
-    let ip = cs.getreg_w(&Reg16::IP);
-    let ip = ip.to_u8().unwrap();
-
-    let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
-    let dest_val: Word = dest_val.to_u16().unwrap();
-
-    cs.setreg_w(&Reg16::IP, dest_val);
+    let offset: Byte = cs.read_b();
+    cs.jump_b(offset);
 }
 
 pub fn w_jmp(cs: &mut CpuState) {
     println!("(op) w_jmp");
-    let dest: Word = cs.read_w();
-    let ip: Word = cs.getreg_w(&Reg16::IP);
-    let (dest_val, _, _, _, _) = byteutils::w_add(ip, dest);
-    cs.setreg_w(&Reg16::IP, dest_val);
+    let offset: Word = cs.read_w();
+    cs.jump_w(offset);
 }
 
 pub fn jz(cs: &mut CpuState) {
     println!("(op) jz");
-    let dest: Byte = cs.read_b();
+    let offset: Byte = cs.read_b();
 
     if !cs.zero() {
         return;
     }
 
-    // FIXME - Treat `dest` as twos-complement offset from `ip`.
-
-    let ip = cs.getreg_w(&Reg16::IP);
-    let ip = ip.to_u8().unwrap();
-
-    let (dest_val, _, _, _, _) = byteutils::b_add(ip, dest);
-    let dest_val: Word = dest_val.to_u16().unwrap();
-    cs.setreg_w(&Reg16::IP, dest_val);
-    
+    cs.jump_b(offset);
 }
 
 pub fn call(cs: &mut CpuState) {
     println!("(op) call");
-    let dest = cs.read_w();
-    let ip: Word = cs.getreg_w(&Reg16::IP);
-    cs.push(ip);
-    cs.setreg_w(&Reg16::IP, ip+dest);
+    let offset = cs.read_w();
+    cs.call(offset);
 }
 
 pub fn ret(cs: &mut CpuState) {
     println!("(op) ret");
-    let ip: Word = cs.pop();
-    cs.setreg_w(&Reg16::IP, ip);
+    cs.ret();
 }

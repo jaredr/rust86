@@ -132,7 +132,7 @@ impl CpuState {
             DI => self.di = new_val,
             SP => {},
             BP => {},
-            IP => self.ip = new_val,
+            IP => {},
         }
     }
 
@@ -228,6 +228,29 @@ impl CpuState {
         self.setmem(sp + 1, 0x0);
         self.sp = sp + 2;
         join8(low_b, high_b)
+    }
+
+    pub fn jump_b(&mut self, offset: Byte) {
+        let offset = offset.to_u16().unwrap();
+        if offset < 127 {
+            self.ip += offset;
+        } else {
+            self.ip -= (256 - offset);
+        }
+    }
+
+    pub fn jump_w(&mut self, offset: Word) {
+        self.ip += offset;
+    }
+
+    pub fn call(&mut self, offset: Word) {
+        let ip = self.ip;
+        self.push(ip);
+        self.jump_w(offset);
+    }
+
+    pub fn ret(&mut self) {
+        self.ip = self.pop();
     }
 
     /**
