@@ -24,46 +24,40 @@ pub fn pop(cs: &mut CpuState, reg: Reg16) {
     cs.setreg_w(&reg, popped_val);
 }
 
-pub fn b_add(cs: &mut CpuState, reg: Reg8) {
+pub fn b_add(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
     println!("(op) b_add");
-    let byte = cs.read_b();
     let cur_val = cs.getreg_b(&reg);
-    let new_val = cs.b_add(cur_val, byte);
+    let new_val = cs.b_add(cur_val, immediate);
     cs.setreg_b(&reg, new_val);
 }
 
-pub fn w_add(cs: &mut CpuState, reg: Reg16) {
+pub fn w_add(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     println!("(op) w_add");
-    let word = cs.read_w();
     let cur_val = cs.getreg_w(&reg);
-    let new_val = cs.w_add(cur_val, word);
+    let new_val = cs.w_add(cur_val, immediate);
     cs.setreg_w(&reg, new_val);
 }
 
-pub fn b_cmp_ri(cs: &mut CpuState, reg: Reg8) {
+pub fn b_cmp_ri(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
     println!("(op) b_cmp_ri");
     let reg_val = cs.getreg_b(&reg);
-    let byte = cs.read_b();
-    cs.b_sub(reg_val, byte);
+    cs.b_sub(reg_val, immediate);
 }
 
-pub fn w_cmp_ri(cs: &mut CpuState, reg: Reg16) {
+pub fn w_cmp_ri(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     println!("(op) w_cmp_ri");
     let reg_val = cs.getreg_w(&reg);
-    let word = cs.read_w();
-    cs.w_sub(reg_val, word);
+    cs.w_sub(reg_val, immediate);
 }
 
-pub fn b_mov_ir(cs: &mut CpuState, reg: Reg8) {
+pub fn b_mov_ir(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
     println!("(op) b_mov_r");
-    let byte = cs.read_b();
-    cs.setreg_b(&reg, byte);
+    cs.setreg_b(&reg, immediate);
 }
 
-pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16) {
+pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     println!("(op) w_mov_r");
-    let word = cs.read_w();
-    cs.setreg_w(&reg, word);
+    cs.setreg_w(&reg, immediate);
 }
 
 pub fn mov_e(cs: &mut CpuState) {
@@ -153,33 +147,28 @@ pub fn b_cmp_eg(cs: &mut CpuState) {
     cs.b_sub(left_value, right_value);
 }
 
-pub fn b_jmp(cs: &mut CpuState) {
+pub fn b_jmp(cs: &mut CpuState, immediate: Byte) {
     println!("(op) b_jmp");
-    let offset: Byte = cs.read_b();
-    cs.jump_b(offset);
+    cs.jump_b(immediate);
 }
 
-pub fn w_jmp(cs: &mut CpuState) {
+pub fn w_jmp(cs: &mut CpuState, immediate: Word) {
     println!("(op) w_jmp");
-    let offset: Word = cs.read_w();
-    cs.jump_w(offset);
+    cs.jump_w(immediate);
 }
 
-pub fn jz(cs: &mut CpuState) {
+pub fn jz(cs: &mut CpuState, immediate: Byte) {
     println!("(op) jz");
-    let offset: Byte = cs.read_b();
-
     if !cs.zero() {
         return;
     }
 
-    cs.jump_b(offset);
+    cs.jump_b(immediate);
 }
 
-pub fn call(cs: &mut CpuState) {
+pub fn call(cs: &mut CpuState, immediate: Word) {
     println!("(op) call");
-    let offset = cs.read_w();
-    cs.call(offset);
+    cs.call(immediate);
 }
 
 pub fn ret(cs: &mut CpuState) {
