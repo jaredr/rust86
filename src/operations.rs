@@ -5,6 +5,11 @@ use modrm::*;
 use modrm::ModrmValue::*;
 
 
+pub fn ret(cs: &mut CpuState) {
+    println!("(op) ret");
+    cs.ret();
+}
+
 pub fn inc(cs: &mut CpuState, reg: Reg16) {
     println!("(op) inc");
     let cur_val = cs.getreg_w(&reg);
@@ -22,6 +27,30 @@ pub fn pop(cs: &mut CpuState, reg: Reg16) {
     println!("(op) pop");
     let popped_val = cs.pop();
     cs.setreg_w(&reg, popped_val);
+}
+
+pub fn b_jmp(cs: &mut CpuState, immediate: Byte) {
+    println!("(op) b_jmp");
+    cs.jump_b(immediate);
+}
+
+pub fn w_jmp(cs: &mut CpuState, immediate: Word) {
+    println!("(op) w_jmp");
+    cs.jump_w(immediate);
+}
+
+pub fn jz(cs: &mut CpuState, immediate: Byte) {
+    println!("(op) jz");
+    if !cs.zero() {
+        return;
+    }
+
+    cs.jump_b(immediate);
+}
+
+pub fn call(cs: &mut CpuState, immediate: Word) {
+    println!("(op) call");
+    cs.call(immediate);
 }
 
 pub fn b_add(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
@@ -137,33 +166,4 @@ pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmValue, right: ModrmValue) {
     };
 
     cs.b_sub(left_value, right_value);
-}
-
-pub fn b_jmp(cs: &mut CpuState, immediate: Byte) {
-    println!("(op) b_jmp");
-    cs.jump_b(immediate);
-}
-
-pub fn w_jmp(cs: &mut CpuState, immediate: Word) {
-    println!("(op) w_jmp");
-    cs.jump_w(immediate);
-}
-
-pub fn jz(cs: &mut CpuState, immediate: Byte) {
-    println!("(op) jz");
-    if !cs.zero() {
-        return;
-    }
-
-    cs.jump_b(immediate);
-}
-
-pub fn call(cs: &mut CpuState, immediate: Word) {
-    println!("(op) call");
-    cs.call(immediate);
-}
-
-pub fn ret(cs: &mut CpuState) {
-    println!("(op) ret");
-    cs.ret();
 }
