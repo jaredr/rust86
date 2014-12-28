@@ -1,5 +1,6 @@
 use operations;
 use debugger;
+use modrm;
 use cstate::{CpuState, Reg8, Reg16};
 use datatypes::Byte;
 
@@ -12,15 +13,11 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         // Opcodes with immediate word arguments
         0x05 | 0xB8 | 0xB9 | 0xBA | 0xBB | 0xBC | 0xBD | 0xBE | 0xBF | 0x3D | 0xE8 | 0xE9 => do_opcode_iw(cs, opcode),
 
-        // TODO - Opcodes with ModR/M arguments (operate on bytes)
-        0x88 => operations::b_mov_eg(cs),
-        0x8A => operations::b_mov_ge(cs),
-        0x38 => operations::b_cmp_eg(cs),
+        // Opcodes with ModR/M arguments (operate on bytes)
+        0x88 | 0x8A | 0x38 => do_opcode_mb(cs, opcode),
 
-        // TODO - Opcodes with ModR/M arguments (operate on words)
-        0x89 => operations::w_mov_eg(cs),
-        0x8B => operations::w_mov_ge(cs),
-        0xC6 => operations::mov_e(cs),
+        // Opcodes with ModR/M arguments (operate on words)
+        0x89 | 0x8B | 0xC6 => do_opcode_mw(cs, opcode),
 
         // Opcodes with no arguments
         0x40 => operations::inc(cs, Reg16::AX),
@@ -109,5 +106,35 @@ fn do_opcode_iw(cs: &mut CpuState, opcode: Byte) {
         0xE9 => operations::w_jmp(cs, immediate),
 
         _ => panic!("Invalid opcode for do_opcode_iw: 0x{:X}", opcode),
+    };
+}
+
+/**
+ * Handle operations with ModR/M arguments (byte effective / register values)
+ */
+fn do_opcode_mb(cs: &mut CpuState, opcode: Byte) {
+    let (effective, register) = modrm::get_modrm(cs, true);
+
+    match opcode {
+        0x88 => operations::b_mov_eg(cs, effective, register),
+        0x8A => operations::b_mov_ge(cs, effective, register),
+        0x38 => operations::b_cmp_eg(cs, effective, register),
+
+        _ => panic!("Invalid opcode for do_opcode_mb: 0x{:X}", opcode),
+    };
+}
+
+/**
+ * Handle operations with ModR/M arguments (word effective / register values)
+ */
+fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
+    let (effective, register) = modrm::get_modrm(cs, false);
+
+    match opcode {
+        0x89 => operations::w_mov_eg(cs, effective, register),
+        0x8B => operations::w_mov_ge(cs, effective, register),
+        0xC6 => operations::mov_e(cs, effective, register),
+
+        _ => panic!("Invalid opcode for do_opcode_mw: 0x{:X}", opcode),
     };
 }
