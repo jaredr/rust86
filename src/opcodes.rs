@@ -5,54 +5,34 @@ use cstate::{CpuState, Reg8, Reg16};
 use datatypes::Byte;
 
 
+type F = fn(&mut CpuState, u8);
+
 pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
-    match opcode {
+    // TODO - Don't duplicate opcode definitions here and in their do_* method
+
+    let func: F = match opcode {
         // Opcodes with immediate byte arguments
-        0x04 | 0xB0 | 0xB1 | 0xB2 | 0xB3 | 0xB4 | 0xB5 | 0xB6 | 0xB7 | 0x3C | 0xEB | 0x74 => do_opcode_ib(cs, opcode),
+        0x04 | 0xB0 | 0xB1 | 0xB2 | 0xB3 | 0xB4 | 0xB5 | 0xB6 | 0xB7 | 0x3C | 0xEB | 0x74 => do_opcode_ib,
 
         // Opcodes with immediate word arguments
-        0x05 | 0xB8 | 0xB9 | 0xBA | 0xBB | 0xBC | 0xBD | 0xBE | 0xBF | 0x3D | 0xE8 | 0xE9 => do_opcode_iw(cs, opcode),
+        0x05 | 0xB8 | 0xB9 | 0xBA | 0xBB | 0xBC | 0xBD | 0xBE | 0xBF | 0x3D | 0xE8 | 0xE9 => do_opcode_iw,
 
         // Opcodes with ModR/M arguments (operate on bytes)
-        0x88 | 0x8A | 0x38 => do_opcode_mb(cs, opcode),
+        0x88 | 0x8A | 0x38 => do_opcode_mb,
 
         // Opcodes with ModR/M arguments (operate on words)
-        0x89 | 0x8B | 0xC6 => do_opcode_mw(cs, opcode),
+        0x89 | 0x8B | 0xC6 => do_opcode_mw,
 
         // Opcodes with no arguments
-        0x40 => operations::inc(cs, Reg16::AX),
-        0x41 => operations::inc(cs, Reg16::CX),
-        0x42 => operations::inc(cs, Reg16::DX),
-        0x43 => operations::inc(cs, Reg16::BX),
-        0x47 => operations::inc(cs, Reg16::DI),
-
-        0x50 => operations::push(cs, Reg16::AX),
-        0x51 => operations::push(cs, Reg16::CX),
-        0x52 => operations::push(cs, Reg16::DX),
-        0x53 => operations::push(cs, Reg16::BX),
-        0x54 => operations::push(cs, Reg16::SP),
-        0x56 => operations::push(cs, Reg16::SI),
-        0x57 => operations::push(cs, Reg16::DI),
-
-        0x58 => operations::pop(cs, Reg16::AX),
-        0x59 => operations::pop(cs, Reg16::CX),
-        0x5A => operations::pop(cs, Reg16::DX),
-        0x5B => operations::pop(cs, Reg16::BX),
-        0x5C => operations::pop(cs, Reg16::SP),
-        0x5E => operations::pop(cs, Reg16::SI),
-        0x5F => operations::pop(cs, Reg16::DI),
-
-        0xC3 => operations::ret(cs),
+        0x40...0x47 | 0x50...0x5F | 0xC3 => do_opcode_none,
 
         // Special opcodes
-        0xF4 => {
-            debugger::dump_state(cs);
-            panic!("0xF4");
-        },
-        0x90 => {},
+        0xF4 | 0x90 => do_special,
 
         _ => panic!("Unrecognized opcode: 0x{:X}", opcode),
     };
+
+    func(cs, opcode);
 }
 
 /**
@@ -136,5 +116,55 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
         0xC6 => operations::mov_e(cs, effective, register),
 
         _ => panic!("Invalid opcode for do_opcode_mw: 0x{:X}", opcode),
+    };
+}
+
+
+/**
+ * Handle operations that take no arguments or for which the argument
+ * is encoded in the opcode itself.
+ */
+fn do_opcode_none(cs: &mut CpuState, opcode: Byte) {
+    match opcode {
+        0x40 => operations::inc(cs, Reg16::AX),
+        0x41 => operations::inc(cs, Reg16::CX),
+        0x42 => operations::inc(cs, Reg16::DX),
+        0x43 => operations::inc(cs, Reg16::BX),
+        0x47 => operations::inc(cs, Reg16::DI),
+
+        0x50 => operations::push(cs, Reg16::AX),
+        0x51 => operations::push(cs, Reg16::CX),
+        0x52 => operations::push(cs, Reg16::DX),
+        0x53 => operations::push(cs, Reg16::BX),
+        0x54 => operations::push(cs, Reg16::SP),
+        0x56 => operations::push(cs, Reg16::SI),
+        0x57 => operations::push(cs, Reg16::DI),
+
+        0x58 => operations::pop(cs, Reg16::AX),
+        0x59 => operations::pop(cs, Reg16::CX),
+        0x5A => operations::pop(cs, Reg16::DX),
+        0x5B => operations::pop(cs, Reg16::BX),
+        0x5C => operations::pop(cs, Reg16::SP),
+        0x5E => operations::pop(cs, Reg16::SI),
+        0x5F => operations::pop(cs, Reg16::DI),
+
+        0xC3 => operations::ret(cs),
+
+        _ => panic!("Invalid opcode for do_opcode_none: 0x{:X}", opcode),
+    };
+}
+
+/**
+ * Handle special opcodes
+ */
+fn do_special(cs: &mut CpuState, opcode: Byte) {
+    match opcode {
+        0xF4 => {
+            debugger::dump_state(cs);
+            panic!("0xF4");
+        },
+        0x90 => {},
+
+        _ => panic!("Invalid opcode for do_special: 0x{:X}", opcode),
     };
 }

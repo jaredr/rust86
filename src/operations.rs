@@ -51,12 +51,12 @@ pub fn w_cmp_ri(cs: &mut CpuState, reg: Reg16, immediate: Word) {
 }
 
 pub fn b_mov_ir(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
-    println!("(op) b_mov_r");
+    println!("(op) b_mov_ir");
     cs.setreg_b(&reg, immediate);
 }
 
 pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16, immediate: Word) {
-    println!("(op) w_mov_r");
+    println!("(op) w_mov_ir");
     cs.setreg_w(&reg, immediate);
 }
 
