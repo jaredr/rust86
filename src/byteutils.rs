@@ -71,7 +71,7 @@ macro_rules! arithmetic (
     ) => {
         pub fn $name(left: $input_type, right: $input_type)
         -> ($input_type, bool, bool, bool, bool) {
-            let result = left.$un_op(&right);
+            let result = left.$un_op(right);
 
             let l_sign: bool = left.leading_zeros() == 0;
             let r_sign: bool = right.leading_zeros() == 0;
@@ -87,9 +87,9 @@ macro_rules! arithmetic (
             (result, carry, overflow, result_sign, zero)
         }
     }
-)
+);
 
-arithmetic!(b_add, Byte, add checked_add, add_overflow)
-arithmetic!(b_sub, Byte, sub checked_sub, sub_overflow)
-arithmetic!(w_add, Word, add checked_add, add_overflow)
-arithmetic!(w_sub, Word, sub checked_sub, sub_overflow)
+arithmetic!(b_add, Byte, add checked_add, add_overflow);
+arithmetic!(b_sub, Byte, sub checked_sub, sub_overflow);
+arithmetic!(w_add, Word, add checked_add, add_overflow);
+arithmetic!(w_sub, Word, sub checked_sub, sub_overflow);
