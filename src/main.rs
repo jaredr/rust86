@@ -2,12 +2,12 @@
 #![feature(globs)]
 use std::os;
 mod byteutils;
-mod cpulib;
 mod cstate;
 mod datatypes;
 mod debugger;
 mod opcodes;
 mod operations;
+mod oplib;
 mod modrm;
 
 

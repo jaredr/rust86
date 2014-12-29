@@ -1,4 +1,4 @@
-use cpulib;
+use oplib;
 use cstate::*;
 use byteutils;
 use datatypes::{Byte, Word};
@@ -8,36 +8,36 @@ use modrm::ModrmValue::*;
 
 pub fn ret(cs: &mut CpuState) {
     println!("(op) ret");
-    cpulib::ret(cs);
+    oplib::ret(cs);
 }
 
 pub fn inc(cs: &mut CpuState, reg: Reg16) {
     println!("(op) inc");
     let cur_val = cs.getreg_w(&reg);
-    let new_val = cpulib::w_add(cs, cur_val, 1);
+    let new_val = oplib::w_add(cs, cur_val, 1);
     cs.setreg_w(&reg, new_val);
 }
 
 pub fn push(cs: &mut CpuState, reg: Reg16) {
     println!("(op) push");
     let cur_val = cs.getreg_w(&reg);
-    cpulib::push(cs, cur_val);
+    oplib::push(cs, cur_val);
 }
 
 pub fn pop(cs: &mut CpuState, reg: Reg16) {
     println!("(op) pop");
-    let popped_val = cpulib::pop(cs);
+    let popped_val = oplib::pop(cs);
     cs.setreg_w(&reg, popped_val);
 }
 
 pub fn b_jmp(cs: &mut CpuState, immediate: Byte) {
     println!("(op) b_jmp");
-    cpulib::jump_b(cs, immediate);
+    oplib::jump_b(cs, immediate);
 }
 
 pub fn w_jmp(cs: &mut CpuState, immediate: Word) {
     println!("(op) w_jmp");
-    cpulib::jump_w(cs, immediate);
+    oplib::jump_w(cs, immediate);
 }
 
 pub fn jz(cs: &mut CpuState, immediate: Byte) {
@@ -46,38 +46,38 @@ pub fn jz(cs: &mut CpuState, immediate: Byte) {
         return;
     }
 
-    cpulib::jump_b(cs, immediate);
+    oplib::jump_b(cs, immediate);
 }
 
 pub fn call(cs: &mut CpuState, immediate: Word) {
     println!("(op) call");
-    cpulib::call(cs, immediate);
+    oplib::call(cs, immediate);
 }
 
 pub fn b_add(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
     println!("(op) b_add");
     let cur_val = cs.getreg_b(&reg);
-    let new_val = cpulib::b_add(cs, cur_val, immediate);
+    let new_val = oplib::b_add(cs, cur_val, immediate);
     cs.setreg_b(&reg, new_val);
 }
 
 pub fn w_add(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     println!("(op) w_add");
     let cur_val = cs.getreg_w(&reg);
-    let new_val = cpulib::w_add(cs, cur_val, immediate);
+    let new_val = oplib::w_add(cs, cur_val, immediate);
     cs.setreg_w(&reg, new_val);
 }
 
 pub fn b_cmp_ri(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
     println!("(op) b_cmp_ri");
     let reg_val = cs.getreg_b(&reg);
-    cpulib::b_sub(cs, reg_val, immediate);
+    oplib::b_sub(cs, reg_val, immediate);
 }
 
 pub fn w_cmp_ri(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     println!("(op) w_cmp_ri");
     let reg_val = cs.getreg_w(&reg);
-    cpulib::w_sub(cs, reg_val, immediate);
+    oplib::w_sub(cs, reg_val, immediate);
 }
 
 pub fn b_mov_ir(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
@@ -166,5 +166,5 @@ pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmValue, right: ModrmValue) {
         _ => panic!("ModrmNone"),
     };
 
-    cpulib::b_sub(cs, left_value, right_value);
+    oplib::b_sub(cs, left_value, right_value);
 }

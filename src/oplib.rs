@@ -68,7 +68,7 @@ pub fn ret(cs: &mut CpuState) {
 }
 
 /**
- * Wrapper around byteutils::b_add that sets flags on this CpuState.
+ * Wrapper around byteutils::b_add that sets resulting flags on the CpuState.
  */
 pub fn b_add(cs: &mut CpuState, left: Byte, right: Byte) -> Byte {
     let (result, cf, of, sf, zf) = byteutils::b_add(left, right);
