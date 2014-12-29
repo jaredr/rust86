@@ -99,7 +99,7 @@ impl CpuState {
             SI => return self.si,
             DI => return self.di,
             SP => return self.sp,
-            BP => return 0,
+            BP => return self.bp,
             IP => return self.ip,
         }
     }
@@ -130,9 +130,9 @@ impl CpuState {
             DX => self.dx = new_val,
             SI => self.si = new_val,
             DI => self.di = new_val,
-            SP => {},
-            BP => {},
-            IP => {},
+            SP => self.sp = new_val,
+            BP => self.bp = new_val,
+            IP => self.ip = new_val,
         }
     }
 
