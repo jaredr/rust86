@@ -1,8 +1,8 @@
-use operations;
-use debugger;
-use modrm;
 use cstate::{CpuState, Reg8, Reg16};
 use datatypes::Byte;
+use debugger;
+use modrm;
+use operations;
 
 
 type F = fn(&mut CpuState, u8);

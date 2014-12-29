@@ -149,10 +149,6 @@ impl CpuState {
         }
     }
 
-    pub fn zero(&self) -> bool {
-        self.zf
-    }
-
     /**
      * Read a Byte from the memory location at `ip` and advance `ip`.
      */
@@ -174,97 +170,14 @@ impl CpuState {
         word
     }
 
-    /**
-     * Push the given value onto the stack.
-     */
-    pub fn push(&mut self, val: Word) {
-        let low_b = low8(val);
-        let high_b = high8(val);
-        let sp = self.sp;
-        self.setmem(sp - 1, low_b);
-        self.setmem(sp - 2, high_b);
-        self.sp = sp - 2;
-    }
-
-    /**
-     * Pop and return the top value from the stack.
-     */
-    pub fn pop(&mut self) -> Word {
-        let sp = self.sp;
-        let low_b = self.getmem(sp);
-        let high_b = self.getmem(sp + 1);
-        self.setmem(sp, 0x0);
-        self.setmem(sp + 1, 0x0);
-        self.sp = sp + 2;
-        join8(low_b, high_b)
-    }
-
-    /**
-     * Move `ip` by the given twos-complement byte offset.
-     */
-    pub fn jump_b(&mut self, offset: Byte) {
-        let offset = offset.to_u16().unwrap();
-        if offset < 127 {
-            self.ip += offset;
-        } else {
-            self.ip -= (256 - offset);
-        }
-    }
-
-    /**
-     * Move `ip` by the given unsigned word offset.
-     */
-    pub fn jump_w(&mut self, offset: Word) {
-        self.ip += offset;
-    }
-
-    /**
-     * Push `ip`, then jmp `offset`
-     */
-    pub fn call(&mut self, offset: Word) {
-        let ip = self.ip;
-        self.push(ip);
-        self.jump_w(offset);
-    }
-
-    /**
-     * Pop the top value from the stack into `ip`.
-     */
-    pub fn ret(&mut self) {
-        self.ip = self.pop();
-    }
-
-    /**
-     * Wrapper around byteutils::b_add that sets flags on this CpuState.
-     */
-    pub fn b_add(&mut self, left: Byte, right: Byte) -> Byte {
-        let (result, cf, of, sf, zf) = b_add(left, right);
-        self.set_flags(cf, of, sf, zf);
-        result
-    }
-
-    pub fn w_add(&mut self, left: Word, right: Word) -> Word {
-        let (result, cf, of, sf, zf) = w_add(left, right);
-        self.set_flags(cf, of, sf, zf);
-        result
-    }
-
-    pub fn b_sub(&mut self, left: Byte, right: Byte) -> Byte {
-        let (result, cf, of, sf, zf) = b_sub(left, right);
-        self.set_flags(cf, of, sf, zf);
-        result
-    }
-
-    pub fn w_sub(&mut self, left: Word, right: Word) -> Word {
-        let (result, cf, of, sf, zf) = w_sub(left, right);
-        self.set_flags(cf, of, sf, zf);
-        result
-    }
-
-    fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {
+    pub fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {
         self.cf = cf;
         self.of = of;
         self.sf = sf;
         self.zf = zf;
+    }
+
+    pub fn zero(&self) -> bool {
+        self.zf
     }
 }
