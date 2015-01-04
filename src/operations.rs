@@ -172,3 +172,10 @@ pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     let left_value = oplib::modrm_value_b(cs, left);
     oplib::b_sub(cs, left_value, right_value);
 }
+
+pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Byte) {
+    println!("(op) b_cmp_ei");
+
+    let effective = oplib::modrm_value_b(cs, effective);
+    oplib::b_sub(cs, effective, immediate);
+}

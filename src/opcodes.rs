@@ -26,6 +26,9 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         // Opcodes with no arguments
         0x40...0x47 | 0x50...0x5F | 0xC3 => do_opcode_none,
 
+        // Group opcodes with immediate arguments (operate on bytes)
+        0x80 => do_group_eib,
+
         // Special opcodes
         0xF4 | 0x90 => do_special,
 
@@ -158,6 +161,27 @@ fn do_opcode_none(cs: &mut CpuState, opcode: Byte) {
         _ => panic!("Invalid opcode for do_opcode_none: 0x{:X}", opcode),
     };
 }
+
+/**
+ * Handle group operations that take an immediate argument (byte values)
+ */
+fn do_group_eib(cs: &mut CpuState, opcode: Byte) {
+    if opcode != 0x80 {
+        panic!("Invalid opcode for do_opcode_group_eib: 0x{:X}", opcode);
+    }
+
+    let mb = cs.read_b();
+    let mb = modrm::ModrmByte::read(mb);
+    let effective = mb.effective(); 
+
+    let immediate = cs.read_b();
+
+    match mb.reg {
+        0b111 => operations::b_cmp_ei(cs, effective, immediate),
+        _ => panic!("Not Implemented"),
+    }
+}
+
 
 /**
  * Handle special opcodes

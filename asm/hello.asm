@@ -19,11 +19,8 @@ helloloop:
     inc ax
 
     ; Halt if we reach a null byte 
-    ; Use of `dl' here is a workaround -- cmp immediate is not yet
-    ; supported.
     mov bx, ax
-    mov dl, 0x0
-    cmp [bx], dl
+    cmp byte[bx], 0x0
     jz halt
     jmp helloloop
 
