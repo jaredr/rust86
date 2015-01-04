@@ -169,9 +169,13 @@ pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::b_sub(cs, left_value, right_value);
 }
 
-pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Byte) {
+pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) b_cmp_ei");
 
     let effective = oplib::modrm_value_b(cs, effective);
+
+    // TODO - Accept as method argument; should not call cs.read_* from here
+    let immediate = cs.read_b();
+
     oplib::b_sub(cs, effective, immediate);
 }

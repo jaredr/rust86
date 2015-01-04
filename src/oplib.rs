@@ -109,7 +109,12 @@ pub fn modrm_addr(cs: &mut CpuState, result_addr: modrm::MemoryAddr) -> Word {
         modrm::MemoryAddr::SI => cs.getreg_w(&SI),
         modrm::MemoryAddr::DI => cs.getreg_w(&DI),
         modrm::MemoryAddr::BX => cs.getreg_w(&BX),
-        modrm::MemoryAddr::DISP16 => cs.read_w(),
+
+        // NOTE / FIXME
+        // Since the DISP16 case will call cs.read_w, it's imperative that
+        // modrm_addr() be called immediately after the ModR/M byte itself is
+        // read, and before anything else is read from CpuState's memory.
+        modrm::MemoryAddr::DISP16 => cs.read_w()
     }
 }
 
