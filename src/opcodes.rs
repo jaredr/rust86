@@ -93,7 +93,10 @@ fn do_opcode_iw(cs: &mut CpuState, opcode: Byte) {
  * Handle operations with ModR/M arguments (byte effective / register values)
  */
 fn do_opcode_mb(cs: &mut CpuState, opcode: Byte) {
-    let (effective, register) = modrm::get_modrm(cs, true);
+    let byte = cs.read_b();
+    let mb = modrm::ModrmByte::read(byte);
+    let effective = mb.effective();
+    let register = mb.register();
 
     match opcode {
         0x88 => operations::b_mov_eg(cs, effective, register),
@@ -108,7 +111,10 @@ fn do_opcode_mb(cs: &mut CpuState, opcode: Byte) {
  * Handle operations with ModR/M arguments (word effective / register values)
  */
 fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
-    let (effective, register) = modrm::get_modrm(cs, false);
+    let byte = cs.read_b();
+    let mb = modrm::ModrmByte::read(byte);
+    let effective = mb.effective();
+    let register = mb.register();
 
     match opcode {
         0x89 => operations::w_mov_eg(cs, effective, register),
@@ -118,7 +124,6 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
         _ => panic!("Invalid opcode for do_opcode_mw: 0x{:X}", opcode),
     };
 }
-
 
 /**
  * Handle operations that take no arguments or for which the argument

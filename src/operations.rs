@@ -2,8 +2,8 @@ use oplib;
 use cstate::*;
 use byteutils;
 use datatypes::{Byte, Word};
-use modrm::*;
-use modrm::ModrmValue::*;
+use modrm;
+use modrm::ModrmResult;
 
 
 pub fn ret(cs: &mut CpuState) {
@@ -90,81 +90,85 @@ pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     cs.setreg_w(&reg, immediate);
 }
 
-pub fn mov_e(cs: &mut CpuState, effective: ModrmValue, reg: ModrmValue) {
+pub fn mov_e(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
     println!("(op) mov_e");
 
     // TODO - Accept as method argument; should not call cs.read_* from here
     let src: Byte = cs.read_b();
 
     match effective {
-        ModrmMemoryAddr(x) => cs.setmem(x, src),
-        ModrmReg8(x) => cs.setreg_b(&x, src),
-        _ => panic!("ModrmNone"),
+        ModrmResult::MemoryAddr(x) => {
+            let addr = oplib::modrm_addr(cs, x);
+            cs.setmem(addr, src);
+        },
+        ModrmResult::Register(x) => {
+            let reg = oplib::modrm_reg8(&x);
+            cs.setreg_b(&reg, src);
+        },
     }
 }
 
-pub fn b_mov_ge(cs: &mut CpuState, src: ModrmValue, dest: ModrmValue) {
+pub fn b_mov_ge(cs: &mut CpuState, src: ModrmResult, dest: ModrmResult) {
     println!("(op) b_mov_ge");
-    let dest = dest.unwrap_reg8();
 
-    let src_value = match src {
-        ModrmMemoryAddr(x) => cs.getmem(x),
-        ModrmReg8(x) => cs.getreg_b(&x),
-        _ => panic!("ModrmNone"),
-    };
-    cs.setreg_b(dest, src_value);
+    let dest = oplib::modrm_reg8(dest.unwrap_register());
+    let src_value = oplib::modrm_value_b(cs, src);
+    cs.setreg_b(&dest, src_value);
 }
 
-pub fn w_mov_ge(cs: &mut CpuState, src: ModrmValue, dest: ModrmValue) {
+pub fn w_mov_ge(cs: &mut CpuState, src: ModrmResult, dest: ModrmResult) {
     println!("(op) w_mov_ge");
-    let dest = dest.unwrap_reg16();
 
-    let src_value = match src {
-        ModrmMemoryAddr(x) => cs.getmem(x).to_u16().unwrap(),
-        ModrmReg16(x) => cs.getreg_w(&x),
-        _ => panic!("ModrmNone"),
-    };
-    cs.setreg_w(dest, src_value);
+    let dest = oplib::modrm_reg16(dest.unwrap_register());
+    let src_value = oplib::modrm_value_w(cs, src);
+    cs.setreg_w(&dest, src_value);
 }
 
-pub fn b_mov_eg(cs: &mut CpuState, dest: ModrmValue, src: ModrmValue) {
+pub fn b_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     println!("(op) b_mov_eg");
-    let src = src.unwrap_reg8();
-    let src_value = cs.getreg_b(src);
+
+    let src = oplib::modrm_reg8(src.unwrap_register());
+    let src_value = cs.getreg_b(&src);
 
     match dest {
-        ModrmMemoryAddr(x) => cs.setmem(x, src_value),
-        ModrmReg8(x) => cs.setreg_b(&x, src_value),
-        _ => panic!("ModrmNone"),
-    };
-}
-
-pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmValue, src: ModrmValue) {
-    println!("(op) w_mov_eg");
-    let src = src.unwrap_reg16();
-    let src_value = cs.getreg_w(src);
-
-    match dest {
-        ModrmMemoryAddr(x) => {
-            // I'm pretty sure this doesn't work this way...
-            cs.setmem(x, byteutils::high8(src_value));
-            cs.setmem(x + 1, byteutils::low8(src_value));
+        ModrmResult::MemoryAddr(x) => {
+            let addr = oplib::modrm_addr(cs, x);
+            cs.setmem(addr, src_value);
         },
-        ModrmReg16(x) => cs.setreg_w(&x, src_value),
-        _ => panic!("ModrmNone"),
+        ModrmResult::Register(x) => {
+            let reg = oplib::modrm_reg8(&x);
+            cs.setreg_b(&reg, src_value);
+        },
     };
 }
 
-pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmValue, right: ModrmValue) {
-    println!("(op) b_cmp_eg");
-    let right = right.unwrap_reg8();
-    let right_value = cs.getreg_b(right);
+pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
+    println!("(op) w_mov_eg");
 
-    let left_value = match left {
-        ModrmMemoryAddr(x) => cs.getmem(x),
-        ModrmReg8(x) => cs.getreg_b(&x),
-        _ => panic!("ModrmNone"),
+    let src = oplib::modrm_reg16(src.unwrap_register());
+    let src_value = cs.getreg_w(&src);
+
+    match dest {
+        ModrmResult::MemoryAddr(x) => {
+            let addr = oplib::modrm_addr(cs, x);
+
+            // I'm pretty sure this doesn't work this way...
+            cs.setmem(addr, byteutils::high8(src_value));
+            cs.setmem(addr + 1, byteutils::low8(src_value));
+        },
+        ModrmResult::Register(x) => {
+            let reg = oplib::modrm_reg16(&x);
+            cs.setreg_w(&reg, src_value);
+        }
     };
+}
 
+pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
+    println!("(op) b_cmp_eg");
+
+    let right = oplib::modrm_reg8(right.unwrap_register());
+    let right_value = cs.getreg_b(&right);
+
+    let left_value = oplib::modrm_value_b(cs, left);
     oplib::b_sub(cs, left_value, right_value);
 }

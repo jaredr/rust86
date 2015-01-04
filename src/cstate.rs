@@ -87,8 +87,7 @@ impl CpuState {
     }
 
     /**
-     * Get the current value of the specified register.
-     * Returns either a Byte or a Word, depending on the register.
+     * Get the current value of the specified 16-bit register.
      */
     pub fn getreg_w(&self, reg: &Reg16) -> Word {
         match *reg {
@@ -104,6 +103,9 @@ impl CpuState {
         }
     }
 
+    /**
+     * Get the current value of the specified 8-bit register.
+     */
     pub fn getreg_b(&self, reg: &Reg8) -> Byte {
         match *reg {
             AL => return low8(self.ax),
