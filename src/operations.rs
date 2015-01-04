@@ -127,8 +127,7 @@ pub fn w_mov_ge(cs: &mut CpuState, src: ModrmResult, dest: ModrmResult) {
 pub fn b_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     println!("(op) b_mov_eg");
 
-    let src = oplib::modrm_reg8(src.unwrap_register());
-    let src_value = cs.getreg_b(&src);
+    let src_value = oplib::modrm_value_b(cs, src);
 
     match dest {
         ModrmResult::MemoryAddr(x) => {
@@ -145,8 +144,7 @@ pub fn b_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
 pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     println!("(op) w_mov_eg");
 
-    let src = oplib::modrm_reg16(src.unwrap_register());
-    let src_value = cs.getreg_w(&src);
+    let src_value = oplib::modrm_value_w(cs, src);
 
     match dest {
         ModrmResult::MemoryAddr(x) => {
@@ -166,9 +164,7 @@ pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
 pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) b_cmp_eg");
 
-    let right = oplib::modrm_reg8(right.unwrap_register());
-    let right_value = cs.getreg_b(&right);
-
+    let right_value = oplib::modrm_value_b(cs, right);
     let left_value = oplib::modrm_value_b(cs, left);
     oplib::b_sub(cs, left_value, right_value);
 }
