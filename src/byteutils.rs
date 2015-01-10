@@ -43,18 +43,23 @@ pub fn join_high8(val: Word, high: Byte) -> Word {
 
 
 /**
- * Calculate overflow flag for ADD operations
+ * Arithmetic helpers (see macro definition below)
  */
 fn add_overflow(l_sign: bool, r_sign: bool, result_sign: bool) -> bool {
     (result_sign != l_sign) && (l_sign == r_sign)
 }
 
-/**
- * Calculate overflow flag for SUB operations
- */
 fn sub_overflow(l_sign: bool, r_sign: bool, result_sign: bool) -> bool {
     ((!l_sign && r_sign) && result_sign) ||
     ((l_sign && !r_sign) && !result_sign)
+}
+
+fn or_overflow(_: bool, _: bool, _: bool) -> bool {
+    false
+}
+
+fn checked_or<T: Int>(left: T, right: T) -> Option<T> {
+    Some(left | right)
 }
 
 /**
@@ -66,7 +71,7 @@ macro_rules! arithmetic (
     (
         $name:ident,
         $input_type:ident,
-        $un_op:ident $ch_op:ident,
+        $un_op:ident $ch_op:expr,
         $overflow_fn:ident
     ) => {
         pub fn $name(left: $input_type, right: $input_type)
@@ -79,7 +84,7 @@ macro_rules! arithmetic (
 
             let overflow: bool = $overflow_fn(l_sign, r_sign, result_sign);
             let zero: bool = result == 0;
-            let carry: bool = match left.$ch_op(right) {
+            let carry: bool = match $ch_op(left, right) {
                 Some(_) => false,
                 None => true,
             };
@@ -89,7 +94,11 @@ macro_rules! arithmetic (
     }
 );
 
-arithmetic!(b_add, Byte, add checked_add, add_overflow);
-arithmetic!(b_sub, Byte, sub checked_sub, sub_overflow);
-arithmetic!(w_add, Word, add checked_add, add_overflow);
-arithmetic!(w_sub, Word, sub checked_sub, sub_overflow);
+arithmetic!(b_add, Byte, add Int::checked_add, add_overflow);
+arithmetic!(w_add, Word, add Int::checked_add, add_overflow);
+arithmetic!(b_sub, Byte, sub Int::checked_sub, sub_overflow);
+arithmetic!(w_sub, Word, sub Int::checked_sub, sub_overflow);
+arithmetic!(b_or, Byte, bitor checked_or, or_overflow);
+arithmetic!(b_xor, Byte, bitxor checked_or, or_overflow);
+arithmetic!(w_or, Word, bitor checked_or, or_overflow);
+arithmetic!(w_xor, Word, bitxor checked_or, or_overflow);
