@@ -43,7 +43,7 @@ pub struct CpuState {
 impl CpuState {
     pub fn new() -> CpuState {
         let mut mem = Vec::new();
-        mem.grow(65535, 0u8);
+        mem.resize(65535, 0u8);
 
         CpuState {
             _state: mem,

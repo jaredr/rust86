@@ -2,8 +2,9 @@
  * ModrmResult enum
  *
  * Represents some information inferred from a ModR/M byte, such as an
- * effective address or register.
+ * effective address spec or register.
  */
+#[allow(non_camel_case_types)]
 pub enum MemoryAddr {
     BX_SI,
     BX_DI,
@@ -49,7 +50,8 @@ impl ModrmResult {
 /**
  * ModrmByte struct
  *
- * Represents the literal ModR/M byte
+ * Represents the literal ModR/M byte and defines facilities to extract
+ * ModrmResults from the byte.
  */
 pub struct ModrmByte {
     pub m: u8,

@@ -97,7 +97,7 @@ arithmetic!(b_xor, Byte, byteutils::b_xor);
 arithmetic!(w_xor, Word, byteutils::w_xor);
 
 /**
- * Helper functions to get or set CpuState properties based on ModR/M bytes
+ * Returns the current value of the memory address specified by this MemoryAddr
  */
 pub fn modrm_addr(cs: &mut CpuState, result_addr: modrm::MemoryAddr) -> Word {
     match result_addr {
@@ -117,6 +117,9 @@ pub fn modrm_addr(cs: &mut CpuState, result_addr: modrm::MemoryAddr) -> Word {
     }
 }
 
+/**
+ * Returns the Reg16 specified by this ModR/M byte
+ */
 pub fn modrm_reg16(result_reg: &modrm::Register) -> Reg16 {
     match *result_reg {
         modrm::Register::AX => Reg16::AX,
@@ -130,6 +133,9 @@ pub fn modrm_reg16(result_reg: &modrm::Register) -> Reg16 {
     }
 }
 
+/**
+ * Returns the Reg8 specified by this ModR/M byte
+ */
 pub fn modrm_reg8(result_reg: &modrm::Register) -> Reg8 {
     match *result_reg {
         modrm::Register::AX => Reg8::AL,
@@ -140,6 +146,10 @@ pub fn modrm_reg8(result_reg: &modrm::Register) -> Reg8 {
     }
 }
 
+/**
+ * Resolves and returns the current 8-bit value specified by
+ * this ModrmResult, whether it may be a memory address or register.
+ */
 pub fn modrm_value_b(cs: &mut CpuState, effective: ModrmResult) -> Byte {
     match effective {
         ModrmResult::MemoryAddr(x) => {
@@ -153,6 +163,10 @@ pub fn modrm_value_b(cs: &mut CpuState, effective: ModrmResult) -> Byte {
     }
 }
 
+/**
+ * Resolves and returns the current 16-bit value specified by
+ * this ModrmResult, whether it may be a memory address or register.
+ */
 pub fn modrm_value_w(cs: &mut CpuState, effective: ModrmResult) -> Word {
     match effective {
         ModrmResult::MemoryAddr(x) => {

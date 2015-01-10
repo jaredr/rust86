@@ -2,7 +2,6 @@ use oplib;
 use cstate::*;
 use byteutils;
 use datatypes::{Byte, Word};
-use modrm;
 use modrm::ModrmResult;
 
 
@@ -90,7 +89,7 @@ pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     cs.setreg_w(&reg, immediate);
 }
 
-pub fn mov_e(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+pub fn mov_e(cs: &mut CpuState, effective: ModrmResult, _: ModrmResult) {
     println!("(op) mov_e");
 
     // TODO - Accept as method argument; should not call cs.read_* from here

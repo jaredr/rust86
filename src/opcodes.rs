@@ -130,7 +130,6 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
     };
 }
 
-
 /**
  * Handle operations that take no arguments or for which the argument
  * is encoded in the opcode itself.
