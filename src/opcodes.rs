@@ -48,7 +48,7 @@ fn do_opcode_ib(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x04 => operations::b_add(cs, Reg8::AL, immediate),
 
-        0x72 => operations::b_jmp_flag(cs, CpuState::carry, true, immediate),
+        0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate),
         0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate),
         0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate),
 
