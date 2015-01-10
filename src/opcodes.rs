@@ -12,7 +12,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 
     let func: F = match opcode {
         // Opcodes with immediate byte arguments
-        0x04 | 0xB0 | 0xB1 | 0xB2 | 0xB3 | 0xB4 | 0xB5 | 0xB6 | 0xB7 | 0x3C | 0xEB | 0x74 => do_opcode_ib,
+        0x04 | 0xB0 | 0xB1 | 0xB2 | 0xB3 | 0xB4 | 0xB5 | 0xB6 | 0xB7 | 0x3C | 0xEB | 0x72 | 0x74 | 0x75 => do_opcode_ib,
 
         // Opcodes with immediate word arguments
         0x05 | 0xB8 | 0xB9 | 0xBA | 0xBB | 0xBC | 0xBD | 0xBE | 0xBF | 0x3D | 0xE8 | 0xE9 => do_opcode_iw,
@@ -48,7 +48,9 @@ fn do_opcode_ib(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x04 => operations::b_add(cs, Reg8::AL, immediate),
 
-        0x74 => operations::jz(cs, immediate),
+        0x72 => operations::b_jmp_flag(cs, CpuState::carry, true, immediate),
+        0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate),
+        0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate),
 
         0x3C => operations::b_cmp_ri(cs, Reg8::AL, immediate),
 

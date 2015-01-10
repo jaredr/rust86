@@ -46,10 +46,11 @@ pub fn w_jmp(cs: &mut CpuState, immediate: Word) {
     oplib::jump_w(cs, immediate);
 }
 
-pub fn jz(cs: &mut CpuState, immediate: Byte) {
-    println!("(op) jz");
-    if !cs.zero() {
-        return;
+pub fn b_jmp_flag(cs: &mut CpuState, flag_fn: fn(&CpuState) -> bool, invert: bool, immediate: Byte) {
+    println!("(op) b_jmp_cond");
+    let flag_val = flag_fn(cs);
+    if !(flag_val ^ invert) {
+        return
     }
 
     oplib::jump_b(cs, immediate);
