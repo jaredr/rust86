@@ -1,6 +1,3 @@
-use datatypes::{Byte,Word};
-
-
 /**
  * ModrmResult enum
  *
@@ -61,7 +58,7 @@ pub struct ModrmByte {
 }
 
 impl ModrmByte {
-    pub fn read(byte: Byte) -> ModrmByte {
+    pub fn read(byte: u8) -> ModrmByte {
         // Extract `mod'
         let modbits = byte & 0b11000000;
         let modbits = modbits / 64;
