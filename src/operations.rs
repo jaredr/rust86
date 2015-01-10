@@ -161,6 +161,28 @@ pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     };
 }
 
+pub fn w_or_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+    println!("(op) w_or_eg");
+
+    let effective = oplib::modrm_value_w(cs, effective);
+    let reg = oplib::modrm_reg16(reg.unwrap_register());
+    let reg_value = cs.getreg_w(&reg);
+
+    let result = oplib::w_or(cs, reg_value, effective);
+    cs.setreg_w(&reg, result)
+}
+
+pub fn w_xor_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+    println!("(op) w_xor_eg");
+
+    let effective = oplib::modrm_value_w(cs, effective);
+    let reg = oplib::modrm_reg16(reg.unwrap_register());
+    let reg_value = cs.getreg_w(&reg);
+
+    let result = oplib::w_xor(cs, reg_value, effective);
+    cs.setreg_w(&reg, result)
+}
+
 pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) b_cmp_eg");
 
