@@ -70,32 +70,31 @@ pub fn ret(cs: &mut CpuState) {
 }
 
 /**
- * Wrapper around byteutils::b_add that sets resulting flags on the CpuState.
+ * Wrapper functions for byteutils::arithmetic! that set the resulting
+ * flags on the provided CpuState.
  */
-pub fn b_add(cs: &mut CpuState, left: Byte, right: Byte) -> Byte {
-    let (result, cf, of, sf, zf) = byteutils::b_add(left, right);
-    cs.set_flags(cf, of, sf, zf);
-    result
-}
+macro_rules! arithmetic (
+    (
+        $name:ident,
+        $size:ident,
+        $arithmetic_fn:expr
+    ) => {
+        pub fn $name(cs: &mut CpuState, left: $size, right: $size) -> $size {
+            let (result, cf, of, sf, zf) = $arithmetic_fn(left, right);
+            cs.set_flags(cf, of, sf, zf);
+            result
+        }
+    }
+);
 
-pub fn w_add(cs: &mut CpuState, left: Word, right: Word) -> Word {
-    let (result, cf, of, sf, zf) = byteutils::w_add(left, right);
-    cs.set_flags(cf, of, sf, zf);
-    result
-}
-
-pub fn b_sub(cs: &mut CpuState, left: Byte, right: Byte) -> Byte {
-    let (result, cf, of, sf, zf) = byteutils::b_sub(left, right);
-    cs.set_flags(cf, of, sf, zf);
-    result
-}
-
-pub fn w_sub(cs: &mut CpuState, left: Word, right: Word) -> Word {
-    let (result, cf, of, sf, zf) = byteutils::w_sub(left, right);
-    cs.set_flags(cf, of, sf, zf);
-    result
-}
-
+arithmetic!(b_add, Byte, byteutils::b_add);
+arithmetic!(w_add, Word, byteutils::w_add);
+arithmetic!(b_sub, Byte, byteutils::b_sub);
+arithmetic!(w_sub, Word, byteutils::w_sub);
+arithmetic!(b_or, Byte, byteutils::b_or);
+arithmetic!(w_or, Word, byteutils::w_or);
+arithmetic!(b_xor, Byte, byteutils::b_xor);
+arithmetic!(w_xor, Word, byteutils::w_xor);
 
 /**
  * Helper functions to get or set CpuState properties based on ModR/M bytes
