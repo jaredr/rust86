@@ -198,6 +198,14 @@ pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::b_sub(cs, left_value, right_value);
 }
 
+pub fn w_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
+    println!("(op) w_cmp_eg");
+
+    let right_value = oplib::modrm_value_w(cs, right);
+    let left_value = oplib::modrm_value_w(cs, left);
+    oplib::w_sub(cs, left_value, right_value);
+}
+
 pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) b_cmp_ei");
 
