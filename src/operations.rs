@@ -190,6 +190,17 @@ pub fn w_xor_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
     cs.setreg_w(&reg, result)
 }
 
+pub fn w_add_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+    println!("(op) w_add_eg");
+
+    let effective = oplib::modrm_value_w(cs, effective);
+    let reg = oplib::modrm_reg16(reg.unwrap_register());
+    let reg_value = cs.getreg_w(&reg);
+
+    let result = oplib::w_add(cs, reg_value, effective);
+    cs.setreg_w(&reg, result);
+}
+
 pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) b_cmp_eg");
 

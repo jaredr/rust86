@@ -21,7 +21,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0x88 | 0x8A | 0x38 => do_opcode_mb,
 
         // Opcodes with ModR/M arguments (operate on words)
-        0x89 | 0x8B | 0xC6 | 0x09 | 0x31 | 0x39 => do_opcode_mw,
+        0x01 | 0x89 | 0x8B | 0xC6 | 0x09 | 0x31 | 0x39 => do_opcode_mw,
 
         // Opcodes with no arguments
         0x40...0x4C | 0x50...0x5F | 0xC3 => do_opcode_none,
@@ -123,6 +123,7 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
     let register = mb.register();
 
     match opcode {
+        0x01 => operations::w_add_eg(cs, effective, register),
         0x09 => operations::w_or_eg(cs, effective, register),
         0x31 => operations::w_xor_eg(cs, effective, register),
         0x39 => operations::w_cmp_eg(cs, effective, register),
