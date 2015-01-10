@@ -17,6 +17,13 @@ pub fn inc(cs: &mut CpuState, reg: Reg16) {
     cs.setreg_w(&reg, new_val);
 }
 
+pub fn dec(cs: &mut CpuState, reg: Reg16) {
+    println!("(op) dec");
+    let cur_val = cs.getreg_w(&reg);
+    let new_val = oplib::w_sub(cs, cur_val, 1);
+    cs.setreg_w(&reg, new_val);
+}
+
 pub fn push(cs: &mut CpuState, reg: Reg16) {
     println!("(op) push");
     let cur_val = cs.getreg_w(&reg);

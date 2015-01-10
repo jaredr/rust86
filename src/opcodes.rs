@@ -24,7 +24,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0x89 | 0x8B | 0xC6 | 0x09 | 0x31 => do_opcode_mw,
 
         // Opcodes with no arguments
-        0x40...0x47 | 0x50...0x5F | 0xC3 => do_opcode_none,
+        0x40...0x4C | 0x50...0x5F | 0xC3 => do_opcode_none,
 
         // Group opcodes with immediate arguments (operate on bytes)
         0x80 => do_group,
@@ -141,6 +141,12 @@ fn do_opcode_none(cs: &mut CpuState, opcode: Byte) {
         0x42 => operations::inc(cs, Reg16::DX),
         0x43 => operations::inc(cs, Reg16::BX),
         0x47 => operations::inc(cs, Reg16::DI),
+
+        0x48 => operations::dec(cs, Reg16::AX),
+        0x49 => operations::dec(cs, Reg16::CX),
+        0x4A => operations::dec(cs, Reg16::DX),
+        0x4B => operations::dec(cs, Reg16::BX),
+        0x4C => operations::dec(cs, Reg16::DI),
 
         0x50 => operations::push(cs, Reg16::AX),
         0x51 => operations::push(cs, Reg16::CX),
