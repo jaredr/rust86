@@ -99,8 +99,8 @@ arithmetic!(w_xor, Word, byteutils::w_xor);
 /**
  * Returns the current value of the memory address specified by this MemoryAddr
  */
-pub fn modrm_addr(cs: &mut CpuState, result_addr: modrm::MemoryAddr) -> Word {
-    match result_addr {
+pub fn modrm_addr(cs: &mut CpuState, result_addr: &modrm::MemoryAddr) -> Word {
+    match *result_addr {
         modrm::MemoryAddr::BX_SI => cs.getreg_w(&BX) + cs.getreg_w(&SI),
         modrm::MemoryAddr::BX_DI => cs.getreg_w(&BX) + cs.getreg_w(&DI),
         modrm::MemoryAddr::BP_SI => cs.getreg_w(&BP) + cs.getreg_w(&SI),
@@ -150,14 +150,14 @@ pub fn modrm_reg8(result_reg: &modrm::Register) -> Reg8 {
  * Resolves and returns the current 8-bit value specified by
  * this ModrmResult, whether it may be a memory address or register.
  */
-pub fn modrm_value_b(cs: &mut CpuState, effective: ModrmResult) -> Byte {
-    match effective {
-        ModrmResult::MemoryAddr(x) => {
+pub fn modrm_value_b(cs: &mut CpuState, effective: &ModrmResult) -> Byte {
+    match *effective {
+        ModrmResult::MemoryAddr(ref x) => {
             let addr = modrm_addr(cs, x);
             cs.getmem(addr)
         },
-        ModrmResult::Register(x) => {
-            let reg = modrm_reg8(&x);
+        ModrmResult::Register(ref x) => {
+            let reg = modrm_reg8(x);
             cs.getreg_b(&reg)
         },
     }
@@ -167,15 +167,48 @@ pub fn modrm_value_b(cs: &mut CpuState, effective: ModrmResult) -> Byte {
  * Resolves and returns the current 16-bit value specified by
  * this ModrmResult, whether it may be a memory address or register.
  */
-pub fn modrm_value_w(cs: &mut CpuState, effective: ModrmResult) -> Word {
-    match effective {
-        ModrmResult::MemoryAddr(x) => {
+pub fn modrm_value_w(cs: &mut CpuState, effective: &ModrmResult) -> Word {
+    match *effective {
+        ModrmResult::MemoryAddr(ref x) => {
             let addr = modrm_addr(cs, x);
             cs.getmem(addr).to_u16().unwrap()
         },
-        ModrmResult::Register(x) => {
-            let reg = modrm_reg16(&x);
+        ModrmResult::Register(ref x) => {
+            let reg = modrm_reg16(x);
             cs.getreg_w(&reg)
+        },
+    }
+}
+
+/**
+ * TODO - Document
+ */
+pub fn modrm_set_b(cs: &mut CpuState, result: &ModrmResult, value: Byte) {
+    match *result {
+        ModrmResult::MemoryAddr(ref x) => {
+            let addr = modrm_addr(cs, x);
+            cs.setmem(addr, value);
+        },
+        ModrmResult::Register(ref x) => {
+            let reg = modrm_reg8(x);
+            cs.setreg_b(&reg, value);
+        },
+    }
+}
+
+/**
+ * TODO - Document
+ */
+pub fn modrm_set_w(cs: &mut CpuState, result: &ModrmResult, value: Word) {
+    match *result {
+        ModrmResult::MemoryAddr(ref x) => {
+            let addr = modrm_addr(cs, x);
+            cs.setmem(addr, byteutils::high8(value));
+            cs.setmem(addr + 1, byteutils::low8(value));
+        },
+        ModrmResult::Register(ref x) => {
+            let reg = modrm_reg16(x);
+            cs.setreg_w(&reg, value);
         },
     }
 }

@@ -102,125 +102,88 @@ pub fn mov_e(cs: &mut CpuState, effective: ModrmResult, _: ModrmResult) {
 
     // TODO - Accept as method argument; should not call cs.read_* from here
     let src: Byte = cs.read_b();
-
-    match effective {
-        ModrmResult::MemoryAddr(x) => {
-            let addr = oplib::modrm_addr(cs, x);
-            cs.setmem(addr, src);
-        },
-        ModrmResult::Register(x) => {
-            let reg = oplib::modrm_reg8(&x);
-            cs.setreg_b(&reg, src);
-        },
-    }
+    oplib::modrm_set_b(cs, &effective, src);
 }
 
 pub fn b_mov_ge(cs: &mut CpuState, src: ModrmResult, dest: ModrmResult) {
     println!("(op) b_mov_ge");
-
-    let dest = oplib::modrm_reg8(dest.unwrap_register());
-    let src_value = oplib::modrm_value_b(cs, src);
-    cs.setreg_b(&dest, src_value);
+    let dest_value = oplib::modrm_reg8(dest.unwrap_register());
+    let src_value = oplib::modrm_value_b(cs, &src);
+    cs.setreg_b(&dest_value, src_value);
 }
 
 pub fn w_mov_ge(cs: &mut CpuState, src: ModrmResult, dest: ModrmResult) {
     println!("(op) w_mov_ge");
 
     let dest = oplib::modrm_reg16(dest.unwrap_register());
-    let src_value = oplib::modrm_value_w(cs, src);
+    let src_value = oplib::modrm_value_w(cs, &src);
     cs.setreg_w(&dest, src_value);
 }
 
 pub fn b_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     println!("(op) b_mov_eg");
 
-    let src_value = oplib::modrm_value_b(cs, src);
-
-    match dest {
-        ModrmResult::MemoryAddr(x) => {
-            let addr = oplib::modrm_addr(cs, x);
-            cs.setmem(addr, src_value);
-        },
-        ModrmResult::Register(x) => {
-            let reg = oplib::modrm_reg8(&x);
-            cs.setreg_b(&reg, src_value);
-        },
-    };
+    let src_value = oplib::modrm_value_b(cs, &src);
+    oplib::modrm_set_b(cs, &dest, src_value);
 }
 
 pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     println!("(op) w_mov_eg");
 
-    let src_value = oplib::modrm_value_w(cs, src);
-
-    match dest {
-        ModrmResult::MemoryAddr(x) => {
-            let addr = oplib::modrm_addr(cs, x);
-
-            // I'm pretty sure this doesn't work this way...
-            cs.setmem(addr, byteutils::high8(src_value));
-            cs.setmem(addr + 1, byteutils::low8(src_value));
-        },
-        ModrmResult::Register(x) => {
-            let reg = oplib::modrm_reg16(&x);
-            cs.setreg_w(&reg, src_value);
-        }
-    };
+    let src_value = oplib::modrm_value_w(cs, &src);
+    oplib::modrm_set_w(cs, &dest, src_value);
 }
 
 pub fn w_or_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_or_eg");
 
-    let reg = oplib::modrm_reg16(left.unwrap_register());
-    let left_value = oplib::modrm_value_w(cs, left);
-    let right_value = oplib::modrm_value_w(cs, right);
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
 
     let result = oplib::w_or(cs, left_value, right_value);
-    cs.setreg_w(&reg, result);
+    oplib::modrm_set_w(cs, &left, result);
 }
 
 pub fn w_xor_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_xor_eg");
 
-    let reg = oplib::modrm_reg16(left.unwrap_register());
-    let left_value = oplib::modrm_value_w(cs, left);
-    let right_value = oplib::modrm_value_w(cs, right);
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
 
     let result = oplib::w_xor(cs, left_value, right_value);
-    cs.setreg_w(&reg, result);
+    oplib::modrm_set_w(cs, &left, result);
 }
 
 pub fn w_add_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_add_eg");
 
-    let reg = oplib::modrm_reg16(left.unwrap_register());
-    let left_value = oplib::modrm_value_w(cs, left);
-    let right_value = oplib::modrm_value_w(cs, right);
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
 
     let result = oplib::w_add(cs, left_value, right_value);
-    cs.setreg_w(&reg, result);
+    oplib::modrm_set_w(cs, &left, result);
 }
 
 pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) b_cmp_eg");
 
-    let left_value = oplib::modrm_value_b(cs, left);
-    let right_value = oplib::modrm_value_b(cs, right);
+    let left_value = oplib::modrm_value_b(cs, &left);
+    let right_value = oplib::modrm_value_b(cs, &right);
     oplib::b_sub(cs, left_value, right_value);
 }
 
 pub fn w_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_cmp_eg");
 
-    let right_value = oplib::modrm_value_w(cs, right);
-    let left_value = oplib::modrm_value_w(cs, left);
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
     oplib::w_sub(cs, left_value, right_value);
 }
 
 pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) b_cmp_ei");
 
-    let effective = oplib::modrm_value_b(cs, effective);
+    let effective = oplib::modrm_value_b(cs, &effective);
     // TODO - Accept as method argument; should not call cs.read_* from here
     let immediate = cs.read_b();
     oplib::b_sub(cs, effective, immediate);
@@ -229,7 +192,7 @@ pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
 pub fn w_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) w_cmp_ei");
 
-    let effective = oplib::modrm_value_w(cs, effective);
+    let effective = oplib::modrm_value_w(cs, &effective);
     // TODO - Accept as method argument; should not call cs.read_* from here
     let immediate = cs.read_w();
     oplib::w_sub(cs, effective, immediate);
