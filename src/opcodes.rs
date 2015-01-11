@@ -132,8 +132,7 @@ fn do_opcode_iw(cs: &mut CpuState, opcode: Byte) {
  * Handle operations with ModR/M arguments (byte effective / register values)
  */
 fn do_opcode_mb(cs: &mut CpuState, opcode: Byte) {
-    let mb = cs.read_b();
-    let mb = modrm::ModrmByte::read(mb);
+    let mb = cs.read_modrm();
     let effective = mb.effective();
     let register = mb.register();
 
@@ -150,8 +149,7 @@ fn do_opcode_mb(cs: &mut CpuState, opcode: Byte) {
  * Handle operations with ModR/M arguments (word effective / register values)
  */
 fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
-    let mb = cs.read_b();
-    let mb = modrm::ModrmByte::read(mb);
+    let mb = cs.read_modrm();
     let effective = mb.effective();
     let register = mb.register();
 
@@ -218,8 +216,7 @@ fn do_group_b(cs: &mut CpuState, opcode: Byte) {
         panic!("Invalid opcode for do_group_b: 0x{:X}", opcode);
     }
 
-    let mb = cs.read_b();
-    let mb = modrm::ModrmByte::read(mb);
+    let mb = cs.read_modrm();
     let effective = mb.effective(); 
 
     match mb.reg {
@@ -233,8 +230,7 @@ fn do_group_w(cs: &mut CpuState, opcode: Byte) {
         panic!("Invalid opcode for do_group_w: 0x{:X}", opcode);
     }
 
-    let mb = cs.read_b();
-    let mb = modrm::ModrmByte::read(mb);
+    let mb = cs.read_modrm();
     let effective = mb.effective(); 
 
     match mb.reg {

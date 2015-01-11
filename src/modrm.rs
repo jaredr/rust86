@@ -13,7 +13,6 @@ pub enum MemoryAddr {
     SI,
     DI,
     BX,
-    DISP16,
 }
 pub enum Register {
     AX,
@@ -27,7 +26,15 @@ pub enum Register {
 }
 
 pub enum ModrmResult {
+    // Result is a memory address like [BX+SI] or [DI]
     MemoryAddr(MemoryAddr),
+
+    // Result is a memory address like [0x8000] or [cursor]
+    // This is a bit of a hack. The u16 value of MemoryDisp16
+    // is the location in memory of the ModR/M byte from which
+    // this ModrmResult was parsed. The actual DISP16 value would
+    // then be the next 2 bytes in memory.
+    MemoryDisp16(u16),
     Register(Register),
 }
 
@@ -36,6 +43,13 @@ impl ModrmResult {
         match *self {
             ModrmResult::MemoryAddr(ref x) => x,
             _ => panic!("ModrmResult::unwrap_addr: not MemoryAddr"),
+        }
+    }
+
+    pub fn unwrap_disp16(&self) -> &u16 {
+        match *self {
+            ModrmResult::MemoryDisp16(ref x) => x,
+            _ => panic!("ModrmResult::unwrap_addr: not MemoryDisp16"),
         }
     }
 
@@ -57,6 +71,8 @@ pub struct ModrmByte {
     pub m: u8,
     pub reg: u8,
     pub rm: u8,
+
+    pub peek: u16,
 }
 
 impl ModrmByte {
@@ -75,7 +91,8 @@ impl ModrmByte {
         ModrmByte {
             m: modbits,
             reg: reg,
-            rm: rm
+            rm: rm,
+            peek: 0,
         }
     }
 
@@ -102,7 +119,7 @@ impl ModrmByte {
                 0b011 => ModrmResult::MemoryAddr(MemoryAddr::BP_DI),
                 0b100 => ModrmResult::MemoryAddr(MemoryAddr::SI),
                 0b101 => ModrmResult::MemoryAddr(MemoryAddr::DI),
-                0b110 => ModrmResult::MemoryAddr(MemoryAddr::DISP16),
+                0b110 => ModrmResult::MemoryDisp16(self.peek),
                 0b111 => ModrmResult::MemoryAddr(MemoryAddr::BX),
                 _ => panic!("Invalid ModRM byte"),
             },
@@ -113,5 +130,25 @@ impl ModrmByte {
 
     pub fn register(&self) -> ModrmResult {
         ModrmResult::Register(self.parse_register(self.reg))
+    }
+
+    /**
+     * Returns true if a peek WORD is required. I.e. if either contained
+     * ModrmValue is a [disp16].
+     */
+    pub fn need_peek(&self) -> bool {
+        let eff = match self.effective() {
+            ModrmResult::MemoryDisp16(_) => true,
+            _ => false,
+        };
+        let reg = match self.register() {
+            ModrmResult::MemoryDisp16(_) => true,
+            _ => false,
+        };
+        eff || reg
+    }
+
+    pub fn set_peek(&mut self, peek: u16) {
+        self.peek = peek;
     }
 }

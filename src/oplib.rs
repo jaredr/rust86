@@ -108,12 +108,6 @@ pub fn modrm_addr(cs: &mut CpuState, result_addr: &modrm::MemoryAddr) -> Word {
         modrm::MemoryAddr::SI => cs.getreg_w(&SI),
         modrm::MemoryAddr::DI => cs.getreg_w(&DI),
         modrm::MemoryAddr::BX => cs.getreg_w(&BX),
-
-        // NOTE / FIXME
-        // Since the DISP16 case will call cs.read_w, it's imperative that
-        // modrm_addr() be called immediately after the ModR/M byte itself is
-        // read, and before anything else is read from CpuState's memory.
-        modrm::MemoryAddr::DISP16 => cs.read_w()
     }
 }
 
@@ -156,6 +150,9 @@ pub fn modrm_value_b(cs: &mut CpuState, effective: &ModrmResult) -> Byte {
             let addr = modrm_addr(cs, x);
             cs.getmem(addr)
         },
+        ModrmResult::MemoryDisp16(ref addr) => {
+            cs.getmem(*addr)
+        },
         ModrmResult::Register(ref x) => {
             let reg = modrm_reg8(x);
             cs.getreg_b(&reg)
@@ -171,7 +168,10 @@ pub fn modrm_value_w(cs: &mut CpuState, effective: &ModrmResult) -> Word {
     match *effective {
         ModrmResult::MemoryAddr(ref x) => {
             let addr = modrm_addr(cs, x);
-            cs.getmem(addr).to_u16().unwrap()
+            byteutils::join8(cs.getmem(addr), cs.getmem(addr+1))
+        },
+        ModrmResult::MemoryDisp16(ref addr) => {
+            cs.getmem(*addr).to_u16().unwrap()
         },
         ModrmResult::Register(ref x) => {
             let reg = modrm_reg16(x);
@@ -189,6 +189,9 @@ pub fn modrm_set_b(cs: &mut CpuState, result: &ModrmResult, value: Byte) {
             let addr = modrm_addr(cs, x);
             cs.setmem(addr, value);
         },
+        ModrmResult::MemoryDisp16(ref addr) => {
+            cs.setmem(*addr, value);
+        },
         ModrmResult::Register(ref x) => {
             let reg = modrm_reg8(x);
             cs.setreg_b(&reg, value);
@@ -205,6 +208,10 @@ pub fn modrm_set_w(cs: &mut CpuState, result: &ModrmResult, value: Word) {
             let addr = modrm_addr(cs, x);
             cs.setmem(addr, byteutils::high8(value));
             cs.setmem(addr + 1, byteutils::low8(value));
+        },
+        ModrmResult::MemoryDisp16(ref addr) => {
+            cs.setmem(*addr, byteutils::high8(value));
+            cs.setmem(*addr + 1, byteutils::low8(value));
         },
         ModrmResult::Register(ref x) => {
             let reg = modrm_reg16(x);
