@@ -29,12 +29,10 @@ pub enum ModrmResult {
     // Result is a memory address like [BX+SI] or [DI]
     MemoryAddr(MemoryAddr),
 
-    // Result is a memory address like [0x8000] or [cursor]
-    // This is a bit of a hack. The u16 value of MemoryDisp16
-    // is the location in memory of the ModR/M byte from which
-    // this ModrmResult was parsed. The actual DISP16 value would
-    // then be the next 2 bytes in memory.
+    // Result is a [DISP16] memory address
     MemoryDisp16(u16),
+
+    // Result is a general register, e.g. AX or DI
     Register(Register),
 }
 
