@@ -221,20 +221,43 @@ pub fn w_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::w_sub(cs, left_value, right_value);
 }
 
+pub fn w_adc_ei(cs: &mut CpuState, effective: ModrmResult) {
+    println!("(op) w_adc_ei");
+
+    let effective_value = oplib::modrm_value_w(cs, &effective);
+    let carry_value = match cs.carry() {
+        true => 1,
+        false => 0,
+    };
+    // TODO - Accept as method argument; should not call cs.read_* from here
+    // TODO - This applies to all _ei functions
+    let immediate = cs.read_w();
+
+    let result = oplib::w_add(cs, effective_value, immediate + carry_value);
+    oplib::modrm_set_w(cs, &effective, result);
+}
+
 pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) b_cmp_ei");
 
     let effective = oplib::modrm_value_b(cs, &effective);
-    // TODO - Accept as method argument; should not call cs.read_* from here
     let immediate = cs.read_b();
     oplib::b_sub(cs, effective, immediate);
+}
+
+pub fn w_sub_ei(cs: &mut CpuState, effective: ModrmResult) {
+    println!("(op) w_sub_ei");
+
+    let effective_value = oplib::modrm_value_w(cs, &effective);
+    let immediate = cs.read_w();
+    let result = oplib::w_sub(cs, effective_value, immediate);
+    oplib::modrm_set_w(cs, &effective, result);
 }
 
 pub fn w_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) w_cmp_ei");
 
     let effective = oplib::modrm_value_w(cs, &effective);
-    // TODO - Accept as method argument; should not call cs.read_* from here
     let immediate = cs.read_w();
     oplib::w_sub(cs, effective, immediate);
 }
