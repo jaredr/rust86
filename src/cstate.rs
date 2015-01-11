@@ -190,4 +190,8 @@ impl CpuState {
     pub fn carry(&self) -> bool {
         self.cf
     }
+
+    pub fn set_carry(&mut self) {
+        self.cf = true;
+    }
 }

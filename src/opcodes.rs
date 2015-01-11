@@ -54,7 +54,8 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         // Opcodes with no arguments
         0x40...0x4C |
         0x50...0x5F |
-        0xC3 => do_opcode_none,
+        0xC3 |
+        0xF9 => do_opcode_none,
 
         // Group opcodes with immediate arguments
         0x80 => do_group_b,
@@ -202,6 +203,8 @@ fn do_opcode_none(cs: &mut CpuState, opcode: Byte) {
         0x5F => operations::pop(cs, Reg16::DI),
 
         0xC3 => operations::ret(cs),
+
+        0xF9 => operations::stc(cs),
 
         _ => panic!("Invalid opcode for do_opcode_none: 0x{:X}", opcode),
     };
