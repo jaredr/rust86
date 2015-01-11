@@ -12,26 +12,56 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 
     let func: F = match opcode {
         // Opcodes with immediate byte arguments
-        0x04 | 0xB0 | 0xB1 | 0xB2 | 0xB3 | 0xB4 | 0xB5 | 0xB6 | 0xB7 | 0x3C | 0xEB | 0x72 | 0x74 | 0x75 => do_opcode_ib,
+        0x04 |
+        0x3C |
+        0x72 |
+        0x74 |
+        0x75 |
+        0xB0 |
+        0xB1 |
+        0xB2 |
+        0xB3 |
+        0xB4 |
+        0xB5 |
+        0xB6 |
+        0xB7 |
+        0xEB => do_opcode_ib,
 
         // Opcodes with immediate word arguments
-        0x05 | 0xB8 | 0xB9 | 0xBA | 0xBB | 0xBC | 0xBD | 0xBE | 0xBF | 0x3D | 0xE8 | 0xE9 => do_opcode_iw,
+        0x05 |
+        0x3D |
+        0xB8 |
+        0xB9 |
+        0xBA...0xBF |
+        0xE8 |
+        0xE9 => do_opcode_iw,
 
         // Opcodes with ModR/M arguments (operate on bytes)
-        0x88 | 0x8A | 0x38 => do_opcode_mb,
+        0x88 |
+        0x8A |
+        0x38 => do_opcode_mb,
 
         // Opcodes with ModR/M arguments (operate on words)
-        0x01 | 0x89 | 0x8B | 0xC6 | 0x09 | 0x31 | 0x39 => do_opcode_mw,
+        0x01 |
+        0x09 |
+        0x31 |
+        0x39 |
+        0x89 |
+        0x8B |
+        0xC6 => do_opcode_mw,
 
         // Opcodes with no arguments
-        0x40...0x4C | 0x50...0x5F | 0xC3 => do_opcode_none,
+        0x40...0x4C |
+        0x50...0x5F |
+        0xC3 => do_opcode_none,
 
         // Group opcodes with immediate arguments
         0x80 => do_group_b,
         0x81 => do_group_w,
 
         // Special opcodes
-        0xF4 | 0x90 => do_special,
+        0xF4 |
+        0x90 => do_special,
 
         _ => panic!("Unrecognized opcode: 0x{:X}", opcode),
     };
@@ -48,11 +78,11 @@ fn do_opcode_ib(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x04 => operations::b_add(cs, Reg8::AL, immediate),
 
+        0x3C => operations::b_cmp_ri(cs, Reg8::AL, immediate),
+
         0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate),
         0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate),
         0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate),
-
-        0x3C => operations::b_cmp_ri(cs, Reg8::AL, immediate),
 
         0xB0 => operations::b_mov_ir(cs, Reg8::AL, immediate),
         0xB1 => operations::b_mov_ir(cs, Reg8::CL, immediate),
