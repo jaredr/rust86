@@ -17,6 +17,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0x72 |
         0x74 |
         0x75 |
+        0x79 |
         0xB0 |
         0xB1 |
         0xB2 |
@@ -83,6 +84,7 @@ fn do_opcode_ib(cs: &mut CpuState, opcode: Byte) {
         0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate),
         0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate),
         0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate),
+        0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate),
 
         0xB0 => operations::b_mov_ir(cs, Reg8::AL, immediate),
         0xB1 => operations::b_mov_ir(cs, Reg8::CL, immediate),

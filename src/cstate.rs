@@ -183,6 +183,10 @@ impl CpuState {
         self.zf
     }
 
+    pub fn sign(&self) -> bool {
+        self.sf
+    }
+
     pub fn carry(&self) -> bool {
         self.cf
     }
