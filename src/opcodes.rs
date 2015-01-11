@@ -46,6 +46,8 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         // Opcodes with ModR/M arguments (operate on words)
         0x01 |
         0x09 |
+        0x19 |
+        0x29 |
         0x31 |
         0x39 |
         0x89 |
@@ -158,6 +160,8 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x01 => operations::w_add_eg(cs, effective, register),
         0x09 => operations::w_or_eg(cs, effective, register),
+        0x19 => operations::w_sbb_eg(cs, effective, register),
+        0x29 => operations::w_sub_eg(cs, effective, register),
         0x31 => operations::w_xor_eg(cs, effective, register),
         0x39 => operations::w_cmp_eg(cs, effective, register),
         0x89 => operations::w_mov_eg(cs, effective, register),

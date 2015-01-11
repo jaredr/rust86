@@ -182,6 +182,29 @@ pub fn w_add_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::modrm_set_w(cs, &left, result);
 }
 
+pub fn w_sbb_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
+    println!("(op) w_sbb_eg");
+
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
+    let carry_value = match cs.carry() {
+        true => 1,
+        false => 0,
+    };
+
+    let result = oplib::w_sub(cs, left_value, right_value + carry_value);
+    oplib::modrm_set_w(cs, &left, result);
+}
+
+pub fn w_sub_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
+    println!("(op) w_sub_eg");
+
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
+    let result = oplib::w_sub(cs, left_value, right_value);
+    oplib::modrm_set_w(cs, &left, result);
+}
+
 pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) b_cmp_eg");
 
