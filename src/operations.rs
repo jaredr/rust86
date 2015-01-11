@@ -168,44 +168,44 @@ pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
     };
 }
 
-pub fn w_or_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+pub fn w_or_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_or_eg");
 
-    let effective = oplib::modrm_value_w(cs, effective);
-    let reg = oplib::modrm_reg16(reg.unwrap_register());
-    let reg_value = cs.getreg_w(&reg);
+    let reg = oplib::modrm_reg16(left.unwrap_register());
+    let left_value = oplib::modrm_value_w(cs, left);
+    let right_value = oplib::modrm_value_w(cs, right);
 
-    let result = oplib::w_or(cs, reg_value, effective);
-    cs.setreg_w(&reg, result)
+    let result = oplib::w_or(cs, left_value, right_value);
+    cs.setreg_w(&reg, result);
 }
 
-pub fn w_xor_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+pub fn w_xor_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_xor_eg");
 
-    let effective = oplib::modrm_value_w(cs, effective);
-    let reg = oplib::modrm_reg16(reg.unwrap_register());
-    let reg_value = cs.getreg_w(&reg);
+    let reg = oplib::modrm_reg16(left.unwrap_register());
+    let left_value = oplib::modrm_value_w(cs, left);
+    let right_value = oplib::modrm_value_w(cs, right);
 
-    let result = oplib::w_xor(cs, reg_value, effective);
-    cs.setreg_w(&reg, result)
+    let result = oplib::w_xor(cs, left_value, right_value);
+    cs.setreg_w(&reg, result);
 }
 
-pub fn w_add_eg(cs: &mut CpuState, effective: ModrmResult, reg: ModrmResult) {
+pub fn w_add_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) w_add_eg");
 
-    let effective = oplib::modrm_value_w(cs, effective);
-    let reg = oplib::modrm_reg16(reg.unwrap_register());
-    let reg_value = cs.getreg_w(&reg);
+    let reg = oplib::modrm_reg16(left.unwrap_register());
+    let left_value = oplib::modrm_value_w(cs, left);
+    let right_value = oplib::modrm_value_w(cs, right);
 
-    let result = oplib::w_add(cs, reg_value, effective);
+    let result = oplib::w_add(cs, left_value, right_value);
     cs.setreg_w(&reg, result);
 }
 
 pub fn b_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     println!("(op) b_cmp_eg");
 
-    let right_value = oplib::modrm_value_b(cs, right);
     let left_value = oplib::modrm_value_b(cs, left);
+    let right_value = oplib::modrm_value_b(cs, right);
     oplib::b_sub(cs, left_value, right_value);
 }
 
