@@ -109,14 +109,14 @@ impl CpuState {
      */
     pub fn getreg_b(&self, reg: &Reg8) -> Byte {
         match *reg {
-            AL => return low8(self.ax),
-            BL => return low8(self.bx),
-            CL => return low8(self.cx),
-            DL => return low8(self.dx),
-            AH => return high8(self.ax),
-            BH => return high8(self.bx),
-            CH => return high8(self.cx),
-            DH => return high8(self.dx),
+            AL => return high8(self.ax),
+            BL => return high8(self.bx),
+            CL => return high8(self.cx),
+            DL => return high8(self.dx),
+            AH => return low8(self.ax),
+            BH => return low8(self.bx),
+            CH => return low8(self.cx),
+            DH => return low8(self.dx),
         }
     }
 
@@ -141,14 +141,14 @@ impl CpuState {
 
     pub fn setreg_b(&mut self, reg: &Reg8, new_val: Byte) {
         match *reg {
-            AL => self.ax = join_low8(self.ax, new_val),
-            BL => self.bx = join_low8(self.bx, new_val),
-            CL => self.cx = join_low8(self.cx, new_val),
-            DL => self.dx = join_low8(self.dx, new_val),
-            AH => self.ax = join_high8(self.ax, new_val),
-            BH => self.bx = join_high8(self.bx, new_val),
-            CH => self.cx = join_high8(self.cx, new_val),
-            DH => self.dx = join_high8(self.dx, new_val),
+            AL => self.ax = join_high8(self.ax, new_val),
+            BL => self.bx = join_high8(self.bx, new_val),
+            CL => self.cx = join_high8(self.cx, new_val),
+            DL => self.dx = join_high8(self.dx, new_val),
+            AH => self.ax = join_low8(self.ax, new_val),
+            BH => self.bx = join_low8(self.bx, new_val),
+            CH => self.cx = join_low8(self.cx, new_val),
+            DH => self.dx = join_low8(self.dx, new_val),
         }
     }
 
@@ -166,9 +166,9 @@ impl CpuState {
      * Read a Word from the memory location at `ip` and advance `ip`.
      */
     pub fn read_w(&mut self) -> Word {
-        let left_b: Byte = self.read_b();
-        let right_b: Byte = self.read_b();
-        let word: Word = join8(left_b, right_b);
+        let high_b: Byte = self.read_b();
+        let low_b: Byte = self.read_b();
+        let word: Word = join8(low_b, high_b);
 
         word
     }

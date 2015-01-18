@@ -13,8 +13,8 @@ pub fn push(cs: &mut CpuState, val: Word) {
     let low_b = byteutils::low8(val);
     let high_b = byteutils::high8(val);
     let sp = cs.getreg_w(&SP);
-    cs.setmem(sp - 1, low_b);
     cs.setmem(sp - 2, high_b);
+    cs.setmem(sp - 1, low_b);
     cs.setreg_w(&SP, sp - 2);
 }
 
@@ -23,10 +23,8 @@ pub fn push(cs: &mut CpuState, val: Word) {
  */
 pub fn pop(cs: &mut CpuState) -> Word {
     let sp = cs.getreg_w(&SP);
-    let low_b = cs.getmem(sp);
-    let high_b = cs.getmem(sp + 1);
-    cs.setmem(sp, 0x0);
-    cs.setmem(sp + 1, 0x0);
+    let low_b = cs.getmem(sp + 1);
+    let high_b = cs.getmem(sp);
     cs.setreg_w(&SP, sp + 2);
     byteutils::join8(low_b, high_b)
 }
@@ -168,10 +166,10 @@ pub fn modrm_value_w(cs: &mut CpuState, effective: &ModrmResult) -> Word {
     match *effective {
         ModrmResult::MemoryAddr(ref x) => {
             let addr = modrm_addr(cs, x);
-            byteutils::join8(cs.getmem(addr), cs.getmem(addr + 1))
+            byteutils::join8(cs.getmem(addr + 1), cs.getmem(addr))
         },
         ModrmResult::MemoryDisp16(ref addr) => {
-            byteutils::join8(cs.getmem(*addr), cs.getmem(*addr + 1))
+            byteutils::join8(cs.getmem(*addr + 1), cs.getmem(*addr))
         },
         ModrmResult::Register(ref x) => {
             let reg = modrm_reg16(x);
