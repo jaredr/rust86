@@ -241,9 +241,9 @@ fn do_group_w(cs: &mut CpuState, opcode: Byte) {
 
     match mb.reg {
         0b111 => operations::w_cmp_ei(cs, effective),
-        _ => panic!("Not Implemented"),
         0b101 => operations::w_sub_ei(cs, effective),
         0b010 => operations::w_adc_ei(cs, effective),
+        0b000 => operations::w_add_ei(cs, effective),
     }
 }
 

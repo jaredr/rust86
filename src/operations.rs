@@ -237,6 +237,16 @@ pub fn w_adc_ei(cs: &mut CpuState, effective: ModrmResult) {
     oplib::modrm_set_w(cs, &effective, result);
 }
 
+pub fn w_add_ei(cs: &mut CpuState, effective: ModrmResult) {
+    println!("(op) w_add_ei");
+
+    let effective_value = oplib::modrm_value_w(cs, &effective);
+    let immediate = cs.read_w();
+
+    let result = oplib::w_add(cs, effective_value, immediate);
+    oplib::modrm_set_w(cs, &effective, result);
+}
+
 pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) b_cmp_ei");
 
