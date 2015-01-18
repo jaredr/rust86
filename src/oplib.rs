@@ -168,10 +168,10 @@ pub fn modrm_value_w(cs: &mut CpuState, effective: &ModrmResult) -> Word {
     match *effective {
         ModrmResult::MemoryAddr(ref x) => {
             let addr = modrm_addr(cs, x);
-            byteutils::join8(cs.getmem(addr), cs.getmem(addr+1))
+            byteutils::join8(cs.getmem(addr), cs.getmem(addr + 1))
         },
         ModrmResult::MemoryDisp16(ref addr) => {
-            cs.getmem(*addr).to_u16().unwrap()
+            byteutils::join8(cs.getmem(*addr), cs.getmem(*addr + 1))
         },
         ModrmResult::Register(ref x) => {
             let reg = modrm_reg16(x);
