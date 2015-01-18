@@ -51,11 +51,13 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0x31 |
         0x39 |
         0x89 |
-        0x8B |
-        0xC6 => do_opcode_mw,
+        0x8B => do_opcode_mw,
 
         // Opcodes with both ModR/M and immediate arguments (operate on words)
-        0xC7 => do_opcode_mib,
+        0xC6 => do_opcode_mib,
+
+        // Opcodes with both ModR/M and immediate arguments (operate on bytes)
+        0xC7 => do_opcode_miw,
 
         // Opcodes with no arguments
         0x40...0x4C |
@@ -172,7 +174,6 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
         0x39 => operations::w_cmp_eg(cs, effective, register),
         0x89 => operations::w_mov_eg(cs, effective, register),
         0x8B => operations::w_mov_ge(cs, effective, register),
-        0xC6 => operations::mov_e(cs, effective, register),
 
         _ => panic!("Invalid opcode for do_opcode_mw: 0x{:X}", opcode),
     };
@@ -184,14 +185,86 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
 fn do_opcode_mib(cs: &mut CpuState, opcode: Byte) {
     let mb = cs.read_modrm();
     let effective = mb.effective();
+    let immediate = cs.read_b();
 
     match opcode {
-        0xC7 => operations::w_mov_ei(cs, effective),
+        0xC6 => operations::b_mov_ei(cs, effective, immediate),
 
         _ => panic!("Invalid opcode for do_opcode_mib: 0x{:X}", opcode),
     };
 }
 
+/**
+ * Handle operations with ModR/M and immediate arguments (bytes)
+ */
+fn do_opcode_miw(cs: &mut CpuState, opcode: Byte) {
+    let mb = cs.read_modrm();
+    let effective = mb.effective();
+    let immediate = cs.read_w();
+
+    match opcode {
+        0xC7 => operations::w_mov_ei(cs, effective, immediate),
+
+        _ => panic!("Invalid opcode for do_opcode_miw: 0x{:X}", opcode),
+    };
+}
+
+/**
+ * Handle group operations with immediate arguments (bytes)
+ */
+fn do_group_ib(cs: &mut CpuState, opcode: Byte) {
+    if opcode != 0x80 {
+        panic!("Invalid opcode for do_group_ib: 0x{:X}", opcode);
+    }
+
+    let mb = cs.read_modrm();
+    let effective = mb.effective(); 
+    let immediate = cs.read_b();
+
+    match mb.reg {
+        0b111 => operations::b_cmp_ei(cs, effective, immediate),
+        _ => panic!("do_group_ib: Not Implemented: 0b{:b}", mb.reg),
+    }
+}
+
+/**
+ * Handle group operations with immediate word arguments (words)
+ */
+fn do_group_iw(cs: &mut CpuState, opcode: Byte) {
+    if opcode != 0x81 {
+        panic!("Invalid opcode for do_group_iw: 0x{:X}", opcode);
+    }
+
+    let mb = cs.read_modrm();
+    let effective = mb.effective(); 
+    let immediate = cs.read_w();
+
+    match mb.reg {
+        0b111 => operations::w_cmp_ei(cs, effective, immediate),
+        0b101 => operations::w_sub_ei(cs, effective, immediate),
+        0b010 => operations::w_adc_ei(cs, effective, immediate),
+        0b000 => operations::w_add_ei(cs, effective, immediate),
+        _ => println!("do_group_iw: Not Implemented: 0b{:b}", mb.reg);
+    }
+}
+
+/**
+ * Handle group operations with no arguments
+ */
+fn do_group_b(cs: &mut CpuState, opcode: Byte) {
+    if opcode != 0xFE {
+        panic!("Invalid opcode for do_group_b: 0x{:X}", opcode);
+    }
+
+    let mb = cs.read_modrm();
+    let effective = mb.effective();
+
+    match mb.reg {
+        0b000 => operations::b_inc_e(cs, effective),
+        0b001 => operations::b_dec_e(cs, effective),
+        _ => panic!("do_group_b: Invalid reg value"),
+    }
+}
 
 /**
  * Handle operations that take no arguments or for which the argument
@@ -236,61 +309,16 @@ fn do_opcode_none(cs: &mut CpuState, opcode: Byte) {
 }
 
 /**
- * Handle group operations
- */
-fn do_group_ib(cs: &mut CpuState, opcode: Byte) {
-    if opcode != 0x80 {
-        panic!("Invalid opcode for do_group_ib: 0x{:X}", opcode);
-    }
-
-    let mb = cs.read_modrm();
-    let effective = mb.effective(); 
-
-    match mb.reg {
-        0b111 => operations::b_cmp_ei(cs, effective),
-        _ => panic!("do_group_ib: Not Implemented: 0b{:b}", mb.reg),
-    }
-}
-
-fn do_group_iw(cs: &mut CpuState, opcode: Byte) {
-    if opcode != 0x81 {
-        panic!("Invalid opcode for do_group_iw: 0x{:X}", opcode);
-    }
-
-    let mb = cs.read_modrm();
-    let effective = mb.effective(); 
-
-    match mb.reg {
-        0b111 => operations::w_cmp_ei(cs, effective),
-        0b101 => operations::w_sub_ei(cs, effective),
-        0b010 => operations::w_adc_ei(cs, effective),
-        0b000 => operations::w_add_ei(cs, effective),
-
-fn do_group_b(cs: &mut CpuState, opcode: Byte) {
-    if opcode != 0xFE {
-        panic!("Invalid opcode for do_group_b: 0x{:X}", opcode);
-    }
-
-    let mb = cs.read_modrm();
-    let effective = mb.effective();
-
-    match mb.reg {
-        0b000 => operations::b_inc_e(cs, effective),
-        0b001 => operations::b_dec_e(cs, effective),
-        _ => panic!("do_group_b: Invalid reg value"),
-    }
-}
-
-/**
  * Handle special opcodes
  */
 fn do_special(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0xF4 => {
             debugger::dump_state(cs);
+            debugger::dump_vram(cs);
             panic!("0xF4");
         },
-        0x90 => {},
+        0x90 => println!("nop"),
 
         _ => panic!("Invalid opcode for do_special: 0x{:X}", opcode),
     };
