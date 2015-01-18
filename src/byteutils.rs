@@ -59,13 +59,18 @@ fn sub_overflow(l_sign: bool, r_sign: bool, result_sign: bool) -> bool {
     ((l_sign && !r_sign) && !result_sign)
 }
 
-fn or_overflow(_: bool, _: bool, _: bool) -> bool {
+fn and_or_overflow(_: bool, _: bool, _: bool) -> bool {
     false
 }
 
 fn checked_or<T: Int>(left: T, right: T) -> Option<T> {
     Some(left | right)
 }
+
+fn checked_and<T: Int>(left: T, right: T) -> Option<T> {
+    Some(left & right)
+}
+
 
 /**
  * Arithmetic functions. Functions generated from this macro take input
@@ -103,7 +108,9 @@ arithmetic!(b_add, Byte, add Int::checked_add, add_overflow);
 arithmetic!(w_add, Word, add Int::checked_add, add_overflow);
 arithmetic!(b_sub, Byte, sub Int::checked_sub, sub_overflow);
 arithmetic!(w_sub, Word, sub Int::checked_sub, sub_overflow);
-arithmetic!(b_or, Byte, bitor checked_or, or_overflow);
-arithmetic!(b_xor, Byte, bitxor checked_or, or_overflow);
-arithmetic!(w_or, Word, bitor checked_or, or_overflow);
-arithmetic!(w_xor, Word, bitxor checked_or, or_overflow);
+arithmetic!(b_or , Byte, bitor checked_or , and_or_overflow);
+arithmetic!(w_or , Word, bitor checked_or , and_or_overflow);
+arithmetic!(b_xor, Byte, bitxor checked_or, and_or_overflow);
+arithmetic!(w_xor, Word, bitxor checked_or, and_or_overflow);
+arithmetic!(b_and, Byte, bitand checked_and, and_or_overflow);
+arithmetic!(w_and, Word, bitand checked_and, and_or_overflow);

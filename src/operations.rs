@@ -151,6 +151,14 @@ pub fn w_or_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::modrm_set_w(cs, &left, result);
 }
 
+pub fn w_and_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
+    let left_value = oplib::modrm_value_w(cs, &left);
+    let right_value = oplib::modrm_value_w(cs, &right);
+
+    let result = oplib::w_and(cs, left_value, right_value);
+    oplib::modrm_set_w(cs, &left, result);
+}
+
 pub fn w_xor_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     let left_value = oplib::modrm_value_w(cs, &left);
     let right_value = oplib::modrm_value_w(cs, &right);
