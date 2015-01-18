@@ -54,6 +54,9 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0x8B |
         0xC6 => do_opcode_mw,
 
+        // Opcodes with both ModR/M and immediate arguments (operate on words)
+        0xC7 => do_opcode_mib,
+
         // Opcodes with no arguments
         0x40...0x4C |
         0x50...0x5F |
@@ -174,6 +177,21 @@ fn do_opcode_mw(cs: &mut CpuState, opcode: Byte) {
         _ => panic!("Invalid opcode for do_opcode_mw: 0x{:X}", opcode),
     };
 }
+
+/**
+ * Handle operations with ModR/M and immediate arguments (word values)
+ */
+fn do_opcode_mib(cs: &mut CpuState, opcode: Byte) {
+    let mb = cs.read_modrm();
+    let effective = mb.effective();
+
+    match opcode {
+        0xC7 => operations::w_mov_ei(cs, effective),
+
+        _ => panic!("Invalid opcode for do_opcode_mib: 0x{:X}", opcode),
+    };
+}
+
 
 /**
  * Handle operations that take no arguments or for which the argument

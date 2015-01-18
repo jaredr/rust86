@@ -272,6 +272,13 @@ pub fn w_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     oplib::w_sub(cs, effective, immediate);
 }
 
+pub fn w_mov_ei(cs: &mut CpuState, effective: ModrmResult) {
+    println!("(op) w_mov_ei");
+
+    let immediate = cs.read_w();
+    oplib::modrm_set_w(cs, &effective, immediate);
+}
+
 pub fn b_inc_e(cs: &mut CpuState, effective: ModrmResult) {
     println!("(op) b_inc_e");
 
