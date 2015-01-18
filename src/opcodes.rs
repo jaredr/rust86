@@ -26,6 +26,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0xEB => b_opcode_i,
 
         0x05 |
+        0x2D |
         0x3D |
         0xB8 |
         0xB9 |
@@ -33,6 +34,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0xE8 |
         0xE9 => w_opcode_i,
 
+        0x86 |
         0x88 |
         0x8A |
         0x38 => b_opcode_m,
@@ -105,6 +107,7 @@ fn w_opcode_i(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x05 => operations::w_add(cs, Reg16::AX, immediate),
 
+        0x2D => operations::w_sub_ri(cs, Reg16::AX, immediate),
         0x3D => operations::w_cmp_ri(cs, Reg16::AX, immediate),
 
         0xB8 => operations::w_mov_ir(cs, Reg16::AX, immediate),
@@ -128,6 +131,7 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let register = mb.register();
 
     match opcode {
+        0x86 => operations::b_xchg_eg(cs, effective, register),
         0x88 => operations::b_mov_eg(cs, effective, register),
         0x8A => operations::b_mov_ge(cs, effective, register),
         0x38 => operations::b_cmp_eg(cs, effective, register),
@@ -189,6 +193,7 @@ fn b_group_i(cs: &mut CpuState, opcode: Byte) {
     let immediate = cs.read_b();
 
     match mb.reg {
+        0b001 => operations::b_or_ei(cs, effective, immediate),
         0b111 => operations::b_cmp_ei(cs, effective, immediate),
         _ => panic!("b_group_i: Not Implemented: 0b{:b}", mb.reg),
     }

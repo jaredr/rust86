@@ -95,6 +95,13 @@ pub fn w_add(cs: &mut CpuState, reg: Reg16, immediate: Word) {
     cs.setreg_w(&reg, new_val);
 }
 
+pub fn w_sub_ri(cs: &mut CpuState, reg: Reg16, immediate: Word) {
+    println!("(op) w_sub_ri");
+    let reg_val = cs.getreg_w(&reg);
+    let new_val = oplib::w_sub(cs, reg_val, immediate);
+    cs.setreg_w(&reg, new_val);
+}
+
 pub fn b_cmp_ri(cs: &mut CpuState, reg: Reg8, immediate: Byte) {
     println!("(op) b_cmp_ri");
     let reg_val = cs.getreg_b(&reg);
@@ -144,6 +151,15 @@ pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
 
     let src_value = oplib::modrm_value_w(cs, &src);
     oplib::modrm_set_w(cs, &dest, src_value);
+}
+
+pub fn b_xchg_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
+    println!("(op) b_xchg_eg");
+
+    let left_value = oplib::modrm_value_b(cs, &left);
+    let right_value = oplib::modrm_value_b(cs, &right);
+    oplib::modrm_set_b(cs, &left, right_value);
+    oplib::modrm_set_b(cs, &right, left_value);
 }
 
 pub fn w_or_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
@@ -243,6 +259,14 @@ pub fn b_cmp_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Byte) {
     oplib::b_sub(cs, effective, immediate);
 }
 
+pub fn b_or_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Byte) {
+    println!("(op) b_or_ei");
+
+    let effective_value = oplib::modrm_value_b(cs, &effective);
+    let result = oplib::b_or(cs, effective_value, immediate);
+    oplib::modrm_set_b(cs, &effective, result);
+}
+
 pub fn w_sub_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
     println!("(op) w_sub_ei");
 
@@ -265,7 +289,6 @@ pub fn b_mov_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Byte) {
 
 pub fn w_mov_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
     println!("(op) w_mov_ei");
-
     oplib::modrm_set_w(cs, &effective, immediate);
 }
 
