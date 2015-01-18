@@ -61,8 +61,11 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0xF9 => do_opcode_none,
 
         // Group opcodes with immediate arguments
-        0x80 => do_group_b,
-        0x81 => do_group_w,
+        0x80 => do_group_ib,
+        0x81 => do_group_iw,
+
+        // Group opcodes with no arguments
+        0xFE => do_group_b,
 
         // Special opcodes
         0xF4 |
@@ -217,9 +220,9 @@ fn do_opcode_none(cs: &mut CpuState, opcode: Byte) {
 /**
  * Handle group operations
  */
-fn do_group_b(cs: &mut CpuState, opcode: Byte) {
+fn do_group_ib(cs: &mut CpuState, opcode: Byte) {
     if opcode != 0x80 {
-        panic!("Invalid opcode for do_group_b: 0x{:X}", opcode);
+        panic!("Invalid opcode for do_group_ib: 0x{:X}", opcode);
     }
 
     let mb = cs.read_modrm();
@@ -227,13 +230,13 @@ fn do_group_b(cs: &mut CpuState, opcode: Byte) {
 
     match mb.reg {
         0b111 => operations::b_cmp_ei(cs, effective),
-        _ => panic!("Not Implemented"),
+        _ => panic!("do_group_ib: Not Implemented: 0b{:b}", mb.reg),
     }
 }
 
-fn do_group_w(cs: &mut CpuState, opcode: Byte) {
+fn do_group_iw(cs: &mut CpuState, opcode: Byte) {
     if opcode != 0x81 {
-        panic!("Invalid opcode for do_group_w: 0x{:X}", opcode);
+        panic!("Invalid opcode for do_group_iw: 0x{:X}", opcode);
     }
 
     let mb = cs.read_modrm();
@@ -244,6 +247,19 @@ fn do_group_w(cs: &mut CpuState, opcode: Byte) {
         0b101 => operations::w_sub_ei(cs, effective),
         0b010 => operations::w_adc_ei(cs, effective),
         0b000 => operations::w_add_ei(cs, effective),
+
+fn do_group_b(cs: &mut CpuState, opcode: Byte) {
+    if opcode != 0xFE {
+        panic!("Invalid opcode for do_group_b: 0x{:X}", opcode);
+    }
+
+    let mb = cs.read_modrm();
+    let effective = mb.effective();
+
+    match mb.reg {
+        0b000 => operations::b_inc_e(cs, effective),
+        0b001 => operations::b_dec_e(cs, effective),
+        _ => panic!("do_group_b: Invalid reg value"),
     }
 }
 

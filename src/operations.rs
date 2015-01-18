@@ -271,3 +271,19 @@ pub fn w_cmp_ei(cs: &mut CpuState, effective: ModrmResult) {
     let immediate = cs.read_w();
     oplib::w_sub(cs, effective, immediate);
 }
+
+pub fn b_inc_e(cs: &mut CpuState, effective: ModrmResult) {
+    println!("(op) b_inc_e");
+
+    let cur_val = oplib::modrm_value_b(cs, &effective);
+    let new_val = oplib::b_add(cs, cur_val, 1);
+    oplib::modrm_set_b(cs, &effective, new_val);
+}
+
+pub fn b_dec_e(cs: &mut CpuState, effective: ModrmResult) {
+    println!("(op) b_dec_e");
+
+    let cur_val = oplib::modrm_value_b(cs, &effective);
+    let new_val = oplib::b_sub(cs, cur_val, 1);
+    oplib::modrm_set_b(cs, &effective, new_val);
+}
