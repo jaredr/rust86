@@ -54,6 +54,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 
         0x40...0x4C |
         0x50...0x5F |
+        0x92 |
         0xC3 |
         0xF9 => opcode_noargs,
 
@@ -265,6 +266,8 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0x5C => operations::pop(cs, Reg16::SP),
         0x5E => operations::pop(cs, Reg16::SI),
         0x5F => operations::pop(cs, Reg16::DI),
+
+        0x92 => operations::xchg(cs, Reg16::AX, Reg16::DX),
 
         0xC3 => operations::ret(cs),
 

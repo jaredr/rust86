@@ -21,6 +21,14 @@ pub fn dec(cs: &mut CpuState, reg: Reg16) {
     cs.setreg_w(&reg, new_val);
 }
 
+pub fn xchg(cs: &mut CpuState, left: Reg16, right: Reg16) {
+    let left_value = cs.getreg_w(&left);
+    let right_value = cs.getreg_w(&right);
+    cs.setreg_w(&left, right_value);
+    cs.setreg_w(&right, left_value);
+}
+
+
 pub fn stc(cs: &mut CpuState) {
     cs.set_carry();
 }
