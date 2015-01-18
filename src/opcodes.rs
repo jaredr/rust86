@@ -281,7 +281,7 @@ fn special(cs: &mut CpuState, opcode: Byte) {
             debugger::dump_vram(cs);
             panic!("0xF4");
         },
-        0x90 => println!("nop"),
+        0x90 => {},
 
         _ => panic!("Invalid opcode"),
     };
