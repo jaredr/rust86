@@ -63,12 +63,14 @@ pub fn b_jmp_flag(cs: &mut CpuState, flag_fn: FlagFn, invert: bool, immediate: B
     oplib::jump_b(cs, immediate);
 }
 
-pub fn b_jmp_inv_flags(cs: &mut CpuState, flag0_fn: FlagFn, flag1_fn: FlagFn, immediate: Byte) {
+pub fn b_jmp_flags(cs: &mut CpuState, flag0_fn: FlagFn, flag1_fn: FlagFn, invert: bool, immediate: Byte) {
     println!("(op) b_jmp_inv_flags");
     let flag0_value = flag0_fn(cs);
     let flag1_value = flag1_fn(cs);
-    if flag0_value || flag1_value {
-        return
+    let flags_value = (flag0_fn(cs) || flag1_fn(cs));
+
+    if !(flags_value ^ invert) {
+        return;
     }
 
     oplib::jump_b(cs, immediate);
