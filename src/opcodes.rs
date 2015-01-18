@@ -65,7 +65,11 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
         0xF4 |
         0x90 => special,
 
-        _ => panic!("Unrecognized opcode: 0x{:X}", opcode),
+        _ => {
+            debugger::dump_state(cs);
+            debugger::dump_vram(cs);
+            panic!("Unrecognized opcode: 0x{:X}", opcode);
+        }
     };
 
     func(cs, opcode);

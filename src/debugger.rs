@@ -35,3 +35,23 @@ fn dump_mem(cs: &CpuState, start: Word) {
     }
     println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
 }
+
+pub fn dump_vram(cs: &CpuState) {
+    let start = 0x8000;
+    let rowcnt = 25;
+    let rowlen = 80;
+
+    for row in range(0, rowcnt) {
+        for col in range(0, rowlen) {
+            let offset = (row * rowlen) + col;
+            let val = cs.getmem(start + offset);
+            let val = match val {
+                0 => ' ',
+                _ => val as char,
+            };
+            print!("{}", val);
+        }
+
+        println!("");
+    }
+}
