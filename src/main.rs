@@ -1,5 +1,4 @@
-#![feature(macro_rules)]
-#![feature(globs)]
+#![allow(unstable)]
 use std::os;
 mod byteutils;
 mod cstate;

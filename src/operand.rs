@@ -1,3 +1,4 @@
+use std::num::ToPrimitive;
 use cstate;
 use byteutils;
 use datatypes::{Byte, Word};

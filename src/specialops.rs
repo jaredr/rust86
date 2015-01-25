@@ -1,3 +1,4 @@
+use std::num::ToPrimitive;
 use cstate::{CpuState, Reg16};
 use datatypes::{Byte, Word};
 use operand::{

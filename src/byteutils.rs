@@ -1,4 +1,5 @@
-use std::num::Int;
+use std::num::{Int, ToPrimitive};
+use std::ops::{Add, Sub, BitOr, BitXor, BitAnd};
 use datatypes::{Byte, Word};
 
 

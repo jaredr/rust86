@@ -1,7 +1,8 @@
-use self::Reg8::*;
-use self::Reg16::*;
 use std::vec::Vec;
 use std::io::File;
+use std::num::ToPrimitive;
+use self::Reg8::*;
+use self::Reg16::*;
 use byteutils::{low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
 use operand::Flags;
