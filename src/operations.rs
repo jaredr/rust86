@@ -10,14 +10,14 @@ use operand::{
 };
 
 
-pub type transform8 = fn(left: Byte, right: Byte, flags: Flags) -> (Byte, Flags);
-pub type transform16 = fn(left: Word, right: Word, flags: Flags) -> (Word, Flags);
+pub type Transform8 = fn(left: Byte, right: Byte, flags: Flags) -> (Byte, Flags);
+pub type Transform16 = fn(left: Word, right: Word, flags: Flags) -> (Word, Flags);
  
 
 fn operation_byte(cs: &mut CpuState,
                   dest: Operand,
                   src: Operand,
-                  tf: transform8,
+                  tf: Transform8,
                   dry: bool) {
     // Boil src and dest down to actual Byte values
     let dest_val = b_operand_value(cs, &dest);
@@ -37,7 +37,7 @@ fn operation_byte(cs: &mut CpuState,
 fn operation_word(cs: &mut CpuState,
                   dest: Operand,
                   src: Operand,
-                  tf: transform16,
+                  tf: Transform16,
                   dry: bool) {
     // Boil src and dest down to actual Word values
     let dest_val = w_operand_value(cs, &dest);
@@ -54,18 +54,18 @@ fn operation_word(cs: &mut CpuState,
     }
 }
 
-pub fn b_op(cs: &mut CpuState, dest: Operand, src: Operand, tf: transform8) {
+pub fn b_op(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform8) {
     operation_byte(cs, dest, src, tf, false);
 }
 
-pub fn b_op_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: transform8) {
+pub fn b_op_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform8) {
     operation_byte(cs, dest, src, tf, true);
 }
 
-pub fn w_op(cs: &mut CpuState, dest: Operand, src: Operand, tf: transform16) {
+pub fn w_op(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform16) {
     operation_word(cs, dest, src, tf, false);
 }
 
-pub fn w_op_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: transform16) {
+pub fn w_op_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform16) {
     operation_word(cs, dest, src, tf, true);
 }

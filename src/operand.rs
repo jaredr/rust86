@@ -1,5 +1,4 @@
 use cstate;
-use modrm;
 use byteutils;
 use datatypes::{Byte, Word};
 
@@ -24,17 +23,17 @@ pub struct Flags {
 pub fn b_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Byte {
     return match *o {
         Operand::RawByte(ref v) => *v,
-        Operand::RawWord(ref v) => panic!("invalid"),
+        Operand::RawWord(_) => panic!("invalid"),
         Operand::Reg8(ref reg) => cs.getreg_b(reg),
-        Operand::Reg16(ref reg) => panic!("invalid"),
+        Operand::Reg16(_) => panic!("invalid"),
         Operand::MemoryAddress(ref addr) => cs.getmem(*addr),
     }
 }
 pub fn w_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Word {
     return match *o {
-        Operand::RawByte(ref v) => panic!("invalid"),
+        Operand::RawByte(_) => panic!("invalid"),
         Operand::RawWord(ref v) => *v,
-        Operand::Reg8(ref reg) => panic!("invalid!"),
+        Operand::Reg8(_) => panic!("invalid!"),
         Operand::Reg16(ref reg) => cs.getreg_w(reg),
         Operand::MemoryAddress(ref addr) => {
             byteutils::join8(cs.getmem(*addr + 1), cs.getmem(*addr))
@@ -44,8 +43,8 @@ pub fn w_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Word {
 
 pub fn b_operand_set(cs: &mut cstate::CpuState, o: &Operand, result: Byte) {
     match *o {
-        Operand::RawByte(ref v) => panic!("invalid"),
-        Operand::RawWord(ref v) => panic!("invalid"),
+        Operand::RawByte(_) => panic!("invalid"),
+        Operand::RawWord(_) => panic!("invalid"),
         Operand::Reg8(ref reg) => cs.setreg_b(reg, result),
         Operand::Reg16(ref reg) => cs.setreg_w(reg, result.to_u16().unwrap()),
         Operand::MemoryAddress(ref addr) => cs.setmem(*addr, result),
@@ -54,9 +53,9 @@ pub fn b_operand_set(cs: &mut cstate::CpuState, o: &Operand, result: Byte) {
 
 pub fn w_operand_set(cs: &mut cstate::CpuState, o: &Operand, result: Word) {
     match *o {
-        Operand::RawByte(ref v) => panic!("invalid"),
-        Operand::RawWord(ref v) => panic!("invalid"),
-        Operand::Reg8(ref reg) => panic!("invalid"),
+        Operand::RawByte(_) => panic!("invalid"),
+        Operand::RawWord(_) => panic!("invalid"),
+        Operand::Reg8(_) => panic!("invalid"),
         Operand::Reg16(ref reg) => cs.setreg_w(reg, result),
         Operand::MemoryAddress(ref addr) => {
             cs.setmem(*addr, byteutils::high8(result));

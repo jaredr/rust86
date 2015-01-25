@@ -25,8 +25,6 @@ macro_rules! define_transform (
 define_transform!(b_add, Byte, byteutils::b_add);
 define_transform!(b_sub, Byte, byteutils::b_sub);
 define_transform!(b_or, Byte, byteutils::b_or);
-define_transform!(b_xor, Byte, byteutils::b_xor);
-define_transform!(b_and, Byte, byteutils::b_and);
 
 define_transform!(w_add, Word, byteutils::w_add);
 define_transform!(w_sub, Word, byteutils::w_sub);
@@ -50,11 +48,11 @@ pub fn w_adc(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
     w_add(left, right + carry, flags)
 }
 
-pub fn b_noop(left: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
+pub fn b_noop(_: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
     (right, flags)
 }
 
-pub fn w_noop(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
+pub fn w_noop(_: Word, right: Word, flags: Flags) -> (Word, Flags) {
     (right, flags)
 }
 

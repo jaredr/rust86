@@ -1,5 +1,4 @@
-use byteutils;
-use cstate::{CpuState, Reg8, Reg16};
+use cstate::{CpuState, Reg16};
 use datatypes::{Byte, Word};
 use operand::{
     Operand,
@@ -66,10 +65,7 @@ pub fn jmp_flag(cs: &mut CpuState, flag_fn: FlagFn, invert: bool, immediate: Byt
 }
 
 pub fn jmp_flags(cs: &mut CpuState, flag0_fn: FlagFn, flag1_fn: FlagFn, invert: bool, immediate: Byte) {
-    let flag0_value = flag0_fn(cs);
-    let flag1_value = flag1_fn(cs);
-    let flags_value = (flag0_fn(cs) || flag1_fn(cs));
-
+    let flags_value = flag0_fn(cs) || flag1_fn(cs);
     if !(flags_value ^ invert) {
         return;
     }

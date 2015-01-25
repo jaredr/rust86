@@ -110,7 +110,5 @@ arithmetic!(b_sub, Byte, sub Int::checked_sub, sub_overflow);
 arithmetic!(w_sub, Word, sub Int::checked_sub, sub_overflow);
 arithmetic!(b_or , Byte, bitor checked_or , and_or_overflow);
 arithmetic!(w_or , Word, bitor checked_or , and_or_overflow);
-arithmetic!(b_xor, Byte, bitxor checked_or, and_or_overflow);
 arithmetic!(w_xor, Word, bitxor checked_or, and_or_overflow);
-arithmetic!(b_and, Byte, bitand checked_and, and_or_overflow);
 arithmetic!(w_and, Word, bitand checked_and, and_or_overflow);
