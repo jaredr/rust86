@@ -5,7 +5,6 @@ use std::io::File;
 use byteutils::{low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
 use operand::Flags;
-use modrm::ModrmByte;
 
 
 pub enum Reg16 {
@@ -172,20 +171,6 @@ impl CpuState {
         let word: Word = join8(low_b, high_b);
 
         word
-    }
-
-    /**
-     * Read a ModR/M byte from memory and return it as a ModrmByte
-     */
-    pub fn read_modrm(&mut self) -> ModrmByte {
-        let byte = self.read_b();
-        let mut mb = ModrmByte::read(byte);
-
-        if mb.need_peek() {
-            mb.set_peek(self.read_w()); 
-        }
-
-        mb
     }
 
     pub fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {

@@ -1,8 +1,5 @@
-use oplib;
 use cstate::*;
-use byteutils;
 use datatypes::{Byte, Word};
-use modrm::ModrmResult;
 use operand::{
     Operand,
     Flags,

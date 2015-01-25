@@ -137,15 +137,10 @@ fn w_opcode_i(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
-    let mb = cs.read_modrm();
-
-    let eff = mb.effective();
-    let reg = mb.register();
-    let eff = Operand::Modrm(eff);
-    let reg = Operand::Modrm(reg);
+    let (_, eff, reg) = modrm::read_modrm(cs, true);
 
     match opcode {
-        0x86 => specialops::xchg_modrm(cs, mb.effective(), mb.register()),
+        0x86 => specialops::xchg(cs, eff, reg),
 
         0x88 => b_op(cs, eff, reg, tf::b_noop),
         0x8A => b_op(cs, reg, eff, tf::b_noop),
@@ -156,11 +151,7 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn w_opcode_m(cs: &mut CpuState, opcode: Byte) {
-    let mb = cs.read_modrm();
-    let eff = mb.effective();
-    let reg = mb.register();
-    let eff = Operand::Modrm(eff);
-    let reg = Operand::Modrm(reg);
+    let (_, eff, reg) = modrm::read_modrm(cs, false);
 
     match opcode {
         0x01 => w_op(cs, eff, reg, tf::w_add),
@@ -178,9 +169,7 @@ fn w_opcode_m(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn b_opcode_mi(cs: &mut CpuState, opcode: Byte) {
-    let mb = cs.read_modrm();
-    let eff = mb.effective();
-    let eff = Operand::Modrm(eff);
+    let (_, eff, _) = modrm::read_modrm(cs, true);
 
     let immediate = cs.read_b();
     let immediate = Operand::RawByte(immediate);
@@ -193,9 +182,7 @@ fn b_opcode_mi(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn w_opcode_mi(cs: &mut CpuState, opcode: Byte) {
-    let mb = cs.read_modrm();
-    let eff = mb.effective();
-    let eff = Operand::Modrm(eff);
+    let (_, eff, _) = modrm::read_modrm(cs, false);
 
     let immediate_raw = cs.read_w();
     let immediate = Operand::RawWord(immediate_raw);
@@ -212,17 +199,15 @@ fn b_group_i(cs: &mut CpuState, opcode: Byte) {
         panic!("Invalid opcode");
     }
 
-    let mb = cs.read_modrm();
-    let eff = mb.effective();
-    let eff = Operand::Modrm(eff);
+    let (rb, eff, _) = modrm::read_modrm(cs, true);
 
     let immediate = cs.read_b();
     let immediate = Operand::RawByte(immediate);
 
-    match mb.reg {
+    match rb {
         0b001 => b_op(cs, eff, immediate, tf::b_or),
         0b111 => b_op_dry(cs, eff, immediate, tf::b_sub),
-        _ => panic!("b_group_i: Not Implemented: 0b{:b}", mb.reg),
+        _ => panic!("b_group_i: Not Implemented: 0b{:b}", rb),
     }
 }
 
@@ -231,19 +216,17 @@ fn w_group_i(cs: &mut CpuState, opcode: Byte) {
         panic!("Invalid opcode");
     }
 
-    let mb = cs.read_modrm();
-    let eff = mb.effective();
-    let eff = Operand::Modrm(eff);
+    let (rb, eff, _) = modrm::read_modrm(cs, false);
 
     let immediate_raw = cs.read_w();
     let immediate = Operand::RawWord(immediate_raw);
 
-    match mb.reg {
+    match rb {
         0b111 => w_op_dry(cs, eff, immediate, tf::w_sub),
         0b101 => w_op(cs, eff, immediate, tf::w_sub),
         0b010 => w_op(cs, eff, immediate, tf::w_adc),
         0b000 => w_op(cs, eff, immediate, tf::w_add),
-        _ => println!("w_group_i: Not Implemented: 0b{:b}", mb.reg),
+        _ => println!("w_group_i: Not Implemented: 0b{:b}", rb),
     }
 }
 
@@ -252,11 +235,9 @@ fn b_group_noargs(cs: &mut CpuState, opcode: Byte) {
         panic!("Invalid opcode");
     }
 
-    let mb = cs.read_modrm();
-    let eff = mb.effective();
-    let eff = Operand::Modrm(eff);
+    let (rb, eff, _) = modrm::read_modrm(cs, true);
 
-    match mb.reg {
+    match rb {
         0b000 => b_op(cs, eff, Operand::RawByte(1), tf::b_add),
         0b001 => b_op(cs, eff, Operand::RawByte(1), tf::b_sub),
         _ => panic!("b_group_noargs: Invalid reg value"),

@@ -1,6 +1,12 @@
 use cstate::{CpuState, Reg8, Reg16};
 use datatypes::{Byte, Word};
-use modrm::ModrmResult;
+use operand::{
+    Operand,
+    b_operand_value,
+    b_operand_set,
+    w_operand_value,
+    w_operand_set,
+};
 use oplib;
 
 
@@ -25,18 +31,18 @@ pub fn ret(cs: &mut CpuState) {
     oplib::ret(cs);
 }
 
+pub fn xchg(cs: &mut CpuState, left: Operand, right: Operand) {
+    let left_val = b_operand_value(cs, &left);
+    let right_val = b_operand_value(cs, &right);
+    b_operand_set(cs, &left, right_val);
+    b_operand_set(cs, &right, left_val);
+}
+
 pub fn xchg_reg(cs: &mut CpuState, left: Reg16, right: Reg16) {
     let left_value = cs.getreg_w(&left);
     let right_value = cs.getreg_w(&right);
     cs.setreg_w(&left, right_value);
     cs.setreg_w(&right, left_value);
-}
-
-pub fn xchg_modrm(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_b(cs, &left);
-    let right_value = oplib::modrm_value_b(cs, &right);
-    oplib::modrm_set_b(cs, &left, right_value);
-    oplib::modrm_set_b(cs, &right, left_value);
 }
 
 pub fn b_jmp(cs: &mut CpuState, immediate: Byte) {
