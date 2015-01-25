@@ -85,15 +85,10 @@ macro_rules! arithmetic (
     }
 );
 
-arithmetic!(b_add, Byte, byteutils::b_add);
 arithmetic!(w_add, Word, byteutils::w_add);
-arithmetic!(b_sub, Byte, byteutils::b_sub);
 arithmetic!(w_sub, Word, byteutils::w_sub);
-arithmetic!(b_or, Byte, byteutils::b_or);
 arithmetic!(w_or, Word, byteutils::w_or);
-arithmetic!(b_xor, Byte, byteutils::b_xor);
 arithmetic!(w_xor, Word, byteutils::w_xor);
-arithmetic!(b_and, Byte, byteutils::b_and);
 arithmetic!(w_and, Word, byteutils::w_and);
 
 
