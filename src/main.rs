@@ -6,7 +6,7 @@ mod cstate;
 mod datatypes;
 mod debugger;
 mod opcodes;
-mod operations;
+mod operation;
 mod operand;
 mod modrm;
 mod specialops;

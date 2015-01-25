@@ -2,7 +2,7 @@ use cstate::{CpuState, Reg8, Reg16};
 use debugger;
 use datatypes::Byte;
 use modrm;
-use operations::{b_op, w_op, b_op_dry, w_op_dry};
+use operation::{b_op, w_op, b_op_dry, w_op_dry};
 use operand::Operand;
 use specialops;
 use tf;
