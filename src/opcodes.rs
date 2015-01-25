@@ -89,12 +89,12 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
 
         0x3C => b_op_dry(cs, Operand::Reg8(Reg8::AL), immediate, tf::b_sub),
 
-        0x72 => specialops::b_jmp_flag(cs, CpuState::carry, false, immediate_raw),
-        0x74 => specialops::b_jmp_flag(cs, CpuState::zero, false, immediate_raw),
-        0x75 => specialops::b_jmp_flag(cs, CpuState::zero, true, immediate_raw),
-        0x76 => specialops::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_raw),
-        0x77 => specialops::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_raw),
-        0x79 => specialops::b_jmp_flag(cs, CpuState::sign, true, immediate_raw),
+        0x72 => specialops::jmp_flag(cs, CpuState::carry, false, immediate_raw),
+        0x74 => specialops::jmp_flag(cs, CpuState::zero, false, immediate_raw),
+        0x75 => specialops::jmp_flag(cs, CpuState::zero, true, immediate_raw),
+        0x76 => specialops::jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_raw),
+        0x77 => specialops::jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_raw),
+        0x79 => specialops::jmp_flag(cs, CpuState::sign, true, immediate_raw),
 
         0xB0 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf::b_noop),
         0xB1 => b_op(cs, Operand::Reg8(Reg8::CL), immediate, tf::b_noop),
@@ -145,7 +145,7 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let reg = Operand::Modrm(reg);
 
     match opcode {
-        0x86 => specialops::b_xchg_eg(cs, mb.effective(), mb.register()),
+        0x86 => specialops::xchg_modrm(cs, mb.effective(), mb.register()),
 
         0x88 => b_op(cs, eff, reg, tf::b_noop),
         0x8A => b_op(cs, reg, eff, tf::b_noop),
@@ -293,7 +293,7 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0x5E => specialops::pop(cs, Reg16::SI),
         0x5F => specialops::pop(cs, Reg16::DI),
 
-        0x92 => specialops::xchg(cs, Reg16::AX, Reg16::DX),
+        0x92 => specialops::xchg_reg(cs, Reg16::AX, Reg16::DX),
 
         0xC3 => specialops::ret(cs),
 
