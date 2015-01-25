@@ -3,6 +3,53 @@ use cstate::*;
 use byteutils;
 use datatypes::{Byte, Word};
 use modrm::ModrmResult;
+use operand::{Operand, Flags, b_operand_value, b_operand_set};
+
+
+pub type transform8 = fn(left: Byte, right: Byte) -> (Byte, Flags);
+pub type transform16 = fn(left: Word, right: Word) -> (Word, Flags);
+
+pub fn b_op(cs: &mut CpuState,
+            dest: Operand,
+            src: Operand,
+            tf: transform8) {
+    // Boil src and dest down to actual u8 values
+    let dest_val = b_operand_value(cs, &dest);
+    let src_val = b_operand_value(cs, &src);
+
+    // Run the transform to get the new value for dest
+    let (result_val, flags) = tf(dest_val, src_val);
+
+    // Now assign that value to `dest`, and set flags
+    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
+    b_operand_set(cs, &dest, result_val);
+}
+
+
+macro_rules! define_transform (
+    (
+        $name:ident,
+        $size:ident,
+        $arithmetic_fn:expr
+    ) => {
+        pub fn $name(left: $size, right: $size) -> ($size, Flags) {
+            let (result, cf, of, sf, zf) = $arithmetic_fn(left, right);
+            let flags = Flags {
+                carry: cf,
+                overflow: of,
+                sign: sf,
+                zero: zf,
+            };
+            (result, flags)
+        }
+    }
+);
+
+define_transform!(tf_b_add, Byte, byteutils::b_add);
+define_transform!(tf_b_sub, Byte, byteutils::b_sub);
+define_transform!(tf_b_or, Byte, byteutils::b_or);
+define_transform!(tf_b_xor, Byte, byteutils::b_xor);
+define_transform!(tf_b_and, Byte, byteutils::b_and);
 
 
 pub fn ret(cs: &mut CpuState) {
