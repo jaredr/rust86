@@ -188,6 +188,7 @@ impl CpuState {
     }
 
     pub fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {
+        // TODO - Accept Flags instance as argument
         self.cf = cf;
         self.of = of;
         self.sf = sf;

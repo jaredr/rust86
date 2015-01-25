@@ -3,6 +3,8 @@ use datatypes::Byte;
 use debugger;
 use modrm;
 use operations;
+use operations::{b_op, tf_b_add};
+use operand::Operand;
 
 
 type F = fn(&mut CpuState, u8);
@@ -79,9 +81,13 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 
 fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
     let immediate = cs.read_b();
+    // let immediate = Operand::RawByte(immediate);
 
     match opcode {
-        0x04 => operations::b_add(cs, Reg8::AL, immediate),
+        0x04 => b_op(cs,
+                     Operand::Reg8(Reg8::AL),
+                     Operand::RawByte(immediate),
+                     tf_b_add),
 
         0x3C => operations::b_cmp_ri(cs, Reg8::AL, immediate),
 
@@ -151,13 +157,18 @@ fn w_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let effective = mb.effective();
     let register = mb.register();
 
+    // let dest = Operand::Modrm(effective)
+    // let src = Operand::Modrm(effective)
+
     match opcode {
+        // 0x01 => w_op(cs, dest, src, tf::w_add)
         0x01 => operations::w_add_eg(cs, effective, register),
         0x09 => operations::w_or_eg(cs, effective, register),
         0x19 => operations::w_sbb_eg(cs, effective, register),
         0x20 => operations::w_and_eg(cs, effective, register),
         0x29 => operations::w_sub_eg(cs, effective, register),
         0x31 => operations::w_xor_eg(cs, effective, register),
+        // 0x39 => w_op_dry(cs, dest, src, tf::w_sub)
         0x39 => operations::w_cmp_eg(cs, effective, register),
         0x89 => operations::w_mov_eg(cs, effective, register),
         0x8B => operations::w_mov_ge(cs, effective, register),

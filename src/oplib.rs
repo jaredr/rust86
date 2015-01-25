@@ -96,6 +96,7 @@ arithmetic!(w_xor, Word, byteutils::w_xor);
 arithmetic!(b_and, Byte, byteutils::b_and);
 arithmetic!(w_and, Word, byteutils::w_and);
 
+
 /**
  * Returns the current value of the memory address specified by this MemoryAddr
  */
