@@ -34,6 +34,22 @@ define_transform!(w_or, Word, byteutils::w_or);
 define_transform!(w_xor, Word, byteutils::w_xor);
 define_transform!(w_and, Word, byteutils::w_and);
 
+pub fn w_sbb(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
+    let carry = match flags.carry {
+        true => 1,
+        false => 0,
+    };
+    w_sub(left, right + carry, flags)
+}
+
+pub fn w_adc(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
+    let carry = match flags.carry {
+        true => 1,
+        false => 0,
+    };
+    w_add(left, right + carry, flags)
+}
+
 pub fn b_noop(left: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
     (right, flags)
 }
