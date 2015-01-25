@@ -128,25 +128,12 @@ pub fn ret(cs: &mut CpuState) {
     oplib::ret(cs);
 }
 
-pub fn inc(cs: &mut CpuState, reg: Reg16) {
-    let cur_val = cs.getreg_w(&reg);
-    let new_val = oplib::w_add(cs, cur_val, 1);
-    cs.setreg_w(&reg, new_val);
-}
-
-pub fn dec(cs: &mut CpuState, reg: Reg16) {
-    let cur_val = cs.getreg_w(&reg);
-    let new_val = oplib::w_sub(cs, cur_val, 1);
-    cs.setreg_w(&reg, new_val);
-}
-
 pub fn xchg(cs: &mut CpuState, left: Reg16, right: Reg16) {
     let left_value = cs.getreg_w(&left);
     let right_value = cs.getreg_w(&right);
     cs.setreg_w(&left, right_value);
     cs.setreg_w(&right, left_value);
 }
-
 
 pub fn stc(cs: &mut CpuState) {
     cs.set_carry();
@@ -197,75 +184,11 @@ pub fn call(cs: &mut CpuState, immediate: Word) {
     oplib::call(cs, immediate);
 }
 
-pub fn w_add(cs: &mut CpuState, reg: Reg16, immediate: Word) {
-    let cur_val = cs.getreg_w(&reg);
-    let new_val = oplib::w_add(cs, cur_val, immediate);
-    cs.setreg_w(&reg, new_val);
-}
-
-pub fn w_sub_ri(cs: &mut CpuState, reg: Reg16, immediate: Word) {
-    let reg_val = cs.getreg_w(&reg);
-    let new_val = oplib::w_sub(cs, reg_val, immediate);
-    cs.setreg_w(&reg, new_val);
-}
-
-pub fn w_cmp_ri(cs: &mut CpuState, reg: Reg16, immediate: Word) {
-    let reg_val = cs.getreg_w(&reg);
-    oplib::w_sub(cs, reg_val, immediate);
-}
-
-pub fn w_mov_ir(cs: &mut CpuState, reg: Reg16, immediate: Word) {
-    cs.setreg_w(&reg, immediate);
-}
-
-pub fn w_mov_ge(cs: &mut CpuState, src: ModrmResult, dest: ModrmResult) {
-    let dest = oplib::modrm_reg16(dest.unwrap_register());
-    let src_value = oplib::modrm_value_w(cs, &src);
-    cs.setreg_w(&dest, src_value);
-}
-
-pub fn w_mov_eg(cs: &mut CpuState, dest: ModrmResult, src: ModrmResult) {
-    let src_value = oplib::modrm_value_w(cs, &src);
-    oplib::modrm_set_w(cs, &dest, src_value);
-}
-
 pub fn b_xchg_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     let left_value = oplib::modrm_value_b(cs, &left);
     let right_value = oplib::modrm_value_b(cs, &right);
     oplib::modrm_set_b(cs, &left, right_value);
     oplib::modrm_set_b(cs, &right, left_value);
-}
-
-pub fn w_or_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-
-    let result = oplib::w_or(cs, left_value, right_value);
-    oplib::modrm_set_w(cs, &left, result);
-}
-
-pub fn w_and_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-
-    let result = oplib::w_and(cs, left_value, right_value);
-    oplib::modrm_set_w(cs, &left, result);
-}
-
-pub fn w_xor_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-
-    let result = oplib::w_xor(cs, left_value, right_value);
-    oplib::modrm_set_w(cs, &left, result);
-}
-
-pub fn w_add_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-
-    let result = oplib::w_add(cs, left_value, right_value);
-    oplib::modrm_set_w(cs, &left, result);
 }
 
 pub fn w_sbb_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
@@ -280,19 +203,6 @@ pub fn w_sbb_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::modrm_set_w(cs, &left, result);
 }
 
-pub fn w_sub_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-    let result = oplib::w_sub(cs, left_value, right_value);
-    oplib::modrm_set_w(cs, &left, result);
-}
-
-pub fn w_cmp_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-    oplib::w_sub(cs, left_value, right_value);
-}
-
 pub fn w_adc_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
     let effective_value = oplib::modrm_value_w(cs, &effective);
     let carry_value = match cs.carry() {
@@ -302,25 +212,4 @@ pub fn w_adc_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
 
     let result = oplib::w_add(cs, effective_value, immediate + carry_value);
     oplib::modrm_set_w(cs, &effective, result);
-}
-
-pub fn w_add_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
-    let effective_value = oplib::modrm_value_w(cs, &effective);
-    let result = oplib::w_add(cs, effective_value, immediate);
-    oplib::modrm_set_w(cs, &effective, result);
-}
-
-pub fn w_sub_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
-    let effective_value = oplib::modrm_value_w(cs, &effective);
-    let result = oplib::w_sub(cs, effective_value, immediate);
-    oplib::modrm_set_w(cs, &effective, result);
-}
-
-pub fn w_cmp_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
-    let effective = oplib::modrm_value_w(cs, &effective);
-    oplib::w_sub(cs, effective, immediate);
-}
-
-pub fn w_mov_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
-    oplib::modrm_set_w(cs, &effective, immediate);
 }
