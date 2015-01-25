@@ -3,7 +3,7 @@ use cstate::*;
 use byteutils;
 use datatypes::{Byte, Word};
 use modrm::ModrmResult;
-use operand::{Operand, Flags, b_operand_value, b_operand_set};
+use operand::{Operand, Flags, b_operand_value, b_operand_set, w_operand_value, w_operand_set};
 
 
 pub type transform8 = fn(left: Byte, right: Byte) -> (Byte, Option<Flags>);
@@ -47,6 +47,42 @@ pub fn b_op_dry(cs: &mut CpuState,
     }
 }
 
+pub fn w_op(cs: &mut CpuState,
+            dest: Operand,
+            src: Operand,
+            tf: transform16) {
+    // Boil src and dest down to actual u8 values
+    let dest_val = w_operand_value(cs, &dest);
+    let src_val = w_operand_value(cs, &src);
+
+    // Run the transform to get the new value for dest
+    let (result_val, flags) = tf(dest_val, src_val);
+
+    // Now assign that value to `dest`, and set flags
+    match flags {
+        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
+        None => {},
+    }
+    w_operand_set(cs, &dest, result_val);
+}
+
+pub fn w_op_dry(cs: &mut CpuState,
+            dest: Operand,
+            src: Operand,
+            tf: transform16) {
+    // Boil src and dest down to actual u8 values
+    let dest_val = w_operand_value(cs, &dest);
+    let src_val = w_operand_value(cs, &src);
+
+    // Run the transform to get the new value for dest
+    let (result_val, flags) = tf(dest_val, src_val);
+
+    // Now assign that value to `dest`, and set flags
+    match flags {
+        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
+        None => panic!("No flags returned from transform in w_op_dry"),
+    }
+}
 
 macro_rules! define_transform (
     (
@@ -73,7 +109,17 @@ define_transform!(tf_b_or, Byte, byteutils::b_or);
 define_transform!(tf_b_xor, Byte, byteutils::b_xor);
 define_transform!(tf_b_and, Byte, byteutils::b_and);
 
+define_transform!(tf_w_add, Word, byteutils::w_add);
+define_transform!(tf_w_sub, Word, byteutils::w_sub);
+define_transform!(tf_w_or, Word, byteutils::w_or);
+define_transform!(tf_w_xor, Word, byteutils::w_xor);
+define_transform!(tf_w_and, Word, byteutils::w_and);
+
 pub fn tf_b_noop(left: Byte, right: Byte) -> (Byte, Option<Flags>) {
+    (right, None)
+}
+
+pub fn tf_w_noop(left: Word, right: Word) -> (Word, Option<Flags>) {
     (right, None)
 }
 
