@@ -4,6 +4,7 @@ use std::vec::Vec;
 use std::io::File;
 use byteutils::{low8, high8, join8, join_low8, join_high8};
 use datatypes::{Byte, Word};
+use operand::Flags;
 use modrm::ModrmByte;
 
 
@@ -193,6 +194,15 @@ impl CpuState {
         self.of = of;
         self.sf = sf;
         self.zf = zf;
+    }
+
+    pub fn get_flags(&self) -> Flags {
+        Flags {
+            carry: self.cf,
+            overflow: self.of,
+            sign: self.sf,
+            zero: self.zf,
+        }
     }
 
     pub fn zero(&self) -> bool {

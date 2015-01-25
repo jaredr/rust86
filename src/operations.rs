@@ -6,8 +6,8 @@ use modrm::ModrmResult;
 use operand::{Operand, Flags, b_operand_value, b_operand_set, w_operand_value, w_operand_set};
 
 
-pub type transform8 = fn(left: Byte, right: Byte) -> (Byte, Option<Flags>);
-pub type transform16 = fn(left: Word, right: Word) -> (Word, Option<Flags>);
+pub type transform8 = fn(left: Byte, right: Byte, flags: Flags) -> (Byte, Flags);
+pub type transform16 = fn(left: Word, right: Word, flags: Flags) -> (Word, Flags);
 
 pub fn b_op(cs: &mut CpuState,
             dest: Operand,
@@ -18,13 +18,11 @@ pub fn b_op(cs: &mut CpuState,
     let src_val = b_operand_value(cs, &src);
 
     // Run the transform to get the new value for dest
-    let (result_val, flags) = tf(dest_val, src_val);
+    let flags_in = cs.get_flags();
+    let (result_val, flags) = tf(dest_val, src_val, flags_in);
 
     // Now assign that value to `dest`, and set flags
-    match flags {
-        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
-        None => {},
-    }
+    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
     b_operand_set(cs, &dest, result_val);
 }
 
@@ -38,13 +36,11 @@ pub fn b_op_dry(cs: &mut CpuState,
     let src_val = b_operand_value(cs, &src);
 
     // Run the transform to get the new value for dest
-    let (result_val, flags) = tf(dest_val, src_val);
+    let flags_in = cs.get_flags();
+    let (result_val, flags) = tf(dest_val, src_val, flags_in);
 
     // Now assign that value to `dest`, and set flags
-    match flags {
-        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
-        None => panic!("No flags returned from transform in b_op_dry"),
-    }
+    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
 }
 
 pub fn w_op(cs: &mut CpuState,
@@ -56,13 +52,11 @@ pub fn w_op(cs: &mut CpuState,
     let src_val = w_operand_value(cs, &src);
 
     // Run the transform to get the new value for dest
-    let (result_val, flags) = tf(dest_val, src_val);
+    let flags_in = cs.get_flags();
+    let (result_val, flags) = tf(dest_val, src_val, flags_in);
 
     // Now assign that value to `dest`, and set flags
-    match flags {
-        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
-        None => {},
-    }
+    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
     w_operand_set(cs, &dest, result_val);
 }
 
@@ -75,13 +69,11 @@ pub fn w_op_dry(cs: &mut CpuState,
     let src_val = w_operand_value(cs, &src);
 
     // Run the transform to get the new value for dest
-    let (result_val, flags) = tf(dest_val, src_val);
+    let flags_in = cs.get_flags();
+    let (result_val, flags) = tf(dest_val, src_val, flags_in);
 
     // Now assign that value to `dest`, and set flags
-    match flags {
-        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
-        None => panic!("No flags returned from transform in w_op_dry"),
-    }
+    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
 }
 
 

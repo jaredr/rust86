@@ -9,7 +9,7 @@ macro_rules! define_transform (
         $size:ident,
         $arithmetic_fn:expr
     ) => {
-        pub fn $name(left: $size, right: $size) -> ($size, Option<Flags>) {
+        pub fn $name(left: $size, right: $size, _: Flags) -> ($size, Flags) {
             let (result, cf, of, sf, zf) = $arithmetic_fn(left, right);
             let flags = Flags {
                 carry: cf,
@@ -17,7 +17,7 @@ macro_rules! define_transform (
                 sign: sf,
                 zero: zf,
             };
-            (result, Some(flags))
+            (result, flags)
         }
     }
 );
@@ -34,11 +34,11 @@ define_transform!(w_or, Word, byteutils::w_or);
 define_transform!(w_xor, Word, byteutils::w_xor);
 define_transform!(w_and, Word, byteutils::w_and);
 
-pub fn b_noop(left: Byte, right: Byte) -> (Byte, Option<Flags>) {
-    (right, None)
+pub fn b_noop(left: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
+    (right, flags)
 }
 
-pub fn w_noop(left: Word, right: Word) -> (Word, Option<Flags>) {
-    (right, None)
+pub fn w_noop(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
+    (right, flags)
 }
 
