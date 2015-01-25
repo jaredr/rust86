@@ -28,6 +28,25 @@ pub fn b_op(cs: &mut CpuState,
     b_operand_set(cs, &dest, result_val);
 }
 
+pub fn b_op_dry(cs: &mut CpuState,
+            dest: Operand,
+            src: Operand,
+            tf: transform8) {
+    // TODO - Dedup against b_op
+    // Boil src and dest down to actual u8 values
+    let dest_val = b_operand_value(cs, &dest);
+    let src_val = b_operand_value(cs, &src);
+
+    // Run the transform to get the new value for dest
+    let (result_val, flags) = tf(dest_val, src_val);
+
+    // Now assign that value to `dest`, and set flags
+    match flags {
+        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
+        None => panic!("No flags returned from transform in b_op_dry"),
+    }
+}
+
 
 macro_rules! define_transform (
     (
