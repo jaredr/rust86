@@ -8,7 +8,6 @@ mod debugger;
 mod opcodes;
 mod operations;
 mod operand;
-mod oplib;
 mod modrm;
 mod specialops;
 mod tf;

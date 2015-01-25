@@ -140,7 +140,7 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let (_, eff, reg) = modrm::read_modrm(cs, true);
 
     match opcode {
-        0x86 => specialops::xchg(cs, eff, reg),
+        0x86 => specialops::b_xchg(cs, eff, reg),
 
         0x88 => b_op(cs, eff, reg, tf::b_noop),
         0x8A => b_op(cs, reg, eff, tf::b_noop),
@@ -274,7 +274,9 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0x5E => specialops::pop(cs, Reg16::SI),
         0x5F => specialops::pop(cs, Reg16::DI),
 
-        0x92 => specialops::xchg_reg(cs, Reg16::AX, Reg16::DX),
+        0x92 => specialops::w_xchg(cs,
+                                   Operand::Reg16(Reg16::AX),
+                                   Operand::Reg16(Reg16::DX)),
 
         0xC3 => specialops::ret(cs),
 

@@ -173,6 +173,22 @@ impl CpuState {
         word
     }
 
+    pub fn push(&mut self, val: Word) {
+        let low_b = low8(val);
+        let high_b = high8(val);
+        let sp = self.sp;
+        self.setmem(sp - 2, high_b);
+        self.setmem(sp - 1, low_b);
+        self.sp = sp - 2;
+    }
+
+    pub fn pop(&mut self) -> Word {
+        let low_b = self.getmem(self.sp + 1);
+        let high_b = self.getmem(self.sp);
+        self.sp = self.sp + 2;
+        join8(low_b, high_b)
+    }
+
     pub fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {
         // TODO - Accept Flags instance as argument
         self.cf = cf;
