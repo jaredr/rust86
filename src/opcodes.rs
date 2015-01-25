@@ -1,11 +1,11 @@
 use cstate::{CpuState, Reg8, Reg16};
-use datatypes::Byte;
 use debugger;
+use datatypes::Byte;
 use modrm;
-use tf;
-use operations;
 use operations::{b_op, w_op, b_op_dry, w_op_dry};
 use operand::Operand;
+use specialops;
+use tf;
 
 
 type F = fn(&mut CpuState, u8);
@@ -89,12 +89,12 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
 
         0x3C => b_op_dry(cs, Operand::Reg8(Reg8::AL), immediate, tf::b_sub),
 
-        0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate_raw),
-        0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate_raw),
-        0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate_raw),
-        0x76 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_raw),
-        0x77 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_raw),
-        0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate_raw),
+        0x72 => specialops::b_jmp_flag(cs, CpuState::carry, false, immediate_raw),
+        0x74 => specialops::b_jmp_flag(cs, CpuState::zero, false, immediate_raw),
+        0x75 => specialops::b_jmp_flag(cs, CpuState::zero, true, immediate_raw),
+        0x76 => specialops::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_raw),
+        0x77 => specialops::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_raw),
+        0x79 => specialops::b_jmp_flag(cs, CpuState::sign, true, immediate_raw),
 
         0xB0 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf::b_noop),
         0xB1 => b_op(cs, Operand::Reg8(Reg8::CL), immediate, tf::b_noop),
@@ -105,7 +105,7 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
         0xB6 => b_op(cs, Operand::Reg8(Reg8::DH), immediate, tf::b_noop),
         0xB7 => b_op(cs, Operand::Reg8(Reg8::BH), immediate, tf::b_noop),
 
-        0xEB => operations::b_jmp(cs, immediate_raw),
+        0xEB => specialops::b_jmp(cs, immediate_raw),
 
         _ => panic!("Invalid opcode"),
     };
@@ -129,8 +129,8 @@ fn w_opcode_i(cs: &mut CpuState, opcode: Byte) {
         0xBE => w_op(cs, Operand::Reg16(Reg16::SI), immediate, tf::w_noop),
         0xBF => w_op(cs, Operand::Reg16(Reg16::DI), immediate, tf::w_noop),
 
-        0xE8 => operations::call(cs, immediate_raw),
-        0xE9 => operations::w_jmp(cs, immediate_raw),
+        0xE8 => specialops::call(cs, immediate_raw),
+        0xE9 => specialops::w_jmp(cs, immediate_raw),
 
         _ => panic!("Invalid opcode"),
     };
@@ -145,7 +145,7 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let reg = Operand::Modrm(reg);
 
     match opcode {
-        0x86 => operations::b_xchg_eg(cs, mb.effective(), mb.register()),
+        0x86 => specialops::b_xchg_eg(cs, mb.effective(), mb.register()),
 
         0x88 => b_op(cs, eff, reg, tf::b_noop),
         0x8A => b_op(cs, reg, eff, tf::b_noop),
@@ -277,27 +277,27 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0x4B => w_op(cs, Operand::Reg16(Reg16::BX), Operand::RawWord(1), tf::w_sub),
         0x4C => w_op(cs, Operand::Reg16(Reg16::DI), Operand::RawWord(1), tf::w_sub),
 
-        0x50 => operations::push(cs, Reg16::AX),
-        0x51 => operations::push(cs, Reg16::CX),
-        0x52 => operations::push(cs, Reg16::DX),
-        0x53 => operations::push(cs, Reg16::BX),
-        0x54 => operations::push(cs, Reg16::SP),
-        0x56 => operations::push(cs, Reg16::SI),
-        0x57 => operations::push(cs, Reg16::DI),
+        0x50 => specialops::push(cs, Reg16::AX),
+        0x51 => specialops::push(cs, Reg16::CX),
+        0x52 => specialops::push(cs, Reg16::DX),
+        0x53 => specialops::push(cs, Reg16::BX),
+        0x54 => specialops::push(cs, Reg16::SP),
+        0x56 => specialops::push(cs, Reg16::SI),
+        0x57 => specialops::push(cs, Reg16::DI),
 
-        0x58 => operations::pop(cs, Reg16::AX),
-        0x59 => operations::pop(cs, Reg16::CX),
-        0x5A => operations::pop(cs, Reg16::DX),
-        0x5B => operations::pop(cs, Reg16::BX),
-        0x5C => operations::pop(cs, Reg16::SP),
-        0x5E => operations::pop(cs, Reg16::SI),
-        0x5F => operations::pop(cs, Reg16::DI),
+        0x58 => specialops::pop(cs, Reg16::AX),
+        0x59 => specialops::pop(cs, Reg16::CX),
+        0x5A => specialops::pop(cs, Reg16::DX),
+        0x5B => specialops::pop(cs, Reg16::BX),
+        0x5C => specialops::pop(cs, Reg16::SP),
+        0x5E => specialops::pop(cs, Reg16::SI),
+        0x5F => specialops::pop(cs, Reg16::DI),
 
-        0x92 => operations::xchg(cs, Reg16::AX, Reg16::DX),
+        0x92 => specialops::xchg(cs, Reg16::AX, Reg16::DX),
 
-        0xC3 => operations::ret(cs),
+        0xC3 => specialops::ret(cs),
 
-        0xF9 => operations::stc(cs),
+        0xF9 => specialops::stc(cs),
 
         _ => panic!("Invalid opcode"),
     };
