@@ -3,7 +3,7 @@ use datatypes::Byte;
 use debugger;
 use modrm;
 use operations;
-use operations::{b_op, tf_b_add};
+use operations::{b_op, tf_b_add, tf_b_sub, tf_b_noop};
 use operand::Operand;
 
 
@@ -80,34 +80,31 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
-    let immediate = cs.read_b();
-    // let immediate = Operand::RawByte(immediate);
+    let immediate_byte = cs.read_b();
+    let immediate = Operand::RawByte(immediate_byte);
 
     match opcode {
-        0x04 => b_op(cs,
-                     Operand::Reg8(Reg8::AL),
-                     Operand::RawByte(immediate),
-                     tf_b_add),
+        0x04 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_add),
 
-        0x3C => operations::b_cmp_ri(cs, Reg8::AL, immediate),
+        0x3C => operations::b_op_dry(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_sub),
 
-        0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate),
-        0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate),
-        0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate),
-        0x76 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate),
-        0x77 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate),
-        0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate),
+        0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate_byte),
+        0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate_byte),
+        0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate_byte),
+        0x76 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_byte),
+        0x77 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_byte),
+        0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate_byte),
 
-        0xB0 => operations::b_mov_ir(cs, Reg8::AL, immediate),
-        0xB1 => operations::b_mov_ir(cs, Reg8::CL, immediate),
-        0xB2 => operations::b_mov_ir(cs, Reg8::DL, immediate),
-        0xB3 => operations::b_mov_ir(cs, Reg8::BL, immediate),
-        0xB4 => operations::b_mov_ir(cs, Reg8::AH, immediate),
-        0xB5 => operations::b_mov_ir(cs, Reg8::CH, immediate),
-        0xB6 => operations::b_mov_ir(cs, Reg8::DH, immediate),
-        0xB7 => operations::b_mov_ir(cs, Reg8::BH, immediate),
+        0xB0 => operations::b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_noop),
+        0xB1 => operations::b_op(cs, Operand::Reg8(Reg8::CL), immediate, tf_b_noop),
+        0xB2 => operations::b_op(cs, Operand::Reg8(Reg8::DL), immediate, tf_b_noop),
+        0xB3 => operations::b_op(cs, Operand::Reg8(Reg8::BL), immediate, tf_b_noop),
+        0xB4 => operations::b_op(cs, Operand::Reg8(Reg8::AH), immediate, tf_b_noop),
+        0xB5 => operations::b_op(cs, Operand::Reg8(Reg8::CH), immediate, tf_b_noop),
+        0xB6 => operations::b_op(cs, Operand::Reg8(Reg8::DH), immediate, tf_b_noop),
+        0xB7 => operations::b_op(cs, Operand::Reg8(Reg8::BH), immediate, tf_b_noop),
 
-        0xEB => operations::b_jmp(cs, immediate),
+        0xEB => operations::b_jmp(cs, immediate_byte),
 
         _ => panic!("Invalid opcode"),
     };

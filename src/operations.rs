@@ -73,6 +73,10 @@ define_transform!(tf_b_or, Byte, byteutils::b_or);
 define_transform!(tf_b_xor, Byte, byteutils::b_xor);
 define_transform!(tf_b_and, Byte, byteutils::b_and);
 
+pub fn tf_b_noop(left: Byte, right: Byte) -> (Byte, Option<Flags>) {
+    (right, None)
+}
+
 
 pub fn ret(cs: &mut CpuState) {
     oplib::ret(cs);
