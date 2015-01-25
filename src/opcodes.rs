@@ -80,20 +80,20 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
-    let immediate_byte = cs.read_b();
-    let immediate = Operand::RawByte(immediate_byte);
+    let immediate_raw = cs.read_b();
+    let immediate = Operand::RawByte(immediate_raw);
 
     match opcode {
         0x04 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_add),
 
         0x3C => b_op_dry(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_sub),
 
-        0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate_byte),
-        0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate_byte),
-        0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate_byte),
-        0x76 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_byte),
-        0x77 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_byte),
-        0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate_byte),
+        0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate_raw),
+        0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate_raw),
+        0x75 => operations::b_jmp_flag(cs, CpuState::zero, true, immediate_raw),
+        0x76 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, false, immediate_raw),
+        0x77 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_raw),
+        0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate_raw),
 
         0xB0 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_noop),
         0xB1 => b_op(cs, Operand::Reg8(Reg8::CL), immediate, tf_b_noop),
@@ -104,7 +104,7 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
         0xB6 => b_op(cs, Operand::Reg8(Reg8::DH), immediate, tf_b_noop),
         0xB7 => b_op(cs, Operand::Reg8(Reg8::BH), immediate, tf_b_noop),
 
-        0xEB => operations::b_jmp(cs, immediate_byte),
+        0xEB => operations::b_jmp(cs, immediate_raw),
 
         _ => panic!("Invalid opcode"),
     };
