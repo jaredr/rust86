@@ -3,7 +3,22 @@ use datatypes::Byte;
 use debugger;
 use modrm;
 use operations;
-use operations::{b_op, b_op_dry, tf_b_add, tf_b_sub, tf_b_or, tf_b_noop};
+use operations::{
+    b_op,
+    w_op,
+    b_op_dry,
+    w_op_dry,
+    tf_b_add,
+    tf_w_add,
+    tf_b_sub,
+    tf_w_sub,
+    tf_w_and,
+    tf_b_or,
+    tf_w_or,
+    tf_w_xor,
+    tf_b_noop,
+    tf_w_noop,
+};
 use operand::Operand;
 
 
@@ -111,24 +126,25 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
 }
 
 fn w_opcode_i(cs: &mut CpuState, opcode: Byte) {
-    let immediate = cs.read_w();
+    let immediate_raw = cs.read_w();
+    let immediate = Operand::RawWord(immediate_raw);
 
     match opcode {
-        0x05 => operations::w_add(cs, Reg16::AX, immediate),
+        0x05 => w_op(cs, Operand::Reg16(Reg16::AX), immediate, tf_w_add),
 
-        0x2D => operations::w_sub_ri(cs, Reg16::AX, immediate),
-        0x3D => operations::w_cmp_ri(cs, Reg16::AX, immediate),
+        0x2D => w_op(cs, Operand::Reg16(Reg16::AX), immediate, tf_w_sub),
+        0x3D => w_op_dry(cs, Operand::Reg16(Reg16::AX), immediate, tf_w_sub),
 
-        0xB8 => operations::w_mov_ir(cs, Reg16::AX, immediate),
-        0xB9 => operations::w_mov_ir(cs, Reg16::CX, immediate),
-        0xBA => operations::w_mov_ir(cs, Reg16::DX, immediate),
-        0xBB => operations::w_mov_ir(cs, Reg16::BX, immediate),
-        0xBC => operations::w_mov_ir(cs, Reg16::SP, immediate),
-        0xBE => operations::w_mov_ir(cs, Reg16::SI, immediate),
-        0xBF => operations::w_mov_ir(cs, Reg16::DI, immediate),
+        0xB8 => w_op(cs, Operand::Reg16(Reg16::AX), immediate, tf_w_noop),
+        0xB9 => w_op(cs, Operand::Reg16(Reg16::CX), immediate, tf_w_noop),
+        0xBA => w_op(cs, Operand::Reg16(Reg16::DX), immediate, tf_w_noop),
+        0xBB => w_op(cs, Operand::Reg16(Reg16::BX), immediate, tf_w_noop),
+        0xBC => w_op(cs, Operand::Reg16(Reg16::SP), immediate, tf_w_noop),
+        0xBE => w_op(cs, Operand::Reg16(Reg16::SI), immediate, tf_w_noop),
+        0xBF => w_op(cs, Operand::Reg16(Reg16::DI), immediate, tf_w_noop),
 
-        0xE8 => operations::call(cs, immediate),
-        0xE9 => operations::w_jmp(cs, immediate),
+        0xE8 => operations::call(cs, immediate_raw),
+        0xE9 => operations::w_jmp(cs, immediate_raw),
 
         _ => panic!("Invalid opcode"),
     };
@@ -155,24 +171,21 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
 
 fn w_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let mb = cs.read_modrm();
-    let effective = mb.effective();
-    let register = mb.register();
-
-    // let dest = Operand::Modrm(effective)
-    // let src = Operand::Modrm(effective)
+    let eff = mb.effective();
+    let reg = mb.register();
+    let eff = Operand::Modrm(eff);
+    let reg = Operand::Modrm(reg);
 
     match opcode {
-        // 0x01 => w_op(cs, dest, src, tf::w_add)
-        0x01 => operations::w_add_eg(cs, effective, register),
-        0x09 => operations::w_or_eg(cs, effective, register),
-        0x19 => operations::w_sbb_eg(cs, effective, register),
-        0x20 => operations::w_and_eg(cs, effective, register),
-        0x29 => operations::w_sub_eg(cs, effective, register),
-        0x31 => operations::w_xor_eg(cs, effective, register),
-        // 0x39 => w_op_dry(cs, dest, src, tf::w_sub)
-        0x39 => operations::w_cmp_eg(cs, effective, register),
-        0x89 => operations::w_mov_eg(cs, effective, register),
-        0x8B => operations::w_mov_ge(cs, effective, register),
+        0x01 => w_op(cs, eff, reg, tf_w_add),
+        0x09 => w_op(cs, eff, reg, tf_w_or),
+        0x19 => operations::w_sbb_eg(cs, mb.effective(), mb.register()), // TODO
+        0x20 => w_op(cs, eff, reg, tf_w_and),
+        0x29 => w_op(cs, eff, reg, tf_w_sub),
+        0x31 => w_op(cs, eff, reg, tf_w_xor),
+        0x39 => w_op_dry(cs, eff, reg, tf_w_sub),
+        0x89 => w_op(cs, eff, reg, tf_w_noop),
+        0x8B => w_op(cs, reg, eff, tf_w_noop),
 
         _ => panic!("Invalid opcode"),
     };
@@ -195,11 +208,14 @@ fn b_opcode_mi(cs: &mut CpuState, opcode: Byte) {
 
 fn w_opcode_mi(cs: &mut CpuState, opcode: Byte) {
     let mb = cs.read_modrm();
-    let effective = mb.effective();
-    let immediate = cs.read_w();
+    let eff = mb.effective();
+    let eff = Operand::Modrm(eff);
+
+    let immediate_raw = cs.read_w();
+    let immediate = Operand::RawWord(immediate_raw);
 
     match opcode {
-        0xC7 => operations::w_mov_ei(cs, effective, immediate),
+        0xC7 => w_op(cs, eff, immediate, tf_w_noop),
 
         _ => panic!("Invalid opcode"),
     };
@@ -230,14 +246,17 @@ fn w_group_i(cs: &mut CpuState, opcode: Byte) {
     }
 
     let mb = cs.read_modrm();
-    let effective = mb.effective(); 
-    let immediate = cs.read_w();
+    let eff = mb.effective();
+    let eff = Operand::Modrm(eff);
+
+    let immediate_raw = cs.read_w();
+    let immediate = Operand::RawWord(immediate_raw);
 
     match mb.reg {
-        0b111 => operations::w_cmp_ei(cs, effective, immediate),
-        0b101 => operations::w_sub_ei(cs, effective, immediate),
-        0b010 => operations::w_adc_ei(cs, effective, immediate),
-        0b000 => operations::w_add_ei(cs, effective, immediate),
+        0b111 => w_op_dry(cs, eff, immediate, tf_w_sub),
+        0b101 => w_op(cs, eff, immediate, tf_w_sub),
+        0b010 => operations::w_adc_ei(cs, mb.effective(), immediate_raw), // TODO
+        0b000 => w_op(cs, eff, immediate, tf_w_add),
         _ => println!("w_group_i: Not Implemented: 0b{:b}", mb.reg),
     }
 }
@@ -260,17 +279,17 @@ fn b_group_noargs(cs: &mut CpuState, opcode: Byte) {
 
 fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
     match opcode {
-        0x40 => operations::inc(cs, Reg16::AX),
-        0x41 => operations::inc(cs, Reg16::CX),
-        0x42 => operations::inc(cs, Reg16::DX),
-        0x43 => operations::inc(cs, Reg16::BX),
-        0x47 => operations::inc(cs, Reg16::DI),
+        0x40 => w_op(cs, Operand::Reg16(Reg16::AX), Operand::RawWord(1), tf_w_add),
+        0x41 => w_op(cs, Operand::Reg16(Reg16::CX), Operand::RawWord(1), tf_w_add),
+        0x42 => w_op(cs, Operand::Reg16(Reg16::DX), Operand::RawWord(1), tf_w_add),
+        0x43 => w_op(cs, Operand::Reg16(Reg16::BX), Operand::RawWord(1), tf_w_add),
+        0x47 => w_op(cs, Operand::Reg16(Reg16::DI), Operand::RawWord(1), tf_w_add),
 
-        0x48 => operations::dec(cs, Reg16::AX),
-        0x49 => operations::dec(cs, Reg16::CX),
-        0x4A => operations::dec(cs, Reg16::DX),
-        0x4B => operations::dec(cs, Reg16::BX),
-        0x4C => operations::dec(cs, Reg16::DI),
+        0x48 => w_op(cs, Operand::Reg16(Reg16::AX), Operand::RawWord(1), tf_w_sub),
+        0x49 => w_op(cs, Operand::Reg16(Reg16::CX), Operand::RawWord(1), tf_w_sub),
+        0x4A => w_op(cs, Operand::Reg16(Reg16::DX), Operand::RawWord(1), tf_w_sub),
+        0x4B => w_op(cs, Operand::Reg16(Reg16::BX), Operand::RawWord(1), tf_w_sub),
+        0x4C => w_op(cs, Operand::Reg16(Reg16::DI), Operand::RawWord(1), tf_w_sub),
 
         0x50 => operations::push(cs, Reg16::AX),
         0x51 => operations::push(cs, Reg16::CX),
