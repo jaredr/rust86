@@ -2,15 +2,6 @@ use cstate::{CpuState, Reg8, Reg16};
 use operand::Operand;
 
 
-//pub struct Modrm {
-//    modbits: u8,
-//    reg: u8,
-//    rm: u8,
-//
-//    effective: Operand,
-//    register: Operand,
-//}
-
 pub fn read_modrm(cs: &mut CpuState, byte_registers: bool) -> (u8, Operand, Operand) {
     // Read ModR/M byte
     let byte = cs.read_b();
@@ -30,14 +21,6 @@ pub fn read_modrm(cs: &mut CpuState, byte_registers: bool) -> (u8, Operand, Oper
     let effective = modrm_effective(cs, modbits, rm, byte_registers);
     let register = modrm_register(reg, byte_registers);
     (reg, effective, register)
-
-    //Modrm {
-    //    modbits: modbits,
-    //    reg: reg,
-    //    rm: rm,
-    //    effective: effective,
-    //    register: register,
-    //}
 }
 
 fn modrm_register(reg: u8, byte: bool) -> Operand {
@@ -94,6 +77,15 @@ fn modrm_effective(cs: &mut CpuState, modbits: u8, rm: u8, byte_registers: bool)
             _ => panic!("Invalid ModR/M byte 2"),
         },
         0b11 => modrm_register(rm, byte_registers),
+        0b10 => match rm {
+            0b111 => Operand::MemoryAddress(
+                cs.getreg_w(&Reg16::BX) + cs.read_w()
+            ),
+            0b101 => Operand::MemoryAddress(
+                cs.getreg_w(&Reg16::DI) + cs.read_w()
+            ),
+            _ => panic!("Not Implemented"),
+        },
         _ => panic!("Not Implemented"),
     }
 }
