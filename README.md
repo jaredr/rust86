@@ -1,8 +1,10 @@
 # rust86
 
-This is an 8086 emulator, written in Rust. The goal is to eventually support everything the actual chips did back in the day. Currently, only a small subset of the original 8086 functionality is supported; roughly enough to print hello world.
+This is a partial 8086 emulator, written in Rust.
 
-rust86 is a purely a for-fun project, of course. The only practical application is to keep me up to date with the changing Rust spec.
+Much of the 8086's instruction set is implemented, but interrupts, IO, floating point, and segments are not. The subset of the 8086 supported is roughly enough to run `codegolf.asm` from [This stackexchange code golf challenge](http://codegolf.stackexchange.com/questions/4732/emulate-an-intel-8086-cpu).
+
+rust86 is purely a for-fun project, of course. Its main purpose was to keep me up to date with the changing Rust language until 1.0.0-alpha was frozen.
 
 ## Build & run
 
