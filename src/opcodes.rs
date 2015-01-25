@@ -165,7 +165,7 @@ fn w_opcode_m(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x01 => w_op(cs, eff, reg, tf::w_add),
         0x09 => w_op(cs, eff, reg, tf::w_or),
-        0x19 => operations::w_sbb_eg(cs, mb.effective(), mb.register()), // TODO
+        0x19 => w_op(cs, eff, reg, tf::w_sbb),
         0x20 => w_op(cs, eff, reg, tf::w_and),
         0x29 => w_op(cs, eff, reg, tf::w_sub),
         0x31 => w_op(cs, eff, reg, tf::w_xor),
@@ -241,7 +241,7 @@ fn w_group_i(cs: &mut CpuState, opcode: Byte) {
     match mb.reg {
         0b111 => w_op_dry(cs, eff, immediate, tf::w_sub),
         0b101 => w_op(cs, eff, immediate, tf::w_sub),
-        0b010 => operations::w_adc_ei(cs, mb.effective(), immediate_raw), // TODO
+        0b010 => w_op(cs, eff, immediate, tf::w_adc),
         0b000 => w_op(cs, eff, immediate, tf::w_add),
         _ => println!("w_group_i: Not Implemented: 0b{:b}", mb.reg),
     }

@@ -68,31 +68,6 @@ pub fn ret(cs: &mut CpuState) {
 }
 
 /**
- * Wrapper functions for byteutils::arithmetic! that set the resulting
- * flags on the provided CpuState.
- */
-macro_rules! arithmetic (
-    (
-        $name:ident,
-        $size:ident,
-        $arithmetic_fn:expr
-    ) => {
-        pub fn $name(cs: &mut CpuState, left: $size, right: $size) -> $size {
-            let (result, cf, of, sf, zf) = $arithmetic_fn(left, right);
-            cs.set_flags(cf, of, sf, zf);
-            result
-        }
-    }
-);
-
-arithmetic!(w_add, Word, byteutils::w_add);
-arithmetic!(w_sub, Word, byteutils::w_sub);
-arithmetic!(w_or, Word, byteutils::w_or);
-arithmetic!(w_xor, Word, byteutils::w_xor);
-arithmetic!(w_and, Word, byteutils::w_and);
-
-
-/**
  * Returns the current value of the memory address specified by this MemoryAddr
  */
 pub fn modrm_addr(cs: &mut CpuState, result_addr: &modrm::MemoryAddr) -> Word {

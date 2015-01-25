@@ -143,26 +143,3 @@ pub fn b_xchg_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
     oplib::modrm_set_b(cs, &left, right_value);
     oplib::modrm_set_b(cs, &right, left_value);
 }
-
-pub fn w_sbb_eg(cs: &mut CpuState, left: ModrmResult, right: ModrmResult) {
-    let left_value = oplib::modrm_value_w(cs, &left);
-    let right_value = oplib::modrm_value_w(cs, &right);
-    let carry_value = match cs.carry() {
-        true => 1,
-        false => 0,
-    };
-
-    let result = oplib::w_sub(cs, left_value, right_value + carry_value);
-    oplib::modrm_set_w(cs, &left, result);
-}
-
-pub fn w_adc_ei(cs: &mut CpuState, effective: ModrmResult, immediate: Word) {
-    let effective_value = oplib::modrm_value_w(cs, &effective);
-    let carry_value = match cs.carry() {
-        true => 1,
-        false => 0,
-    };
-
-    let result = oplib::w_add(cs, effective_value, immediate + carry_value);
-    oplib::modrm_set_w(cs, &effective, result);
-}
