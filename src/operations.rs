@@ -6,8 +6,8 @@ use modrm::ModrmResult;
 use operand::{Operand, Flags, b_operand_value, b_operand_set};
 
 
-pub type transform8 = fn(left: Byte, right: Byte) -> (Byte, Flags);
-pub type transform16 = fn(left: Word, right: Word) -> (Word, Flags);
+pub type transform8 = fn(left: Byte, right: Byte) -> (Byte, Option<Flags>);
+pub type transform16 = fn(left: Word, right: Word) -> (Word, Option<Flags>);
 
 pub fn b_op(cs: &mut CpuState,
             dest: Operand,
@@ -21,7 +21,10 @@ pub fn b_op(cs: &mut CpuState,
     let (result_val, flags) = tf(dest_val, src_val);
 
     // Now assign that value to `dest`, and set flags
-    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
+    match flags {
+        Some(x) => cs.set_flags(x.carry, x.overflow, x.sign, x.zero),
+        None => {},
+    }
     b_operand_set(cs, &dest, result_val);
 }
 
@@ -32,7 +35,7 @@ macro_rules! define_transform (
         $size:ident,
         $arithmetic_fn:expr
     ) => {
-        pub fn $name(left: $size, right: $size) -> ($size, Flags) {
+        pub fn $name(left: $size, right: $size) -> ($size, Option<Flags>) {
             let (result, cf, of, sf, zf) = $arithmetic_fn(left, right);
             let flags = Flags {
                 carry: cf,
@@ -40,7 +43,7 @@ macro_rules! define_transform (
                 sign: sf,
                 zero: zf,
             };
-            (result, flags)
+            (result, Some(flags))
         }
     }
 );
