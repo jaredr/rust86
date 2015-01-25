@@ -3,7 +3,7 @@ use datatypes::Byte;
 use debugger;
 use modrm;
 use operations;
-use operations::{b_op, tf_b_add, tf_b_sub, tf_b_noop};
+use operations::{b_op, b_op_dry, tf_b_add, tf_b_sub, tf_b_or, tf_b_noop};
 use operand::Operand;
 
 
@@ -86,7 +86,7 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
     match opcode {
         0x04 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_add),
 
-        0x3C => operations::b_op_dry(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_sub),
+        0x3C => b_op_dry(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_sub),
 
         0x72 => operations::b_jmp_flag(cs, CpuState::carry, false, immediate_byte),
         0x74 => operations::b_jmp_flag(cs, CpuState::zero, false, immediate_byte),
@@ -95,14 +95,14 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
         0x77 => operations::b_jmp_flags(cs, CpuState::carry, CpuState::zero, true, immediate_byte),
         0x79 => operations::b_jmp_flag(cs, CpuState::sign, true, immediate_byte),
 
-        0xB0 => operations::b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_noop),
-        0xB1 => operations::b_op(cs, Operand::Reg8(Reg8::CL), immediate, tf_b_noop),
-        0xB2 => operations::b_op(cs, Operand::Reg8(Reg8::DL), immediate, tf_b_noop),
-        0xB3 => operations::b_op(cs, Operand::Reg8(Reg8::BL), immediate, tf_b_noop),
-        0xB4 => operations::b_op(cs, Operand::Reg8(Reg8::AH), immediate, tf_b_noop),
-        0xB5 => operations::b_op(cs, Operand::Reg8(Reg8::CH), immediate, tf_b_noop),
-        0xB6 => operations::b_op(cs, Operand::Reg8(Reg8::DH), immediate, tf_b_noop),
-        0xB7 => operations::b_op(cs, Operand::Reg8(Reg8::BH), immediate, tf_b_noop),
+        0xB0 => b_op(cs, Operand::Reg8(Reg8::AL), immediate, tf_b_noop),
+        0xB1 => b_op(cs, Operand::Reg8(Reg8::CL), immediate, tf_b_noop),
+        0xB2 => b_op(cs, Operand::Reg8(Reg8::DL), immediate, tf_b_noop),
+        0xB3 => b_op(cs, Operand::Reg8(Reg8::BL), immediate, tf_b_noop),
+        0xB4 => b_op(cs, Operand::Reg8(Reg8::AH), immediate, tf_b_noop),
+        0xB5 => b_op(cs, Operand::Reg8(Reg8::CH), immediate, tf_b_noop),
+        0xB6 => b_op(cs, Operand::Reg8(Reg8::DH), immediate, tf_b_noop),
+        0xB7 => b_op(cs, Operand::Reg8(Reg8::BH), immediate, tf_b_noop),
 
         0xEB => operations::b_jmp(cs, immediate_byte),
 
@@ -136,14 +136,18 @@ fn w_opcode_i(cs: &mut CpuState, opcode: Byte) {
 
 fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let mb = cs.read_modrm();
-    let effective = mb.effective();
-    let register = mb.register();
+
+    let eff = mb.effective();
+    let reg = mb.register();
+    let eff = Operand::Modrm(eff);
+    let reg = Operand::Modrm(reg);
 
     match opcode {
-        0x86 => operations::b_xchg_eg(cs, effective, register),
-        0x88 => operations::b_mov_eg(cs, effective, register),
-        0x8A => operations::b_mov_ge(cs, effective, register),
-        0x38 => operations::b_cmp_eg(cs, effective, register),
+        0x86 => operations::b_xchg_eg(cs, mb.effective(), mb.register()),
+
+        0x88 => b_op(cs, eff, reg, tf_b_noop),
+        0x8A => b_op(cs, reg, eff, tf_b_noop),
+        0x38 => b_op_dry(cs, eff, reg, tf_b_sub),
 
         _ => panic!("Invalid opcode"),
     };
@@ -176,11 +180,14 @@ fn w_opcode_m(cs: &mut CpuState, opcode: Byte) {
 
 fn b_opcode_mi(cs: &mut CpuState, opcode: Byte) {
     let mb = cs.read_modrm();
-    let effective = mb.effective();
+    let eff = mb.effective();
+    let eff = Operand::Modrm(eff);
+
     let immediate = cs.read_b();
+    let immediate = Operand::RawByte(immediate);
 
     match opcode {
-        0xC6 => operations::b_mov_ei(cs, effective, immediate),
+        0xC6 => b_op(cs, eff, immediate, tf_b_noop),
 
         _ => panic!("Invalid opcode"),
     };
@@ -204,12 +211,15 @@ fn b_group_i(cs: &mut CpuState, opcode: Byte) {
     }
 
     let mb = cs.read_modrm();
-    let effective = mb.effective(); 
+    let eff = mb.effective();
+    let eff = Operand::Modrm(eff);
+
     let immediate = cs.read_b();
+    let immediate = Operand::RawByte(immediate);
 
     match mb.reg {
-        0b001 => operations::b_or_ei(cs, effective, immediate),
-        0b111 => operations::b_cmp_ei(cs, effective, immediate),
+        0b001 => b_op(cs, eff, immediate, tf_b_or),
+        0b111 => b_op_dry(cs, eff, immediate, tf_b_sub),
         _ => panic!("b_group_i: Not Implemented: 0b{:b}", mb.reg),
     }
 }
@@ -238,11 +248,12 @@ fn b_group_noargs(cs: &mut CpuState, opcode: Byte) {
     }
 
     let mb = cs.read_modrm();
-    let effective = mb.effective();
+    let eff = mb.effective();
+    let eff = Operand::Modrm(eff);
 
     match mb.reg {
-        0b000 => operations::b_inc_e(cs, effective),
-        0b001 => operations::b_dec_e(cs, effective),
+        0b000 => b_op(cs, eff, Operand::RawByte(1), tf_b_add),
+        0b001 => b_op(cs, eff, Operand::RawByte(1), tf_b_sub),
         _ => panic!("b_group_noargs: Invalid reg value"),
     }
 }
