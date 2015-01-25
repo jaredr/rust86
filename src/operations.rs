@@ -84,45 +84,6 @@ pub fn w_op_dry(cs: &mut CpuState,
     }
 }
 
-macro_rules! define_transform (
-    (
-        $name:ident,
-        $size:ident,
-        $arithmetic_fn:expr
-    ) => {
-        pub fn $name(left: $size, right: $size) -> ($size, Option<Flags>) {
-            let (result, cf, of, sf, zf) = $arithmetic_fn(left, right);
-            let flags = Flags {
-                carry: cf,
-                overflow: of,
-                sign: sf,
-                zero: zf,
-            };
-            (result, Some(flags))
-        }
-    }
-);
-
-define_transform!(tf_b_add, Byte, byteutils::b_add);
-define_transform!(tf_b_sub, Byte, byteutils::b_sub);
-define_transform!(tf_b_or, Byte, byteutils::b_or);
-define_transform!(tf_b_xor, Byte, byteutils::b_xor);
-define_transform!(tf_b_and, Byte, byteutils::b_and);
-
-define_transform!(tf_w_add, Word, byteutils::w_add);
-define_transform!(tf_w_sub, Word, byteutils::w_sub);
-define_transform!(tf_w_or, Word, byteutils::w_or);
-define_transform!(tf_w_xor, Word, byteutils::w_xor);
-define_transform!(tf_w_and, Word, byteutils::w_and);
-
-pub fn tf_b_noop(left: Byte, right: Byte) -> (Byte, Option<Flags>) {
-    (right, None)
-}
-
-pub fn tf_w_noop(left: Word, right: Word) -> (Word, Option<Flags>) {
-    (right, None)
-}
-
 
 pub fn ret(cs: &mut CpuState) {
     oplib::ret(cs);
