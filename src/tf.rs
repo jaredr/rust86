@@ -55,4 +55,3 @@ pub fn b_noop(_: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
 pub fn w_noop(_: Word, right: Word, flags: Flags) -> (Word, Flags) {
     (right, flags)
 }
-

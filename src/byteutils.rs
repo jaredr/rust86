@@ -2,28 +2,21 @@ use std::num::Int;
 use datatypes::{Byte, Word};
 
 
-/**
- * Return the "low" 8 bits of `val'
- *
- * Note that `low' in this context is in a big-endian sense, e.g.
- * low8(0xBEEF) = 0xBE, which is the opposite of the way it is
- * represented in CpuState.
- */
+/// Return the "low" 8 bits of `val'
+/// Note that `low' in this context is in a big-endian sense, e.g.
+/// low8(0xBEEF) = 0xBE, which is the opposite of the way it is
+/// represented in CpuState.
 pub fn low8(val: Word) -> Byte {
     (val >> 8).to_u8().unwrap()
 }
     
-/**
- * Return the big-endian "high" 8 bits of val
- */
+/// Return the big-endian "high" 8 bits of val
 pub fn high8(val: Word) -> Byte {
     (val & 0xFF).to_u8().unwrap()
 }
 
-/**
- * Join two Bytes into a Word
- * join8(0xBE, 0xEF) = 0xBEEF
- */
+/// Join two Bytes into a Word
+/// join8(0xBE, 0xEF) = 0xBEEF
 pub fn join8(low: Byte, high: Byte) -> Word {
     let mut word = low.to_u16().unwrap();
     let high = high.to_u16().unwrap();
@@ -32,24 +25,16 @@ pub fn join8(low: Byte, high: Byte) -> Word {
     word
 }
 
-/**
- * Replace the low byte of `val' with `low'
- */
+/// Replace the low byte of `val' with `low'
 pub fn join_low8(val: Word, low: Byte) -> Word {
     join8(low, high8(val))
 }
 
-/**
- * Replace the high byte of `val' with `high'
- */
+/// Replace the high byte of `val' with `high'
 pub fn join_high8(val: Word, high: Byte) -> Word {
     join8(low8(val), high)
 }
 
-
-/**
- * Arithmetic helpers (see macro definition below)
- */
 fn add_overflow(l_sign: bool, r_sign: bool, result_sign: bool) -> bool {
     (result_sign != l_sign) && (l_sign == r_sign)
 }
@@ -71,12 +56,9 @@ fn checked_and<T: Int>(left: T, right: T) -> Option<T> {
     Some(left & right)
 }
 
-
-/**
- * Arithmetic functions. Functions generated from this macro take input
- * as Bytes or Words, calculate the output, and also compute the carry,
- * overflow, sign, and zero flags.
- */
+/// Arithmetic functions. Functions generated from this macro take input
+/// as Bytes or Words, calculate the output, and also compute the carry,
+/// overflow, sign, and zero flags.
 macro_rules! arithmetic (
     (
         $name:ident,

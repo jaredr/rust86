@@ -29,6 +29,7 @@ pub fn b_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Byte {
         Operand::MemoryAddress(ref addr) => cs.getmem(*addr),
     }
 }
+
 pub fn w_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Word {
     return match *o {
         Operand::RawByte(_) => panic!("invalid"),

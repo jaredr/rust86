@@ -74,7 +74,7 @@ fn modrm_effective(cs: &mut CpuState, modbits: u8, rm: u8, byte_registers: bool)
             0b110 => Operand::MemoryAddress(
                 cs.read_w()
             ),
-            _ => panic!("Invalid ModR/M byte 2"),
+            _ => panic!("Invalid ModR/M byte"),
         },
         0b11 => modrm_register(rm, byte_registers),
         0b10 => match rm {

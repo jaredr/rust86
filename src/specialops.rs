@@ -64,7 +64,11 @@ pub fn jmp_flag(cs: &mut CpuState, flag_fn: FlagFn, invert: bool, immediate: Byt
     jump_b(cs, immediate);
 }
 
-pub fn jmp_flags(cs: &mut CpuState, flag0_fn: FlagFn, flag1_fn: FlagFn, invert: bool, immediate: Byte) {
+pub fn jmp_flags(cs: &mut CpuState, 
+                 flag0_fn: FlagFn,
+                 flag1_fn: FlagFn,
+                 invert: bool,
+                 immediate: Byte) {
     let flags_value = flag0_fn(cs) || flag1_fn(cs);
     if !(flags_value ^ invert) {
         return;
