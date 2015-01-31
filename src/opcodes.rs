@@ -1,5 +1,4 @@
 use cstate::{CpuState, Reg8, Reg16};
-use debugger;
 use datatypes::Byte;
 use modrm;
 use operation::{op8, op16, op8_dry, op16_dry};
@@ -58,6 +57,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 
         0x40...0x4C |
         0x50...0x5F |
+        0x90 |
         0x92 |
         0xC3 |
         0xF9 => opcode_noargs,
@@ -67,12 +67,7 @@ pub fn do_opcode(cs: &mut CpuState, opcode: Byte) {
 
         0xFE => b_group_noargs,
 
-        0xF4 |
-        0x90 => special,
-
         _ => {
-            debugger::dump_state(cs);
-            debugger::dump_vram(cs);
             panic!("Unrecognized opcode: 0x{:X}", opcode);
         }
     };
@@ -282,6 +277,8 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0x5E => specialops::pop(cs, Reg16::SI),
         0x5F => specialops::pop(cs, Reg16::DI),
 
+        0x90 => {},
+
         0x92 => specialops::xchg16(cs,
                                    Operand::Reg16(Reg16::AX),
                                    Operand::Reg16(Reg16::DX)),
@@ -289,19 +286,6 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0xC3 => specialops::ret(cs),
 
         0xF9 => specialops::stc(cs),
-
-        _ => panic!("Invalid opcode"),
-    };
-}
-
-fn special(cs: &mut CpuState, opcode: Byte) {
-    match opcode {
-        0xF4 => {
-            debugger::dump_state(cs);
-            debugger::dump_vram(cs);
-            panic!("0xF4");
-        },
-        0x90 => {},
 
         _ => panic!("Invalid opcode"),
     };

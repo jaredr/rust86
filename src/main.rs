@@ -25,6 +25,11 @@ fn main() {
 
     loop {
         let opcode = cs.read();
+        if opcode == 0xF4 {
+            debugger::dump_state(&cs);
+            debugger::dump_vram(&cs);
+            return;
+        }
         opcodes::do_opcode(&mut cs, opcode);
     }
 }
