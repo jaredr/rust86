@@ -180,12 +180,11 @@ impl CpuState {
         join8(low_b, high_b)
     }
 
-    pub fn set_flags(&mut self, cf: bool, of: bool, sf: bool, zf: bool) {
-        // TODO - Accept Flags instance as argument
-        self.cf = cf;
-        self.of = of;
-        self.sf = sf;
-        self.zf = zf;
+    pub fn set_flags(&mut self, f: Flags) {
+        self.cf = f.carry;
+        self.of = f.overflow;
+        self.sf = f.sign;
+        self.zf = f.zero;
     }
 
     pub fn get_flags(&self) -> Flags {

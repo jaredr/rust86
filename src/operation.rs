@@ -28,7 +28,7 @@ fn operation_byte(cs: &mut CpuState,
     let (result_val, flags) = tf(dest_val, src_val, flags_in);
 
     // Now assign that value to dest, and set flags
-    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
+    cs.set_flags(flags);
     if !dry {
         operand_set8(cs, &dest, result_val);
     }
@@ -48,7 +48,7 @@ fn operation_word(cs: &mut CpuState,
     let (result_val, flags) = tf(dest_val, src_val, flags_in);
 
     // Now assign that value to dest, and set flags
-    cs.set_flags(flags.carry, flags.overflow, flags.sign, flags.zero);
+    cs.set_flags(flags);
     if !dry {
         operand_set16(cs, &dest, result_val);
     }
