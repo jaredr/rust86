@@ -22,36 +22,36 @@ macro_rules! define_transform (
     }
 );
 
-define_transform!(b_add, Byte, byteutils::b_add);
-define_transform!(b_sub, Byte, byteutils::b_sub);
-define_transform!(b_or, Byte, byteutils::b_or);
+define_transform!(add8, Byte, byteutils::add8);
+define_transform!(sub8, Byte, byteutils::sub8);
+define_transform!(or8,  Byte, byteutils::or8);
 
-define_transform!(w_add, Word, byteutils::w_add);
-define_transform!(w_sub, Word, byteutils::w_sub);
-define_transform!(w_or, Word, byteutils::w_or);
-define_transform!(w_xor, Word, byteutils::w_xor);
-define_transform!(w_and, Word, byteutils::w_and);
+define_transform!(add16, Word, byteutils::add16);
+define_transform!(sub16, Word, byteutils::sub16);
+define_transform!(or16,  Word, byteutils::or16);
+define_transform!(xor16, Word, byteutils::xor16);
+define_transform!(and16, Word, byteutils::and16);
 
-pub fn w_sbb(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
+pub fn sbb16(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
     let carry = match flags.carry {
         true => 1,
         false => 0,
     };
-    w_sub(left, right + carry, flags)
+    sub16(left, right + carry, flags)
 }
 
-pub fn w_adc(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
+pub fn adc16(left: Word, right: Word, flags: Flags) -> (Word, Flags) {
     let carry = match flags.carry {
         true => 1,
         false => 0,
     };
-    w_add(left, right + carry, flags)
+    add16(left, right + carry, flags)
 }
 
-pub fn b_noop(_: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
+pub fn noop8(_: Byte, right: Byte, flags: Flags) -> (Byte, Flags) {
     (right, flags)
 }
 
-pub fn w_noop(_: Word, right: Word, flags: Flags) -> (Word, Flags) {
+pub fn noop16(_: Word, right: Word, flags: Flags) -> (Word, Flags) {
     (right, flags)
 }

@@ -87,11 +87,11 @@ macro_rules! arithmetic (
     }
 );
 
-arithmetic!(b_add, Byte, add Int::checked_add, add_overflow);
-arithmetic!(w_add, Word, add Int::checked_add, add_overflow);
-arithmetic!(b_sub, Byte, sub Int::checked_sub, sub_overflow);
-arithmetic!(w_sub, Word, sub Int::checked_sub, sub_overflow);
-arithmetic!(b_or , Byte, bitor checked_or , and_or_overflow);
-arithmetic!(w_or , Word, bitor checked_or , and_or_overflow);
-arithmetic!(w_xor, Word, bitxor checked_or, and_or_overflow);
-arithmetic!(w_and, Word, bitand checked_and, and_or_overflow);
+arithmetic!(add8,  Byte, add Int::checked_add, add_overflow);
+arithmetic!(add16, Word, add Int::checked_add, add_overflow);
+arithmetic!(sub8,  Byte, sub Int::checked_sub, sub_overflow);
+arithmetic!(sub16, Word, sub Int::checked_sub, sub_overflow);
+arithmetic!(or8,   Byte, bitor checked_or,     and_or_overflow);
+arithmetic!(or16,  Word, bitor checked_or,     and_or_overflow);
+arithmetic!(xor16, Word, bitxor checked_or,    and_or_overflow);
+arithmetic!(and16, Word, bitand checked_and,   and_or_overflow);
