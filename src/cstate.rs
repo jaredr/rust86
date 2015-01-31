@@ -88,9 +88,8 @@ impl CpuState {
         self._state[idx] = val8
     }
 
-    /**
-     * Get the current value of the specified 16-bit register.
-     */
+    
+    /// Get the current value of the specified 16-bit register.
     pub fn getreg16(&self, reg: &Reg16) -> Word {
         match *reg {
             AX => return self.ax,
@@ -105,9 +104,7 @@ impl CpuState {
         }
     }
 
-    /**
-     * Get the current value of the specified 8-bit register.
-     */
+    /// Get the current value of the specified 8-bit register.
     pub fn getreg8(&self, reg: &Reg8) -> Byte {
         match *reg {
             AL => return high8(self.ax),
@@ -121,9 +118,7 @@ impl CpuState {
         }
     }
 
-    /**
-     * Set the current value of the specified 16-bit register.
-     */
+    /// Set the current value of the specified 16-bit register.
     pub fn setreg16(&mut self, reg: &Reg16, new_val: Word) {
         match *reg {
             AX => self.ax = new_val,
@@ -138,9 +133,7 @@ impl CpuState {
         }
     }
 
-    /**
-     * Set the current value of the specified 16-bit register.
-     */
+    /// Set the current value of the specified 16-bit register.
     pub fn setreg8(&mut self, reg: &Reg8, new_val: Byte) {
         match *reg {
             AL => self.ax = join_high8(self.ax, new_val),
@@ -154,9 +147,7 @@ impl CpuState {
         }
     }
 
-    /**
-     * Read a Byte from the memory location at `ip` and advance `ip`.
-     */
+    /// Read a Byte from the memory location at `ip` and advance `ip`.
     pub fn read(&mut self) -> Byte {
         let byte: Byte = self.getmem(self.ip);
         self.ip += 1;
@@ -164,9 +155,7 @@ impl CpuState {
         byte
     }
     
-    /**
-     * Read a Word from the memory location at `ip` and advance `ip`.
-     */
+    /// Read a Word from the memory location at `ip` and advance `ip`.
     pub fn read16(&mut self) -> Word {
         let high_b: Byte = self.read();
         let low_b: Byte = self.read();
