@@ -24,7 +24,7 @@ fn main() {
     cs.load_program(&path);
 
     loop {
-        let opcode = cs.read_b();
+        let opcode = cs.read();
         opcodes::do_opcode(&mut cs, opcode);
     }
 }

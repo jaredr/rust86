@@ -14,24 +14,24 @@ pub type FlagFn = fn(&CpuState) -> bool;
 
 
 pub fn push(cs: &mut CpuState, reg: Reg16) {
-    let cur_val = cs.getreg_w(&reg);
+    let cur_val = cs.getreg16(&reg);
     cs.push(cur_val);
 }
 
 pub fn pop(cs: &mut CpuState, reg: Reg16) {
     let popped_val = cs.pop();
-    cs.setreg_w(&reg, popped_val);
+    cs.setreg16(&reg, popped_val);
 }
 
 pub fn call(cs: &mut CpuState, immediate: Word) {
-    let ip = cs.getreg_w(&Reg16::IP);
+    let ip = cs.getreg16(&Reg16::IP);
     cs.push(ip);
     jump_w(cs, immediate);
 }
 
 pub fn ret(cs: &mut CpuState) {
     let ip = cs.pop();
-    cs.setreg_w(&Reg16::IP, ip);
+    cs.setreg16(&Reg16::IP, ip);
 }
 
 pub fn b_xchg(cs: &mut CpuState, left: Operand, right: Operand) {
@@ -83,16 +83,16 @@ pub fn stc(cs: &mut CpuState) {
 }
 
 fn jump_b(cs: &mut CpuState, offset: Byte) {
-    let ip = cs.getreg_w(&Reg16::IP);
+    let ip = cs.getreg16(&Reg16::IP);
     let offset = offset.to_u16().unwrap();
     if offset < 127 {
-        cs.setreg_w(&Reg16::IP, ip + offset);
+        cs.setreg16(&Reg16::IP, ip + offset);
     } else {
-        cs.setreg_w(&Reg16::IP, ip - (256 - offset));
+        cs.setreg16(&Reg16::IP, ip - (256 - offset));
     }
 }
 
 fn jump_w(cs: &mut CpuState, offset: Word) {
-    let ip = cs.getreg_w(&Reg16::IP);
-    cs.setreg_w(&Reg16::IP, ip + offset);
+    let ip = cs.getreg16(&Reg16::IP);
+    cs.setreg16(&Reg16::IP, ip + offset);
 }

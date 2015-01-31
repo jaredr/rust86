@@ -54,18 +54,18 @@ fn operation_word(cs: &mut CpuState,
     }
 }
 
-pub fn b_op(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform8) {
+pub fn op8(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform8) {
     operation_byte(cs, dest, src, tf, false);
 }
 
-pub fn b_op_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform8) {
+pub fn op8_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform8) {
     operation_byte(cs, dest, src, tf, true);
 }
 
-pub fn w_op(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform16) {
+pub fn op16(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform16) {
     operation_word(cs, dest, src, tf, false);
 }
 
-pub fn w_op_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform16) {
+pub fn op16_dry(cs: &mut CpuState, dest: Operand, src: Operand, tf: Transform16) {
     operation_word(cs, dest, src, tf, true);
 }

@@ -4,7 +4,7 @@ use operand::Operand;
 
 pub fn read_modrm(cs: &mut CpuState, byte_registers: bool) -> (u8, Operand, Operand) {
     // Read ModR/M byte
-    let byte = cs.read_b();
+    let byte = cs.read();
 
     // Extract `mod'
     let modbits = byte & 0b11000000;
@@ -51,38 +51,38 @@ fn modrm_effective(cs: &mut CpuState, modbits: u8, rm: u8, byte_registers: bool)
     match modbits {
         0b00 => match rm {
             0b000 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::BX) + cs.getreg_w(&Reg16::SI)
+                cs.getreg16(&Reg16::BX) + cs.getreg16(&Reg16::SI)
             ),
             0b001 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::BX) + cs.getreg_w(&Reg16::DI)
+                cs.getreg16(&Reg16::BX) + cs.getreg16(&Reg16::DI)
             ),
             0b010 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::BP) + cs.getreg_w(&Reg16::SI)
+                cs.getreg16(&Reg16::BP) + cs.getreg16(&Reg16::SI)
             ),
             0b011 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::BP) + cs.getreg_w(&Reg16::DI)
+                cs.getreg16(&Reg16::BP) + cs.getreg16(&Reg16::DI)
             ),
             0b100 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::SI)
+                cs.getreg16(&Reg16::SI)
             ),
             0b101 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::DI)
+                cs.getreg16(&Reg16::DI)
             ),
             0b111 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::BX)
+                cs.getreg16(&Reg16::BX)
             ),
             0b110 => Operand::MemoryAddress(
-                cs.read_w()
+                cs.read16()
             ),
             _ => panic!("Invalid ModR/M byte"),
         },
         0b11 => modrm_register(rm, byte_registers),
         0b10 => match rm {
             0b111 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::BX) + cs.read_w()
+                cs.getreg16(&Reg16::BX) + cs.read16()
             ),
             0b101 => Operand::MemoryAddress(
-                cs.getreg_w(&Reg16::DI) + cs.read_w()
+                cs.getreg16(&Reg16::DI) + cs.read16()
             ),
             _ => panic!("Not Implemented"),
         },

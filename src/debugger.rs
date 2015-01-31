@@ -19,9 +19,9 @@ fn dump_gr(cs: &CpuState, name: &str, x: Reg16, l: Reg8, h: Reg8) {
     println!(
         "{}     0x{: <5X} (0x{:X} 0x{:X})",
         name,
-        cs.getreg_w(&x),
-        cs.getreg_b(&l),
-        cs.getreg_b(&h),
+        cs.getreg16(&x),
+        cs.getreg8(&l),
+        cs.getreg8(&h),
     );
 }
 

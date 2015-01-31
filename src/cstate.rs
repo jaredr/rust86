@@ -91,7 +91,7 @@ impl CpuState {
     /**
      * Get the current value of the specified 16-bit register.
      */
-    pub fn getreg_w(&self, reg: &Reg16) -> Word {
+    pub fn getreg16(&self, reg: &Reg16) -> Word {
         match *reg {
             AX => return self.ax,
             BX => return self.bx,
@@ -108,7 +108,7 @@ impl CpuState {
     /**
      * Get the current value of the specified 8-bit register.
      */
-    pub fn getreg_b(&self, reg: &Reg8) -> Byte {
+    pub fn getreg8(&self, reg: &Reg8) -> Byte {
         match *reg {
             AL => return high8(self.ax),
             BL => return high8(self.bx),
@@ -122,11 +122,9 @@ impl CpuState {
     }
 
     /**
-     * Set the current value of the specified register.
-     * `new_val' should be Byte for 8-bit registers and Word for 16-bit
-     * registers.
+     * Set the current value of the specified 16-bit register.
      */
-    pub fn setreg_w(&mut self, reg: &Reg16, new_val: Word) {
+    pub fn setreg16(&mut self, reg: &Reg16, new_val: Word) {
         match *reg {
             AX => self.ax = new_val,
             BX => self.bx = new_val,
@@ -140,7 +138,10 @@ impl CpuState {
         }
     }
 
-    pub fn setreg_b(&mut self, reg: &Reg8, new_val: Byte) {
+    /**
+     * Set the current value of the specified 16-bit register.
+     */
+    pub fn setreg8(&mut self, reg: &Reg8, new_val: Byte) {
         match *reg {
             AL => self.ax = join_high8(self.ax, new_val),
             BL => self.bx = join_high8(self.bx, new_val),
@@ -156,7 +157,7 @@ impl CpuState {
     /**
      * Read a Byte from the memory location at `ip` and advance `ip`.
      */
-    pub fn read_b(&mut self) -> Byte {
+    pub fn read(&mut self) -> Byte {
         let byte: Byte = self.getmem(self.ip);
         self.ip += 1;
 
@@ -166,9 +167,9 @@ impl CpuState {
     /**
      * Read a Word from the memory location at `ip` and advance `ip`.
      */
-    pub fn read_w(&mut self) -> Word {
-        let high_b: Byte = self.read_b();
-        let low_b: Byte = self.read_b();
+    pub fn read16(&mut self) -> Word {
+        let high_b: Byte = self.read();
+        let low_b: Byte = self.read();
         let word: Word = join8(low_b, high_b);
 
         word
