@@ -21,7 +21,7 @@ pub struct Flags {
 }
 
 
-pub fn b_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Byte {
+pub fn operand_value8(cs: &mut cstate::CpuState, o: &Operand) -> Byte {
     return match *o {
         Operand::RawByte(ref v) => *v,
         Operand::RawWord(_) => panic!("invalid"),
@@ -31,7 +31,7 @@ pub fn b_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Byte {
     }
 }
 
-pub fn w_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Word {
+pub fn operand_value16(cs: &mut cstate::CpuState, o: &Operand) -> Word {
     return match *o {
         Operand::RawByte(_) => panic!("invalid"),
         Operand::RawWord(ref v) => *v,
@@ -43,7 +43,7 @@ pub fn w_operand_value(cs: &mut cstate::CpuState, o: &Operand) -> Word {
     }
 }
 
-pub fn b_operand_set(cs: &mut cstate::CpuState, o: &Operand, result: Byte) {
+pub fn operand_set8(cs: &mut cstate::CpuState, o: &Operand, result: Byte) {
     match *o {
         Operand::RawByte(_) => panic!("invalid"),
         Operand::RawWord(_) => panic!("invalid"),
@@ -53,7 +53,7 @@ pub fn b_operand_set(cs: &mut cstate::CpuState, o: &Operand, result: Byte) {
     }
 }
 
-pub fn w_operand_set(cs: &mut cstate::CpuState, o: &Operand, result: Word) {
+pub fn operand_set16(cs: &mut cstate::CpuState, o: &Operand, result: Word) {
     match *o {
         Operand::RawByte(_) => panic!("invalid"),
         Operand::RawWord(_) => panic!("invalid"),

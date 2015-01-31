@@ -3,10 +3,10 @@ use cstate::{CpuState, Reg16};
 use datatypes::{Byte, Word};
 use operand::{
     Operand,
-    b_operand_value,
-    b_operand_set,
-    w_operand_value,
-    w_operand_set,
+    operand_value8,
+    operand_set8,
+    operand_value16,
+    operand_set16,
 };
 
 
@@ -35,17 +35,17 @@ pub fn ret(cs: &mut CpuState) {
 }
 
 pub fn xchg8(cs: &mut CpuState, left: Operand, right: Operand) {
-    let left_val = b_operand_value(cs, &left);
-    let right_val = b_operand_value(cs, &right);
-    b_operand_set(cs, &left, right_val);
-    b_operand_set(cs, &right, left_val);
+    let left_val = operand_value8(cs, &left);
+    let right_val = operand_value8(cs, &right);
+    operand_set8(cs, &left, right_val);
+    operand_set8(cs, &right, left_val);
 }
 
 pub fn xchg16(cs: &mut CpuState, left: Operand, right: Operand) {
-    let left_val = w_operand_value(cs, &left);
-    let right_val = w_operand_value(cs, &right);
-    w_operand_set(cs, &left, right_val);
-    w_operand_set(cs, &right, left_val);
+    let left_val = operand_value16(cs, &left);
+    let right_val = operand_value16(cs, &right);
+    operand_set16(cs, &left, right_val);
+    operand_set16(cs, &right, left_val);
 }
 
 pub fn jmp8(cs: &mut CpuState, offset: Byte) {
