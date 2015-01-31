@@ -26,7 +26,7 @@ pub fn pop(cs: &mut CpuState, reg: Reg16) {
 pub fn call(cs: &mut CpuState, immediate: Word) {
     let ip = cs.getreg16(&Reg16::IP);
     cs.push(ip);
-    jump_w(cs, immediate);
+    jmp16(cs, immediate);
 }
 
 pub fn ret(cs: &mut CpuState) {
@@ -34,26 +34,33 @@ pub fn ret(cs: &mut CpuState) {
     cs.setreg16(&Reg16::IP, ip);
 }
 
-pub fn b_xchg(cs: &mut CpuState, left: Operand, right: Operand) {
+pub fn xchg8(cs: &mut CpuState, left: Operand, right: Operand) {
     let left_val = b_operand_value(cs, &left);
     let right_val = b_operand_value(cs, &right);
     b_operand_set(cs, &left, right_val);
     b_operand_set(cs, &right, left_val);
 }
 
-pub fn w_xchg(cs: &mut CpuState, left: Operand, right: Operand) {
+pub fn xchg16(cs: &mut CpuState, left: Operand, right: Operand) {
     let left_val = w_operand_value(cs, &left);
     let right_val = w_operand_value(cs, &right);
     w_operand_set(cs, &left, right_val);
     w_operand_set(cs, &right, left_val);
 }
 
-pub fn b_jmp(cs: &mut CpuState, immediate: Byte) {
-    jump_b(cs, immediate);
+pub fn jmp8(cs: &mut CpuState, offset: Byte) {
+    let ip = cs.getreg16(&Reg16::IP);
+    let offset = offset.to_u16().unwrap();
+    if offset < 127 {
+        cs.setreg16(&Reg16::IP, ip + offset);
+    } else {
+        cs.setreg16(&Reg16::IP, ip - (256 - offset));
+    }
 }
 
-pub fn w_jmp(cs: &mut CpuState, immediate: Word) {
-    jump_w(cs, immediate);
+pub fn jmp16(cs: &mut CpuState, offset: Word) {
+    let ip = cs.getreg16(&Reg16::IP);
+    cs.setreg16(&Reg16::IP, ip + offset);
 }
 
 pub fn jmp_flag(cs: &mut CpuState, flag_fn: FlagFn, invert: bool, immediate: Byte) {
@@ -62,7 +69,7 @@ pub fn jmp_flag(cs: &mut CpuState, flag_fn: FlagFn, invert: bool, immediate: Byt
         return
     }
 
-    jump_b(cs, immediate);
+    jmp8(cs, immediate);
 }
 
 pub fn jmp_flags(cs: &mut CpuState, 
@@ -75,24 +82,9 @@ pub fn jmp_flags(cs: &mut CpuState,
         return;
     }
 
-    jump_b(cs, immediate);
+    jmp8(cs, immediate);
 }
 
 pub fn stc(cs: &mut CpuState) {
     cs.set_carry();
-}
-
-fn jump_b(cs: &mut CpuState, offset: Byte) {
-    let ip = cs.getreg16(&Reg16::IP);
-    let offset = offset.to_u16().unwrap();
-    if offset < 127 {
-        cs.setreg16(&Reg16::IP, ip + offset);
-    } else {
-        cs.setreg16(&Reg16::IP, ip - (256 - offset));
-    }
-}
-
-fn jump_w(cs: &mut CpuState, offset: Word) {
-    let ip = cs.getreg16(&Reg16::IP);
-    cs.setreg16(&Reg16::IP, ip + offset);
 }

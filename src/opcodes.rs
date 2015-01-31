@@ -113,7 +113,7 @@ fn b_opcode_i(cs: &mut CpuState, opcode: Byte) {
         0xB6 => op8(cs, Operand::Reg8(Reg8::DH), immediate, tf::noop8),
         0xB7 => op8(cs, Operand::Reg8(Reg8::BH), immediate, tf::noop8),
 
-        0xEB => specialops::b_jmp(cs, immediate_raw),
+        0xEB => specialops::jmp8(cs, immediate_raw),
 
         _ => panic!("Invalid opcode"),
     };
@@ -138,7 +138,7 @@ fn w_opcode_i(cs: &mut CpuState, opcode: Byte) {
         0xBF => op16(cs, Operand::Reg16(Reg16::DI), immediate, tf::noop16),
 
         0xE8 => specialops::call(cs, immediate_raw),
-        0xE9 => specialops::w_jmp(cs, immediate_raw),
+        0xE9 => specialops::jmp16(cs, immediate_raw),
 
         _ => panic!("Invalid opcode"),
     };
@@ -148,7 +148,7 @@ fn b_opcode_m(cs: &mut CpuState, opcode: Byte) {
     let (_, eff, reg) = modrm::read_modrm(cs, true);
 
     match opcode {
-        0x86 => specialops::b_xchg(cs, eff, reg),
+        0x86 => specialops::xchg8(cs, eff, reg),
 
         0x88 => op8(cs, eff, reg, tf::noop8),
         0x8A => op8(cs, reg, eff, tf::noop8),
@@ -282,7 +282,7 @@ fn opcode_noargs(cs: &mut CpuState, opcode: Byte) {
         0x5E => specialops::pop(cs, Reg16::SI),
         0x5F => specialops::pop(cs, Reg16::DI),
 
-        0x92 => specialops::w_xchg(cs,
+        0x92 => specialops::xchg16(cs,
                                    Operand::Reg16(Reg16::AX),
                                    Operand::Reg16(Reg16::DX)),
 
