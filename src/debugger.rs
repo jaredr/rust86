@@ -28,10 +28,10 @@ fn dump_gr(cs: &CpuState, name: &str, x: Reg16, l: Reg8, h: Reg8) {
 fn dump_mem(cs: &CpuState, start: Word) {
     let mut s_hex = String::new();
     let mut s_chr = String::new();
-    for i in range(0, 16) {
+    for i in 0..16 {
         let val: Byte = cs.getmem(start+i);
-        s_hex.push_str(format!("{:0>2X} ", val).as_slice());
-        s_chr.push_str(format!("{:}", val as char).as_slice());
+        s_hex.push_str(format!("{:0>2X} ", val).as_str());
+        s_chr.push_str(format!("{:}", val as char).as_str());
     }
     println!("mem    0x{:0>5X} {} {}", start, s_hex, s_chr);
 }
@@ -41,8 +41,8 @@ pub fn dump_vram(cs: &CpuState) {
     let rowcnt = 25;
     let rowlen = 80;
 
-    for row in range(0, rowcnt) {
-        for col in range(0, rowlen) {
+    for row in 0..rowcnt {
+        for col in 0..rowlen {
             let offset = (row * rowlen) + col;
             let val = cs.getmem(start + offset);
             let val = match val {

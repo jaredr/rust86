@@ -1,6 +1,8 @@
 use std::vec::Vec;
-use std::io::File;
-use std::num::ToPrimitive;
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
+use num::ToPrimitive;
 use self::Reg8::*;
 use self::Reg16::*;
 use byteutils::{low8, high8, join8, join_low8, join_high8};
@@ -66,9 +68,10 @@ impl CpuState {
             zf: false,
         }
     }
-        
+
     pub fn load_program(&mut self, path: &Path) {
-        let prog = File::open(path).read_to_end().unwrap();
+        let mut prog = Vec::new();
+        File::open(path).unwrap().read_to_end(&mut prog).unwrap();
         for byte in prog.iter().rev() {
             self._state.pop();
             self._state.insert(0, *byte);
@@ -76,19 +79,19 @@ impl CpuState {
     }
 
     pub fn getmem(&self, i: Word) -> Byte {
-        let idx = i.to_uint().unwrap();
+        let idx = i.to_usize().unwrap();
         let val = self._state[idx];
         let val = val.to_u8().unwrap();
         val
     }
 
     pub fn setmem(&mut self, addr: Word, val: Byte) {
-        let idx = addr.to_uint().unwrap();
+        let idx = addr.to_usize().unwrap();
         let val8 = val.to_u8().unwrap();
         self._state[idx] = val8
     }
 
-    
+
     /// Get the current value of the specified 16-bit register.
     pub fn getreg16(&self, reg: &Reg16) -> Word {
         match *reg {
@@ -154,7 +157,7 @@ impl CpuState {
 
         byte
     }
-    
+
     /// Read a Word from the memory location at `ip` and advance `ip`.
     pub fn read16(&mut self) -> Word {
         let high_b: Byte = self.read();

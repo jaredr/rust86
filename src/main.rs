@@ -1,5 +1,7 @@
-#![allow(unstable)]
-use std::os;
+extern crate num;
+
+use std::env;
+use std::path::Path;
 mod byteutils;
 mod cstate;
 mod datatypes;
@@ -13,7 +15,7 @@ mod tf;
 
 
 fn main() {
-    let argv = os::args();
+    let argv: Vec<_> = env::args().collect();
     if argv.len() < 2 {
         println!("Usage: {} <filename>", argv[0]);
         return;

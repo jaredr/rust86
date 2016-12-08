@@ -1,4 +1,4 @@
-use std::num::ToPrimitive;
+use num::ToPrimitive;
 use cstate::{CpuState, Reg16};
 use datatypes::{Byte, Word};
 use operand::{
@@ -72,7 +72,7 @@ pub fn jmp_flag(cs: &mut CpuState, flag_fn: FlagFn, invert: bool, immediate: Byt
     jmp8(cs, immediate);
 }
 
-pub fn jmp_flags(cs: &mut CpuState, 
+pub fn jmp_flags(cs: &mut CpuState,
                  flag0_fn: FlagFn,
                  flag1_fn: FlagFn,
                  invert: bool,

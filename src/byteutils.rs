@@ -1,6 +1,7 @@
-use std::num::{Int, ToPrimitive};
 use std::ops::{Add, Sub, BitOr, BitXor, BitAnd};
 use datatypes::{Byte, Word};
+
+use num::{CheckedAdd, CheckedSub, PrimInt, ToPrimitive};
 
 
 /// Return the "low" 8 bits of `val'
@@ -10,7 +11,7 @@ use datatypes::{Byte, Word};
 pub fn low8(val: Word) -> Byte {
     (val >> 8).to_u8().unwrap()
 }
-    
+
 /// Return the big-endian "high" 8 bits of val
 pub fn high8(val: Word) -> Byte {
     (val & 0xFF).to_u8().unwrap()
@@ -49,12 +50,14 @@ fn and_or_overflow(_: bool, _: bool, _: bool) -> bool {
     false
 }
 
-fn checked_or<T: Int>(left: T, right: T) -> Option<T> {
-    Some(left | right)
+#[inline]
+fn checked_or<T: PrimInt>(left: &T, right: &T) -> Option<T> {
+    Some(*left | *right)
 }
 
-fn checked_and<T: Int>(left: T, right: T) -> Option<T> {
-    Some(left & right)
+#[inline]
+fn checked_and<T: PrimInt>(left: &T, right: &T) -> Option<T> {
+    Some(*left & *right)
 }
 
 /// Arithmetic functions. Functions generated from this macro take input
@@ -77,7 +80,7 @@ macro_rules! arithmetic (
 
             let overflow: bool = $overflow_fn(l_sign, r_sign, result_sign);
             let zero: bool = result == 0;
-            let carry: bool = match $ch_op(left, right) {
+            let carry: bool = match $ch_op(&left, &right) {
                 Some(_) => false,
                 None => true,
             };
@@ -87,10 +90,10 @@ macro_rules! arithmetic (
     }
 );
 
-arithmetic!(add8,  Byte, add Int::checked_add, add_overflow);
-arithmetic!(add16, Word, add Int::checked_add, add_overflow);
-arithmetic!(sub8,  Byte, sub Int::checked_sub, sub_overflow);
-arithmetic!(sub16, Word, sub Int::checked_sub, sub_overflow);
+arithmetic!(add8,  Byte, add CheckedAdd::checked_add, add_overflow);
+arithmetic!(add16, Word, add CheckedAdd::checked_add, add_overflow);
+arithmetic!(sub8,  Byte, sub CheckedSub::checked_sub, sub_overflow);
+arithmetic!(sub16, Word, sub CheckedSub::checked_sub, sub_overflow);
 arithmetic!(or8,   Byte, bitor checked_or,     and_or_overflow);
 arithmetic!(or16,  Word, bitor checked_or,     and_or_overflow);
 arithmetic!(xor16, Word, bitxor checked_or,    and_or_overflow);
