@@ -1,4 +1,4 @@
-Cargo.*
+Cargo.lock
 target/
 TODO
 *.bin
